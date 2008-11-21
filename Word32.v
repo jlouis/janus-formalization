@@ -59,4 +59,45 @@ Definition signed (n: w32) : Z :=
     then unsigned n
     else unsigned n - modulus.
 
+Lemma mod_in_range:
+  forall x, 0 <= Zmod x modulus < modulus.
+  intros.
+  exact (Z_mod_lt x modulus (two_power_nat_pos word_size)).
+Qed.
+
+Definition repr (x: Z) : w32 :=
+  mkint (Zmod x modulus) (mod_in_range x).
+
+Definition zero := repr 0.
+Definition one := repr 1.
+Definition mone := repr (-1).
+
+Lemma mkint_eq: forall x y Px Py,
+  x = y -> mkint x Px = mkint y Py.
+  intros. subst y.
+  generalize (proof_irrelevance _ Px Py); intros.
+  subst Py. reflexivity.
+Qed.
+
+(* We can decide equality for w32's *)
+Lemma eq_dec: forall (x y: w32), {x = y} + {x <> y}.
+  intros. destruct x. destruct y. case (zeq intval0 intval1); intro.
+  left. apply mkint_eq. auto.
+  right. red. intro. injection H. exact n.
+Qed.
+
+(* Arithmetic and logical operations over w32's *)
+Definition eq (x y: w32) : bool :=
+  if zeq (unsigned x) (unsigned y) then true else false.
+Definition lt (x y: w32) : bool :=
+  if zlt (signed x) (signed y) then true else false.
+Definition ltu (x y: w32) : bool :=
+  if zlt (unsigned x) (unsigned y) then true else false.
+
+Definition neg (x: w32) : w32 :=
+  repr (- unsigned x).
+
+
+
+
 End Word32.
