@@ -35,13 +35,14 @@ Section Janus.
   | E_Mul   : Exp -> Exp -> Exp
   | E_Div   : Exp -> Exp -> Exp
   | E_Mod   : Exp -> Exp -> Exp
+  | E_FracProd : Exp -> Exp -> Exp
 
   (* Bitwise operations *)
   | E_Bit_Xor : Exp -> Exp -> Exp
   | E_Bit_And : Exp -> Exp -> Exp
   | E_Bit_Or : Exp -> Exp -> Exp
 
-  (* Comparisons *)
+  (* Relational *)
   | E_Eq    : Exp -> Exp -> Exp
   | E_Neq   : Exp -> Exp -> Exp
   | E_And   : Exp -> Exp -> Exp
