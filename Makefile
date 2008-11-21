@@ -1,4 +1,4 @@
-MODULES := MemMonad Janus
+MODULES := BaseLib Word32 MemMonad Janus
 VS      := $(MODULES:%=%.v)
 
 GLOBALS := .coq_globals
