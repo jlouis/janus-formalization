@@ -2,15 +2,30 @@ Require Export ZArith.
 Require Export List.
 Require Export Bool.
 
+(* General Axioms *)
+
+(* The first axiom (unprovable in Coq) is the one of extensionality.
+   It is pretty simple. If forall x, f x = g x, then we have f = g.
+*)
+Axiom extensionality:
+  forall (A B: Set) (f g: A -> B),
+    (forall x, f x = g x) -> f = g.
+
+(* The second axiom is that of proof irrelevance. If we have 2 ways
+   to derive the same proposition, the way we derived it is irrelevant.
+   This is rule is pretty basic in mathematics *)
+Axiom proof_irrelevance:
+  forall (P: Prop) (p1 p2: P), p1 = p2.
+
 (* General tactics *)
 
 (* Cut the goal into 2, solve the first with contradiction, the second with
    omega *)
+
 Ltac omegaContradiction :=
   cut False; [contradiction|omega].
 
 (* Definitions and theorems over the type [Z] *)
-
 Definition zeq: forall (x y: Z), {x = y} + {x <> y} := Z_eq_dec.
 
 Lemma zeq_true:
