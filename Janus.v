@@ -1,7 +1,7 @@
 (* Formalisation of the JANUS language itself
    The Operational semantics is taken from
 
-   Gl\"uck & Yokoyama - A Reversible Programming Language
+   Glueck & Yokoyama - A Reversible Programming Language
      and its Invertible Self-Interpreter, PEPM 2007, Nice,France,
      ACM (cited as {PEPM2007})
 

@@ -1,3 +1,4 @@
+Require Import Word32.
 Require Import ZArith.
 
 Set Implicit Arguments.
