@@ -75,7 +75,17 @@ Lemma zle_false: forall (A: Set) (x y: Z) (a b: A),
   reflexivity.
 Qed.
 
+(* Properties about powers of 2 *)
 
+Lemma two_power_nat_O : two_power_nat 0 = 1.
+  reflexivity.
+Qed.
+
+Lemma two_power_nat_pos : forall (n : nat),
+  two_power_nat n > 0.
+  induction n. rewrite two_power_nat_O. omega.
+  rewrite two_power_nat_S. omega.
+Qed.
 
 
 
