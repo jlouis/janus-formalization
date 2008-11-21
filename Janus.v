@@ -9,11 +9,9 @@
    ; Implement function definitions and function calls/uncalls.
 *)
 
-Require Import Arith.
 Require Import ZArith.
 Require Import Bool.
 Require Import MemMonad.
-
 
 Section Janus.
   Open Scope Z_scope.
@@ -51,8 +49,11 @@ Section Janus.
           | (_,_) => 1
         end
       | E_Or e1 e2 =>
-        let v1 := denoteExp m e1 in
-          let v2 := 
+        match (denoteExp m e1, denoteExp m e2) with
+          | (1,_) => 1
+          | (_,1) => 1
+          | (_,_) => 0
+        end
     end.
 
   Theorem Exp_fwd_det : forall (m : memory) (e : Exp) v1 v2,
@@ -60,30 +61,11 @@ Section Janus.
     induction e; intuition.
   Qed.
 
-  Fixpoint denoteBExp (m : memory) (e : BExp) {struct e} : bool :=
-    match e with
-      | B_Eq e1 e2 =>
-        if Z_eq_dec (denoteExp m e1) (denoteExp m e2)
-          then true
-          else false
-      | B_Neq e1 e2 =>
-        if Z_eq_dec (denoteExp m e1) (denoteExp m e2)
-          then false
-          else true
-      | B_LT e1 e2 =>
-        match Zcompare (denoteExp m e1) (denoteExp m e2) with
-        |  Lt => true
-        |  _  => false
-        end
-      | B_And b1 b2 => andb (denoteBExp m b1) (denoteBExp m b2)
-      | B_Or b1 b2  => orb (denoteBExp m b1) (denoteBExp m b2)
-    end.
-
   Inductive Stmt : Set :=
   | S_Incr : var -> Exp -> Stmt
   | S_Decr : var -> Exp -> Stmt
   | S_Swap : var -> var -> Stmt
-  | S_If : BExp -> Stmt -> Stmt -> BExp -> Stmt
+  | S_If : Exp -> Stmt -> Stmt -> Exp -> Stmt
   | S_Semi : Stmt -> Stmt -> Stmt.
 
 
@@ -108,9 +90,10 @@ Section Janus.
       | S_If b t e a =>
         (fun m =>
           (* Wrong at the moment *)
-          (if (denoteBExp m b)
-            then denoteStmt t
-            else denoteStmt e) m)
+          (match denoteExp m b with
+             | 0 => denoteStmt e
+             | _ => denoteStmt t
+          end) m)
     end.
 
     Fixpoint invert (s : Stmt) : Stmt :=
