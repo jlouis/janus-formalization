@@ -83,7 +83,7 @@ Section Janus.
       | E_Mul e1 e2 => Word32.mul (denoteExp m e1) (denoteExp m e2)
       | E_Div e1 e2 => Word32.divu (denoteExp m e1) (denoteExp m e2)
       | E_Mod e1 e2 => Word32.modu (denoteExp m e1) (denoteExp m e2)
-      | E_FracProd e1 e2 => Word32.fracprod (denoteExp m e1) (denoteExp m e2)
+      | E_FracProd e1 e2 => Word32.fracprodu (denoteExp m e1) (denoteExp m e2)
 
       (* Bitwise *)
       | E_Bit_And e1 e2 => Word32.and (denoteExp m e1) (denoteExp m e2)
@@ -92,13 +92,29 @@ Section Janus.
 
       (* Relational *)
       | E_Eq e1 e2 =>
-        if Word32.eq_dec (denoteExp m e1) (denoteExp m e2)
+        if Word32.cmpu Ceq (denoteExp m e1) (denoteExp m e2)
           then Word32.one
           else Word32.zero
       | E_Neq e1 e2 =>
-        if Word32.eq_dec (denoteExp m e1) (denoteExp m e2)
-          then Word32.zero
-          else Word32.one
+        if Word32.cmpu Cne (denoteExp m e1) (denoteExp m e2)
+          then Word32.one
+          else Word32.zero
+      | E_Lt e1 e2 =>
+        if Word32.cmpu Clt (denoteExp m e1) (denoteExp m e2)
+          then Word32.one
+          else Word32.zero
+      | E_Gt e1 e2 =>
+        if Word32.cmpu Cgt (denoteExp m e1) (denoteExp m e2)
+          then Word32.one
+          else Word32.zero
+      | E_Leq e1 e2 =>
+        if Word32.cmpu Cleq (denoteExp m e1) (denoteExp m e2)
+          then Word32.one
+          else Word32.zero
+      | E_Geq e1 e2 =>
+        if Word32.cmpu Cgeq (denoteExp m e1) (denoteExp m e2)
+          then Word32.one
+          else Word32.zero
       | E_And e1 e2 =>
         match (Word32.unsigned (denoteExp m e1),
                Word32.unsigned (denoteExp m e2)) with
@@ -113,7 +129,6 @@ Section Janus.
           | (_, 1) => Word32.one
           | (_, _) => Word32.zero
         end
-      | _ => Word32.zero
     end.
 (*
   Theorem Exp_fwd_det : forall (m : memory) (e : Exp) v1 v2,

@@ -204,6 +204,27 @@ Definition xor (x y: w32): w32 := bitwise_binop xorb x y.
 
 Definition not (x: w32): w32 := xor x mone.
 
+(* Compares *)
+
+Definition cmp (c: comparison) (x y: w32) : bool :=
+  match c with
+    | Ceq => eq x y
+    | Cne => negb (eq x y)
+    | Clt => lt x y
+    | Cleq => negb (lt y x)
+    | Cgt => lt y x
+    | Cgeq => negb (lt x y)
+end.
+
+Definition cmpu (c: comparison) (x y: w32) : bool :=
+  match c with
+    | Ceq => eq x y
+    | Cne => negb (eq x y)
+    | Clt => ltu x y
+    | Cleq => negb (ltu y x)
+    | Cgt => ltu y x
+    | Cgeq => negb (ltu x y)
+end.
 
 (* Boolean predicates. These follow a C-like convention of everything
    different from zero is true.  *)
