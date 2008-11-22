@@ -16,17 +16,15 @@
    ; Implement function definitions and function calls/uncalls.
 *)
 
-Require Import ZArith.
+Require Import Word32.
 Require Import Bool.
 Require Import MemMonad.
 
 Section Janus.
-  Open Scope Z_scope.
-
   (* Janus Expressions. These are taken from {PEPM2007}, Figure 1 *)
   (* TODO: Arrays *)
   Inductive Exp : Set :=
-  | E_Const : Z -> Exp
+  | E_Const : w32 -> Exp
   | E_Var   : nat -> Exp
 
   (* Arithmetic *)
@@ -74,10 +72,11 @@ Section Janus.
   (* What does an expression denote? Dynamic semantics of evaluating
      expressions in JANUS *)
 
+(*
   Fixpoint denoteExp (m : memory) (e : Exp) {struct e} : Z :=
-    match e with 
+    match e with
       | E_Const z => z
-      | E_Var l => m l 
+      | E_Var l => m l
       | E_Plus e1 e2 => denoteExp m e1 + denoteExp m e2
       | E_Minus e1 e2 => denoteExp m e1 - denoteExp m e2
       | E_Mul e1 e2 => denoteExp m e1 * denoteExp m e2
@@ -148,4 +147,5 @@ Section Janus.
       induction s; intuition;
       simpl; rewrite IHs1; rewrite IHs2; reflexivity.
     Qed.
+*)
 End Janus.
