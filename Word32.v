@@ -97,7 +97,27 @@ Definition ltu (x y: w32) : bool :=
 Definition neg (x: w32) : w32 :=
   repr (- unsigned x).
 
+Definition cast8signed (x: w32) : w32 :=
+  let y := Zmod (unsigned x) 256 in
+    if zlt y 128 then repr y else repr (y - 256).
 
+Definition cast8unsigned (x: w32) : w32 :=
+    repr (Zmod (unsigned x) 256).
 
+Definition cast16signed (x: w32) : w32 :=
+  let y := Zmod (unsigned x) 65536 in
+    if zlt y 32768 then repr y else repr (y - 65536).
+
+Definition cast16unsigned (x: w32) : w32 :=
+  repr (Zmod (unsigned x) 65536).
+
+Definition add (x y: w32) : w32 :=
+  repr (unsigned x + unsigned y).
+
+Definition sub (x y: w32) : w32 :=
+  repr (unsigned x - unsigned y).
+
+Definition mul (x y: w32) : w32 :=
+  repr (unsigned x * unsigned y).
 
 End Word32.
