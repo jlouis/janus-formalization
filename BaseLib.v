@@ -20,8 +20,7 @@ Axiom proof_irrelevance:
 (* General tactics *)
 
 (* Cut the goal into 2, solve the first with contradiction, the second with
-   omega *)
-
+   omega. The cut is modus ponens in inverse. *)
 Ltac omegaContradiction :=
   cut False; [contradiction|omega].
 
