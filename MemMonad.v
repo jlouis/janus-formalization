@@ -7,10 +7,10 @@ Definition var := nat.
 
 (* A memory is a mapping from natural numbers to integers.
    The advantage of a "skew" is that we get it more precise that we are
-   mapping variables into integers *)
+   mapping variables into word32 slots *)
 Definition memory := var -> Z.
 (* Set up that an empty cell maps to 0. This is the rule for JANUS *)
-Definition empty (_ : Z) := 0.
+Definition empty (_ : var) := 0.
 
 (* Update the memory with a new value. We represent a memory as a function
    which will be extended with a new test whenever we write to the memory *)
