@@ -120,4 +120,10 @@ Definition sub (x y: w32) : w32 :=
 Definition mul (x y: w32) : w32 :=
   repr (unsigned x * unsigned y).
 
+
+(* Boolean predicates. These follow a C-like convention of everything
+   different from zero is true.  *)
+Definition is_false (x: w32) : Prop := x = zero.
+Definition is_true  (x: w32) : Prop := x <> zero.
+
 End Word32.

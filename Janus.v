@@ -72,39 +72,41 @@ Section Janus.
   (* What does an expression denote? Dynamic semantics of evaluating
      expressions in JANUS *)
 
-(*
-  Fixpoint denoteExp (m : memory) (e : Exp) {struct e} : Z :=
+  Fixpoint denoteExp (m : memory) (e : Exp) {struct e} : w32 :=
     match e with
       | E_Const z => z
       | E_Var l => m l
-      | E_Plus e1 e2 => denoteExp m e1 + denoteExp m e2
-      | E_Minus e1 e2 => denoteExp m e1 - denoteExp m e2
-      | E_Mul e1 e2 => denoteExp m e1 * denoteExp m e2
+      | E_Plus e1 e2 => Word32.add (denoteExp m e1) (denoteExp m e2)
+      | E_Minus e1 e2 => Word32.sub (denoteExp m e1) (denoteExp m e2)
+      | E_Mul e1 e2 => Word32.mul (denoteExp m e1) (denoteExp m e2)
       | E_Eq e1 e2 =>
-        if Z_eq_dec (denoteExp m e1) (denoteExp m e2)
-          then 1
-          else 0
+        if Word32.eq_dec (denoteExp m e1) (denoteExp m e2)
+          then Word32.one
+          else Word32.zero
       | E_Neq e1 e2 =>
-        if Z_eq_dec (denoteExp m e1) (denoteExp m e2)
-          then 0
-          else 1
+        if Word32.eq_dec (denoteExp m e1) (denoteExp m e2)
+          then Word32.zero
+          else Word32.one
       | E_And e1 e2 =>
-        match (denoteExp m e1, denoteExp m e2) with
-          | (0,_) => 0
-          | (_,0) => 0
-          | (_,_) => 1
+        match (Word32.unsigned (denoteExp m e1),
+               Word32.unsigned (denoteExp m e2)) with
+          | (0, _) => Word32.zero
+          | (_, 0) => Word32.zero
+          | (_, _) => Word32.one
         end
       | E_Or e1 e2 =>
-        match (denoteExp m e1, denoteExp m e2) with
-          | (1,_) => 1
-          | (_,1) => 1
-          | (_,_) => 0 end
+        match (Word32.unsigned (denoteExp m e1),
+               Word32.unsigned (denoteExp m e2)) with
+          | (1, _) => Word32.one
+          | (_, 1) => Word32.one
+          | (_, _) => Word32.zero
+        end
+      | _ => Word32.zero
     end.
-
+(*
   Theorem Exp_fwd_det : forall (m : memory) (e : Exp) v1 v2,
     (denoteExp m e = v1) /\ (denoteExp m e = v2) -> (v1 = v2).
-    induction e; intuition.
-  Qed.
+    (* TODO *)
 
   Fixpoint denoteStmt (s : Stmt) : memM unit :=
     match s with
