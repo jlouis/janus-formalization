@@ -120,6 +120,28 @@ Definition sub (x y: w32) : w32 :=
 Definition mul (x y: w32) : w32 :=
   repr (unsigned x * unsigned y).
 
+(* Helper, provides division with rounding *)
+Definition Zdiv_round (x y: Z) : Z :=
+  if zlt x 0
+    then if zlt y 0 then (-x) / (-y) else - ((-x) / y)
+    else if zlt y 0 then -(x / (-y)) else x / y.
+
+Definition Zmod_round (x y: Z) : Z :=
+  x - (Zdiv_round x y) * y.
+
+Definition divs (x y: w32) : w32 :=
+  repr (Zdiv_round (signed x) (signed y)).
+
+Definition mods (x y: w32) : w32 :=
+  repr (Zmod_round (signed x) (signed y)).
+
+Definition divu (x y: w32) : w32 :=
+  repr (Zdiv_round (unsigned x) (unsigned y)).
+
+Definition modu (x y: w32) : w32 :=
+  repr (Zmod_round (unsigned x) (unsigned y)).
+
+
 
 (* Boolean predicates. These follow a C-like convention of everything
    different from zero is true.  *)

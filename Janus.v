@@ -74,11 +74,19 @@ Section Janus.
 
   Fixpoint denoteExp (m : memory) (e : Exp) {struct e} : w32 :=
     match e with
+      (* Arithmetic *)
       | E_Const z => z
       | E_Var l => m l
       | E_Plus e1 e2 => Word32.add (denoteExp m e1) (denoteExp m e2)
       | E_Minus e1 e2 => Word32.sub (denoteExp m e1) (denoteExp m e2)
       | E_Mul e1 e2 => Word32.mul (denoteExp m e1) (denoteExp m e2)
+      | E_Div e1 e2 => Word32.divu (denoteExp m e1) (denoteExp m e2)
+      | E_Mod e1 e2 => Word32.modu (denoteExp m e1) (denoteExp m e2)
+
+      (* Bitwise *)
+      (* TODO *)
+
+      (* Relational *)
       | E_Eq e1 e2 =>
         if Word32.eq_dec (denoteExp m e1) (denoteExp m e2)
           then Word32.one
