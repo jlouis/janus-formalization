@@ -83,6 +83,7 @@ Section Janus.
       | E_Mul e1 e2 => Word32.mul (denoteExp m e1) (denoteExp m e2)
       | E_Div e1 e2 => Word32.divu (denoteExp m e1) (denoteExp m e2)
       | E_Mod e1 e2 => Word32.modu (denoteExp m e1) (denoteExp m e2)
+      | E_FracProd e1 e2 => Word32.fracprod (denoteExp m e1) (denoteExp m e2)
 
       (* Bitwise *)
       | E_Bit_And e1 e2 => Word32.and (denoteExp m e1) (denoteExp m e2)

@@ -141,6 +141,9 @@ Definition divu (x y: w32) : w32 :=
 Definition modu (x y: w32) : w32 :=
   repr (Zmod_round (unsigned x) (unsigned y)).
 
+Definition fracprodu (x y: w32) : w32 :=
+  repr (Zdiv_round ((unsigned x) * (unsigned y)) modulus).
+
 (* Bitwise operations:
 
    We convert between Coq integers [Z] and their bit-level representations.
