@@ -8,9 +8,9 @@ Definition var := nat.
 (* A memory is a mapping from natural numbers to integers.
    The advantage of a "skew" is that we get it more precise that we are
    mapping variables into word32 slots *)
-Definition memory := var -> Z.
+Definition memory := var -> w32.
 (* Set up that an empty cell maps to 0. This is the rule for JANUS *)
-Definition empty (_ : var) := 0.
+Definition empty (_ : var) : w32 := Word32.zero.
 
 (* Update the memory with a new value. We represent a memory as a function
    which will be extended with a new test whenever we write to the memory *)
@@ -29,11 +29,11 @@ Definition Return (T : Set) (v : T) : memM T :=
   fun m => (m, v).
 
 (* Read a value from the memory. Reify it into the value-space *)
-Definition Read a : memM Z :=
+Definition Read a : memM w32 :=
   fun m => (m, m a).
 
 (* Write a value to memory. Write the value [v] to location [a] *)
-Definition Write (a : var) (v : Z) : memM unit :=
+Definition Write (a : var) (v : w32) : memM unit :=
   fun m => (write m a v, tt).
 
 Definition Bind (T1 T2 : Set) (M1 : memM T1) (M2 : T1 -> memM T2) : memM T2 :=
@@ -83,7 +83,7 @@ Section mspec_imp.
 End mspec_imp.
 
 Section mspec_Read.
-  Variable P : memory -> Z -> Prop.
+  Variable P : memory -> w32 -> Prop.
 
   Variable addr : var.
   Variable m : memory.
@@ -98,7 +98,7 @@ Section mspec_Write.
   Variable P : memory -> unit -> Prop.
 
   Variable addr : var.
-  Variable src : Z.
+  Variable src : w32.
   Variable m : memory.
 
   Theorem mspec_Write :
