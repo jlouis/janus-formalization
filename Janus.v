@@ -72,6 +72,7 @@ Section Janus.
   (* What does an expression denote? Dynamic semantics of evaluating
      expressions in JANUS *)
 
+  (* TODO: Arrays, Fractional product, Arrays *)
   Fixpoint denoteExp (m : memory) (e : Exp) {struct e} : w32 :=
     match e with
       (* Arithmetic *)
@@ -84,7 +85,9 @@ Section Janus.
       | E_Mod e1 e2 => Word32.modu (denoteExp m e1) (denoteExp m e2)
 
       (* Bitwise *)
-      (* TODO *)
+      | E_Bit_And e1 e2 => Word32.and (denoteExp m e1) (denoteExp m e2)
+      | E_Bit_Xor e1 e2 => Word32.xor (denoteExp m e1) (denoteExp m e2)
+      | E_Bit_Or  e1 e2 => Word32.or  (denoteExp m e1) (denoteExp m e2)
 
       (* Relational *)
       | E_Eq e1 e2 =>

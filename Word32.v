@@ -141,6 +141,65 @@ Definition divu (x y: w32) : w32 :=
 Definition modu (x y: w32) : w32 :=
   repr (Zmod_round (unsigned x) (unsigned y)).
 
+(* Bitwise operations:
+
+   We convert between Coq integers [Z] and their bit-level representations.
+   this is done by representing the bit-level representation as a
+   characteristic function of type [Z -> bool]. That is, an application [f i]
+   tells the value of the [i]th bit. We ignore values greater than the 32th
+   bit. *)
+
+(* Shift and add a bool to a number *)
+Definition Z_shift_add (b: bool) (x: Z) :=
+  if b then 2 * x + 1 else 2 * x.
+
+(* Decompose an integer [x] into its first bit and the rest
+   by inspection of the [Z]-representation in Coq *)
+Definition Z_bin_decomp (x: Z) : bool * Z :=
+  match x with
+    | Z0 => (false, 0)
+    | Zpos p => (* Positive *)
+      match p with
+        | xI q => (true, Zpos q)
+        | xO q => (false, Zpos q)
+        | xH => (true, 0)
+      end
+    | Zneg p => (* Negative *)
+      match p with
+        | xI q => (true, Zneg q - 1)
+        | xO q => (false, Zneg q)
+        | xH => (true, -1)
+      end
+  end.
+
+Fixpoint bits_of_Z (n: nat) (x: Z) {struct n}: Z -> bool :=
+  match n with
+    | O =>
+      (fun i: Z => false)
+    | S m =>
+      let (b, y) := Z_bin_decomp x in
+      let f := bits_of_Z m y in
+        (fun i: Z => if zeq i 0 then b else f (i - 1))
+  end.
+
+Fixpoint Z_of_bits (n: nat) (f: Z -> bool) {struct n}: Z :=
+  match n with
+    | O => 0
+    | S m => Z_shift_add (f 0) (Z_of_bits m (fun i => f (i + 1)))
+end.
+
+(* Bitwise logical ``and'', ``or'' and ``xor'' operations now follow
+   easily *)
+Definition bitwise_binop (f: bool -> bool -> bool) (x y: w32) :=
+  let fx := bits_of_Z word_size (unsigned x) in
+  let fy := bits_of_Z word_size (unsigned y) in
+    repr (Z_of_bits word_size (fun i => f (fx i) (fy i))).
+
+Definition and (x y: w32): w32 := bitwise_binop andb x y.
+Definition or  (x y: w32): w32 := bitwise_binop orb  x y.
+Definition xor (x y: w32): w32 := bitwise_binop xorb x y.
+
+Definition not (x: w32): w32 := xor x mone.
 
 
 (* Boolean predicates. These follow a C-like convention of everything
