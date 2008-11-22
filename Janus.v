@@ -130,11 +130,13 @@ Section Janus.
           | (_, _) => Word32.zero
         end
     end.
-(*
+
   Theorem Exp_fwd_det : forall (m : memory) (e : Exp) v1 v2,
     (denoteExp m e = v1) /\ (denoteExp m e = v2) -> (v1 = v2).
-    (* TODO *)
+    induction e; intuition; rewrite <- H0; rewrite <- H1; reflexivity.
+  Qed.
 
+(*
   Fixpoint denoteStmt (s : Stmt) : memM unit :=
     match s with
       | S_Incr v e =>
