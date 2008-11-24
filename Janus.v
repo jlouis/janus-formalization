@@ -133,7 +133,7 @@ Section Janus.
 
   Theorem Exp_fwd_det : forall (m : memory) (e : Exp) v1 v2,
     (denoteExp m e = v1) /\ (denoteExp m e = v2) -> (v1 = v2).
-    induction e; intuition; rewrite <- H0; rewrite <- H1; reflexivity.
+    intros m e v1 v2 [Eq1 Eq2]; congruence.
   Qed.
 
 (*
