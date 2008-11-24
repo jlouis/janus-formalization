@@ -136,6 +136,12 @@ Section Janus.
     intros m e v1 v2 [Eq1 Eq2]; congruence.
   Qed.
 
+  (* Operational semantics for Janus *)
+  (* TODO: This is a dummy entry *)
+  Inductive Stmt_eval : memory -> Stmt -> memory -> Prop :=
+    se_skip: forall m,
+      Stmt_eval m (S_Skip) m.
+
 (*
   Fixpoint denoteStmt (s : Stmt) : memM unit :=
     match s with
