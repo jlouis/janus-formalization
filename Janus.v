@@ -54,7 +54,11 @@ Section Janus.
   | E_Geq   : Exp -> Exp -> Exp.
 
   (* Statements in the JANUS language.
-     TODO: Arrays, Funcalls *)
+     TODO: Arrays *)
+
+  (* Function id's are just natural numbers *)
+  Definition fid := nat.
+
   Inductive Stmt : Set :=
   (* Skewed operations *)
   | S_Incr : var -> Exp -> Stmt
@@ -70,9 +74,12 @@ Section Janus.
   | S_Loop : Exp -> Stmt -> Stmt -> Exp -> Stmt
 
   (* Catenation *)
-  | S_Semi : Stmt -> Stmt -> Stmt.
+  | S_Semi : Stmt -> Stmt -> Stmt
 
-  Definition fid := nat.
+  (* Funcalls *)
+  | S_Call : fid -> Stmt
+  | S_Uncall : fid -> Stmt.
+
   (* Function environments maps fid's to Statements *)
   Definition fenv := fid -> Stmt.
 
@@ -211,7 +218,13 @@ Section Janus.
       Word32.is_true(denoteExp m e1) ->
       Stmt_loop1_eval G m (S_Loop e1 s1 s2 e2) m' ->
       Word32.is_true(denoteExp m' e2) ->
-      Stmt_eval G m (S_Loop e1 s1 s2 e2) m'.
+      Stmt_eval G m (S_Loop e1 s1 s2 e2) m'
+  | se_call: forall G m v m',
+      Stmt_eval G m (G v) m' ->
+      Stmt_eval G m (S_Call v) m'
+  | se_uncall: forall G m v m',
+      Stmt_eval G m' (G v) m ->
+      Stmt_eval G m (S_Uncall v) m'.
 
   Fixpoint Stmt_invert (s: Stmt) : Stmt :=
     match s with
@@ -223,6 +236,8 @@ Section Janus.
       | S_Loop e1 s1 s2 e2 => S_Loop e2 (Stmt_invert s1) (Stmt_invert s2) e1
       | S_Skip => S_Skip
       | S_Semi s1 s2 => S_Semi (Stmt_invert s2) (Stmt_invert s1)
+      | S_Call v => S_Uncall v
+      | S_Uncall v => S_Call v
     end.
 
   Theorem invert_self_inverse : forall (s: Stmt),
@@ -263,13 +278,14 @@ Section Janus.
       | S_Incr v e => Exp_validity v e
       | S_Decr v e => Exp_validity v e
       | S_Xor v e => Exp_validity v e
-      | S_Swap v1 v2 => True
+      | S_Swap _ _ => True
       | S_If _ s1 s2 _ => (Stmt_validity s1) /\ (Stmt_validity s2)
       | S_Loop _ s1 s2 _ => (Stmt_validity s1) /\ (Stmt_validity s2)
       | S_Skip => True
       | S_Semi s1 s2 => (Stmt_validity s1) /\ (Stmt_validity s2)
+      | S_Call _ => True (* Check the fenv elsewhere *)
+      | S_Uncall _ => True
     end.
-
 
 (*
   Fixpoint denoteStmt (s : Stmt) : memM unit :=
