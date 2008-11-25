@@ -159,6 +159,8 @@ Section Janus.
     intros m e v1 v2 [Eq1 Eq2]; congruence.
   Qed.
 
+  Hint Rewrite Exp_fwd_det : Exp.
+
   (** Operational semantics for Janus *)
   (* Convenience function *)
   Definition Stmt_assvar m v e op :=
@@ -201,8 +203,8 @@ Section Janus.
          let r2 := m v2 in
            (write (write m v1 r2) v2 r1))
   | se_semi: forall G s1 s2 m m' m'',
-     Stmt_eval G m s1 m'' ->
-     Stmt_eval G m'' s2 m' ->
+     Stmt_eval G m s1 m' ->
+     Stmt_eval G m' s2 m'' ->
        Stmt_eval G m (S_Semi s1 s2) m'
   | se_if_true: forall G e1 e2 s1 s2 m m',
       Word32.is_true(denoteExp m e1) ->
@@ -244,6 +246,8 @@ Section Janus.
     Stmt_invert (Stmt_invert s) = s.
     induction s; simpl; intuition; congruence.
   Qed.
+
+  Hint Rewrite invert_self_inverse : invert.
 
   Fixpoint Exp_validity (x: var) (e: Exp) : Prop :=
     match e with
