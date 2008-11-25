@@ -136,13 +136,17 @@ Section Janus.
     intros m e v1 v2 [Eq1 Eq2]; congruence.
   Qed.
 
-  (* Operational semantics for Janus *)
-
+  (** Operational semantics for Janus *)
   (* Convenience function *)
   Definition Stmt_assvar m v e op :=
     (write m v (op (m v) (denoteExp m e))).
 
-  Inductive Stmt_eval : memory -> Stmt -> memory -> Prop :=
+  Inductive Stmt_loop1_eval : memory -> Stmt -> memory -> Prop :=
+  | se_l1_base: forall m m' e1 s1 s2 e2,
+      Stmt_eval m s1 m' ->
+        Stmt_loop1_eval m (S_Loop e1 s1 s2 e2)
+
+  with Stmt_eval : memory -> Stmt -> memory -> Prop :=
   | se_skip: forall m,
       Stmt_eval m S_Skip m
   | se_assvar_incr: forall m v e,
