@@ -137,10 +137,39 @@ Section Janus.
   Qed.
 
   (* Operational semantics for Janus *)
-  (* TODO: This is a dummy entry *)
+
+  (* Convenience function *)
+  Definition Stmt_assvar m v e op :=
+    (write m v (op (m v) (denoteExp m e))).
+
   Inductive Stmt_eval : memory -> Stmt -> memory -> Prop :=
-    se_skip: forall m,
-      Stmt_eval m (S_Skip) m.
+  | se_skip: forall m,
+      Stmt_eval m S_Skip m
+  | se_assvar_incr: forall m v e,
+      Stmt_eval m (S_Incr v e) (Stmt_assvar m v e Word32.add)
+  | se_assvar_decr: forall m v e,
+      Stmt_eval m (S_Decr v e) (Stmt_assvar m v e Word32.sub)
+  | se_assvar_xor: forall m v e,
+      Stmt_eval m (S_Xor v e) (Stmt_assvar m v e Word32.xor)
+  | se_swap: forall (m: memory) (v1 v2: var),
+      Stmt_eval m (S_Swap v1 v2)
+        (let r1 := m v1 in
+         let r2 := m v2 in
+           (write (write m v1 r2) v2 r1))
+  | se_semi: forall s1 s2 m m' m'',
+     Stmt_eval m s1 m'' ->
+     Stmt_eval m'' s2 m' ->
+       Stmt_eval m (S_Semi s1 s2) m'
+  | se_if_true: forall e1 e2 s1 s2 m m',
+      Word32.is_true(denoteExp m e1) ->
+      Stmt_eval m s1 m' ->
+      Word32.is_true(denoteExp m' e2) ->
+        Stmt_eval m (S_If e1 s1 s2 e2) m'
+  | se_if_false: forall e1 e2 s1 s2 m m',
+      Word32.is_false(denoteExp m e1) ->
+      Stmt_eval m s2 m' ->
+      Word32.is_false(denoteExp m' e2) ->
+      Stmt_eval m (S_If e1 s1 s2 e2) m'.
 
 (*
   Fixpoint denoteStmt (s : Stmt) : memM unit :=
