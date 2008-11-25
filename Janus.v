@@ -144,8 +144,25 @@ Section Janus.
   Inductive Stmt_loop1_eval : memory -> Stmt -> memory -> Prop :=
   | se_l1_base: forall m m' e1 s1 s2 e2,
       Stmt_eval m s1 m' ->
-        Stmt_loop1_eval m (S_Loop e1 s1 s2 e2)
-
+        Stmt_loop1_eval m (S_Loop e1 s1 s2 e2) m'
+  | se_l1_rec: forall m m' m'' m''' e1 s1 s2 e2,
+      Stmt_eval m s1 m' ->
+      Word32.is_false(denoteExp m' e2) ->
+      Stmt_loop2_eval m' (S_Loop e1 s1 s2 e2) m'' ->
+      Word32.is_false(denoteExp m'' e1) ->
+      Stmt_eval m'' s1 m''' ->
+        Stmt_loop1_eval m (S_Loop e1 s1 s2 e2) m'''
+  with Stmt_loop2_eval : memory -> Stmt -> memory -> Prop :=
+  | se_l2_base: forall m m' e1 s1 s2 e2,
+      Stmt_eval m s2 m' ->
+        Stmt_loop2_eval m (S_Loop e1 s1 s2 e2) m'
+  | se_l2_rec: forall m m' m'' m''' e1 s1 s2 e2,
+      Stmt_eval m s2 m' ->
+      Word32.is_false(denoteExp m' e1) ->
+      Stmt_loop1_eval m' (S_Loop e1 s1 s2 e2) m'' ->
+      Word32.is_false(denoteExp m'' e2) ->
+      Stmt_eval m'' s2 m''' ->
+        Stmt_loop2_eval m (S_Loop e1 s1 s2 e2) m'''
   with Stmt_eval : memory -> Stmt -> memory -> Prop :=
   | se_skip: forall m,
       Stmt_eval m S_Skip m
@@ -173,7 +190,39 @@ Section Janus.
       Word32.is_false(denoteExp m e1) ->
       Stmt_eval m s2 m' ->
       Word32.is_false(denoteExp m' e2) ->
-      Stmt_eval m (S_If e1 s1 s2 e2) m'.
+      Stmt_eval m (S_If e1 s1 s2 e2) m'
+  | se_loop_main: forall m m' e1 s1 s2 e2,
+      Word32.is_true(denoteExp m e1) ->
+      Stmt_loop1_eval m (S_Loop e1 s1 s2 e2) m' ->
+      Word32.is_true(denoteExp m' e2) ->
+      Stmt_eval m (S_Loop e1 s1 s2 e2) m'.
+
+  Fixpoint Stmt_invert (s: Stmt) : Stmt :=
+    match s with
+      | S_Incr v e => S_Decr v e
+      | S_Decr v e => S_Incr v e
+      | S_Xor v1 v2 => S_Xor v1 v2
+      | S_Swap v1 v2 => S_Swap v1 v2
+      | S_If e1 s1 s2 e2 => S_If e2 (Stmt_invert s1) (Stmt_invert s2) e1
+      | S_Loop e1 s1 s2 e2 => S_Loop e2 (Stmt_invert s1) (Stmt_invert s2) e1
+      | S_Skip => S_Skip
+      | S_Semi s1 s2 => S_Semi (Stmt_invert s2) (Stmt_invert s1)
+    end.
+
+  Theorem invert_self_inverse : forall (s: Stmt),
+    Stmt_invert (Stmt_invert s) = s.
+    intros. induction s; simpl; intuition; congruence.
+  Qed.
+
+  (* TODO: Static semantics *)
+
+  (* TODO: Where is Swap in {PEPM 2007}? *)
+
+  (* TODO: Evaluation of statements *)
+
+  (* TODO: Denotational semantics of the game *)
+
+  (* TODO: Theorem 2, 3 *)
 
 (*
   Fixpoint denoteStmt (s : Stmt) : memM unit :=
