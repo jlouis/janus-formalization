@@ -211,18 +211,49 @@ Section Janus.
 
   Theorem invert_self_inverse : forall (s: Stmt),
     Stmt_invert (Stmt_invert s) = s.
-    intros. induction s; simpl; intuition; congruence.
+    induction s; simpl; intuition; congruence.
   Qed.
 
-  (* TODO: Static semantics *)
+  Fixpoint Exp_validity (x: var) (e: Exp) : Prop :=
+    match e with
+      | E_Const z => True
+      | E_Var y => x <> y
+      | E_Plus e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_Minus e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_Mul e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_Div e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_Mod e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_FracProd e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
 
-  (* TODO: Where is Swap in {PEPM 2007}? *)
+      | E_Bit_Xor e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_Bit_And e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_Bit_Or e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
 
-  (* TODO: Evaluation of statements *)
+      | E_Eq e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_Neq e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_And e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_Or e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_Lt e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_Gt e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_Leq e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+      | E_Geq e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
+    end.
 
-  (* TODO: Denotational semantics of the game *)
 
-  (* TODO: Theorem 2, 3 *)
+  (* Is a statement valid?
+     This is just as simple congruence relation on statements *)
+  Fixpoint Stmt_validity (s: Stmt) : Prop :=
+    match s with
+      | S_Incr v e => Exp_validity v e
+      | S_Decr v e => Exp_validity v e
+      | S_Xor v e => Exp_validity v e
+      | S_Swap v1 v2 => True
+      | S_If _ s1 s2 _ => (Stmt_validity s1) /\ (Stmt_validity s2)
+      | S_Loop _ s1 s2 _ => (Stmt_validity s1) /\ (Stmt_validity s2)
+      | S_Skip => True
+      | S_Semi s1 s2 => (Stmt_validity s1) /\ (Stmt_validity s2)
+    end.
+
 
 (*
   Fixpoint denoteStmt (s : Stmt) : memM unit :=
