@@ -201,7 +201,7 @@ Section Janus.
     match s with
       | S_Incr v e => S_Decr v e
       | S_Decr v e => S_Incr v e
-      | S_Xor v1 v2 => S_Xor v1 v2
+      | S_Xor v1 e => S_Xor v1 e
       | S_Swap v1 v2 => S_Swap v1 v2
       | S_If e1 s1 s2 e2 => S_If e2 (Stmt_invert s1) (Stmt_invert s2) e1
       | S_Loop e1 s1 s2 e2 => S_Loop e2 (Stmt_invert s1) (Stmt_invert s2) e1
