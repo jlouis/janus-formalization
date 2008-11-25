@@ -16,12 +16,15 @@
    ; Implement function definitions and function calls/uncalls.
 *)
 
+Require Import Arith.
 Require Import Word32.
 Require Import Bool.
 Require Import MemMonad.
 
 Section Janus.
   (* Janus Expressions. These are taken from {PEPM2007}, Figure 1 *)
+
+
   (* TODO: Arrays *)
   Inductive Exp : Set :=
   | E_Const : w32 -> Exp
@@ -68,6 +71,19 @@ Section Janus.
 
   (* Catenation *)
   | S_Semi : Stmt -> Stmt -> Stmt.
+
+  Definition fid := nat.
+  (* Function environments maps fid's to Statements *)
+  Definition fenv := fid -> Stmt.
+
+  (* The empty function environment just gets replaced with a 'skip' construction.
+     This is suboptimal, but we can change it to an optional type later *)
+  Definition fenv_empty (_: var) := S_Skip.
+
+  Definition def_func (G: fenv) fid stmts x :=
+    if eq_nat_dec fid x
+      then stmts
+      else G x.
 
   (* What does an expression denote? Dynamic semantics of evaluating
      expressions in JANUS *)
@@ -141,61 +157,61 @@ Section Janus.
   Definition Stmt_assvar m v e op :=
     (write m v (op (m v) (denoteExp m e))).
 
-  Inductive Stmt_loop1_eval : memory -> Stmt -> memory -> Prop :=
-  | se_l1_base: forall m m' e1 s1 s2 e2,
-      Stmt_eval m s1 m' ->
-        Stmt_loop1_eval m (S_Loop e1 s1 s2 e2) m'
-  | se_l1_rec: forall m m' m'' m''' e1 s1 s2 e2,
-      Stmt_eval m s1 m' ->
+  Inductive Stmt_loop1_eval : fenv -> memory -> Stmt -> memory -> Prop :=
+  | se_l1_base: forall G m m' e1 s1 s2 e2,
+      Stmt_eval G m s1 m' ->
+        Stmt_loop1_eval G m (S_Loop e1 s1 s2 e2) m'
+  | se_l1_rec: forall G m m' m'' m''' e1 s1 s2 e2,
+      Stmt_eval G m s1 m' ->
       Word32.is_false(denoteExp m' e2) ->
-      Stmt_loop2_eval m' (S_Loop e1 s1 s2 e2) m'' ->
+      Stmt_loop2_eval G m' (S_Loop e1 s1 s2 e2) m'' ->
       Word32.is_false(denoteExp m'' e1) ->
-      Stmt_eval m'' s1 m''' ->
-        Stmt_loop1_eval m (S_Loop e1 s1 s2 e2) m'''
-  with Stmt_loop2_eval : memory -> Stmt -> memory -> Prop :=
-  | se_l2_base: forall m m' e1 s1 s2 e2,
-      Stmt_eval m s2 m' ->
-        Stmt_loop2_eval m (S_Loop e1 s1 s2 e2) m'
-  | se_l2_rec: forall m m' m'' m''' e1 s1 s2 e2,
-      Stmt_eval m s2 m' ->
+      Stmt_eval G m'' s1 m''' ->
+        Stmt_loop1_eval G m (S_Loop e1 s1 s2 e2) m'''
+  with Stmt_loop2_eval : fenv -> memory -> Stmt -> memory -> Prop :=
+  | se_l2_base: forall G m m' e1 s1 s2 e2,
+      Stmt_eval G m s2 m' ->
+        Stmt_loop2_eval G m (S_Loop e1 s1 s2 e2) m'
+  | se_l2_rec: forall G m m' m'' m''' e1 s1 s2 e2,
+      Stmt_eval G m s2 m' ->
       Word32.is_false(denoteExp m' e1) ->
-      Stmt_loop1_eval m' (S_Loop e1 s1 s2 e2) m'' ->
+      Stmt_loop1_eval G m' (S_Loop e1 s1 s2 e2) m'' ->
       Word32.is_false(denoteExp m'' e2) ->
-      Stmt_eval m'' s2 m''' ->
-        Stmt_loop2_eval m (S_Loop e1 s1 s2 e2) m'''
-  with Stmt_eval : memory -> Stmt -> memory -> Prop :=
-  | se_skip: forall m,
-      Stmt_eval m S_Skip m
-  | se_assvar_incr: forall m v e,
-      Stmt_eval m (S_Incr v e) (Stmt_assvar m v e Word32.add)
-  | se_assvar_decr: forall m v e,
-      Stmt_eval m (S_Decr v e) (Stmt_assvar m v e Word32.sub)
-  | se_assvar_xor: forall m v e,
-      Stmt_eval m (S_Xor v e) (Stmt_assvar m v e Word32.xor)
-  | se_swap: forall (m: memory) (v1 v2: var),
-      Stmt_eval m (S_Swap v1 v2)
+      Stmt_eval G m'' s2 m''' ->
+        Stmt_loop2_eval G m (S_Loop e1 s1 s2 e2) m'''
+  with Stmt_eval : fenv -> memory -> Stmt -> memory -> Prop :=
+  | se_skip: forall G m,
+      Stmt_eval G m S_Skip m
+  | se_assvar_incr: forall G m v e,
+      Stmt_eval G m (S_Incr v e) (Stmt_assvar m v e Word32.add)
+  | se_assvar_decr: forall G m v e,
+      Stmt_eval G m (S_Decr v e) (Stmt_assvar m v e Word32.sub)
+  | se_assvar_xor: forall G m v e,
+      Stmt_eval G m (S_Xor v e) (Stmt_assvar m v e Word32.xor)
+  | se_swap: forall G (m: memory) (v1 v2: var),
+      Stmt_eval G m (S_Swap v1 v2)
         (let r1 := m v1 in
          let r2 := m v2 in
            (write (write m v1 r2) v2 r1))
-  | se_semi: forall s1 s2 m m' m'',
-     Stmt_eval m s1 m'' ->
-     Stmt_eval m'' s2 m' ->
-       Stmt_eval m (S_Semi s1 s2) m'
-  | se_if_true: forall e1 e2 s1 s2 m m',
+  | se_semi: forall G s1 s2 m m' m'',
+     Stmt_eval G m s1 m'' ->
+     Stmt_eval G m'' s2 m' ->
+       Stmt_eval G m (S_Semi s1 s2) m'
+  | se_if_true: forall G e1 e2 s1 s2 m m',
       Word32.is_true(denoteExp m e1) ->
-      Stmt_eval m s1 m' ->
+      Stmt_eval G m s1 m' ->
       Word32.is_true(denoteExp m' e2) ->
-        Stmt_eval m (S_If e1 s1 s2 e2) m'
-  | se_if_false: forall e1 e2 s1 s2 m m',
+        Stmt_eval G m (S_If e1 s1 s2 e2) m'
+  | se_if_false: forall G e1 e2 s1 s2 m m',
       Word32.is_false(denoteExp m e1) ->
-      Stmt_eval m s2 m' ->
+      Stmt_eval G m s2 m' ->
       Word32.is_false(denoteExp m' e2) ->
-      Stmt_eval m (S_If e1 s1 s2 e2) m'
-  | se_loop_main: forall m m' e1 s1 s2 e2,
+      Stmt_eval G m (S_If e1 s1 s2 e2) m'
+  | se_loop_main: forall G m m' e1 s1 s2 e2,
       Word32.is_true(denoteExp m e1) ->
-      Stmt_loop1_eval m (S_Loop e1 s1 s2 e2) m' ->
+      Stmt_loop1_eval G m (S_Loop e1 s1 s2 e2) m' ->
       Word32.is_true(denoteExp m' e2) ->
-      Stmt_eval m (S_Loop e1 s1 s2 e2) m'.
+      Stmt_eval G m (S_Loop e1 s1 s2 e2) m'.
 
   Fixpoint Stmt_invert (s: Stmt) : Stmt :=
     match s with
