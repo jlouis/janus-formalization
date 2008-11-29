@@ -24,6 +24,8 @@ Axiom proof_irrelevance:
 Ltac omegaContradiction :=
   cut False; [contradiction|omega].
 
+
+
 (* Definitions and theorems over the type [Z] *)
 Definition zeq: forall (x y: Z), {x = y} + {x <> y} := Z_eq_dec.
 

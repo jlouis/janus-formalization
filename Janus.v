@@ -78,7 +78,7 @@ Section Janus.
 
   (* Funcalls *)
   | S_Call : fid -> Stmt
-  | S_Uncall : fid -> Stmt.
+(*  | S_Uncall : fid -> Stmt *).
 
   (* Function environments maps fid's to Statements *)
   Definition fenv := fid -> Stmt.
@@ -166,28 +166,15 @@ Section Janus.
   Definition Stmt_assvar m v e op :=
     (write m v (op (m v) (denoteExp m e))).
 
-  Inductive Stmt_loop1_eval : fenv -> memory -> Stmt -> memory -> Prop :=
-  | se_l1_base: forall G m m' e1 s1 s2 e2,
-      Stmt_eval G m s1 m' ->
-        Stmt_loop1_eval G m (S_Loop e1 s1 s2 e2) m'
-  | se_l1_rec: forall G m m' m'' m''' e1 s1 s2 e2,
-      Stmt_eval G m s1 m' ->
-      Word32.is_false(denoteExp m' e2) ->
-      Stmt_loop2_eval G m' (S_Loop e1 s1 s2 e2) m'' ->
-      Word32.is_false(denoteExp m'' e1) ->
-      Stmt_eval G m'' s1 m''' ->
-        Stmt_loop1_eval G m (S_Loop e1 s1 s2 e2) m'''
-  with Stmt_loop2_eval : fenv -> memory -> Stmt -> memory -> Prop :=
-  | se_l2_base: forall G m m' e1 s1 s2 e2,
-      Stmt_eval G m s2 m' ->
-        Stmt_loop2_eval G m (S_Loop e1 s1 s2 e2) m'
-  | se_l2_rec: forall G m m' m'' m''' e1 s1 s2 e2,
+  Inductive Stmt_loop_eval : fenv -> memory ->
+    Exp -> Stmt -> Stmt -> Exp -> memory -> Prop :=
+  | se_l: forall G m m' m'' m''' e1 s1 e2 s2,
+      Word32.is_false(denoteExp m e2) ->
       Stmt_eval G m s2 m' ->
       Word32.is_false(denoteExp m' e1) ->
-      Stmt_loop1_eval G m' (S_Loop e1 s1 s2 e2) m'' ->
-      Word32.is_false(denoteExp m'' e2) ->
-      Stmt_eval G m'' s2 m''' ->
-        Stmt_loop2_eval G m (S_Loop e1 s1 s2 e2) m'''
+      Stmt_eval G m' s1 m'' ->
+      Stmt_loop_eval G m'' e1 s1 s2 e2 m''' ->
+      Stmt_loop_eval G m e1 s1 s2 e2 m'''
   with Stmt_eval : fenv -> memory -> Stmt -> memory -> Prop :=
   | se_skip: forall G m,
       Stmt_eval G m S_Skip m
@@ -216,18 +203,30 @@ Section Janus.
       Stmt_eval G m s2 m' ->
       Word32.is_false(denoteExp m' e2) ->
       Stmt_eval G m (S_If e1 s1 s2 e2) m'
-  | se_loop_main: forall G m m' e1 s1 s2 e2,
+  | se_loop_true: forall G e1 s1 s2 e2 m m',
       Word32.is_true(denoteExp m e1) ->
-      Stmt_loop1_eval G m (S_Loop e1 s1 s2 e2) m' ->
+      Stmt_eval G m s1 m' ->
       Word32.is_true(denoteExp m' e2) ->
       Stmt_eval G m (S_Loop e1 s1 s2 e2) m'
+  | se_loop: forall G e1 s1 s2 e2 m m' m'',
+      Word32.is_true(denoteExp m e1) ->
+      Stmt_eval G m s1 m' ->
+      Word32.is_false(denoteExp m' e2) ->
+      Stmt_loop_eval G m' e1 s1 s2 e2 m'' ->
+      Stmt_eval G m (S_Loop e1 s1 s2 e2) m''
   | se_call: forall G m v m',
       Stmt_eval G m (G v) m' ->
       Stmt_eval G m (S_Call v) m'
-  | se_uncall: forall G m v m',
+(*  | se_uncall: forall G m v m',
       Stmt_eval G m' (G v) m ->
-      Stmt_eval G m (S_Uncall v) m'.
+      Stmt_eval G m (S_Uncall v) m' *).
 
+  (* Produce a rather daunting induction principle on statements mutually
+     inductive with the loop rules. *)
+  Scheme stmt_eval_ind_2 := Induction for Stmt_eval Sort Prop
+  with   loop_eval_ind_2 := Induction for Stmt_loop_eval Sort Prop.
+
+(*
   Fixpoint Stmt_invert (s: Stmt) : Stmt :=
     match s with
       | S_Incr v e => S_Decr v e
@@ -248,7 +247,7 @@ Section Janus.
   Qed.
 
   Hint Rewrite invert_self_inverse : invert.
-
+*)
   Fixpoint Exp_validity (x: var) (e: Exp) : Prop :=
     match e with
       | E_Const z => True
@@ -288,8 +287,46 @@ Section Janus.
       | S_Skip => True
       | S_Semi s1 s2 => (Stmt_validity s1) /\ (Stmt_validity s2)
       | S_Call _ => True (* Check the fenv elsewhere *)
-      | S_Uncall _ => True
+(*      | S_Uncall _ => True *)
     end.
+
+  Definition stmt_det G m s m' : Stmt_eval G m s m' -> Prop :=
+    fun se => forall m'', Stmt_eval G m s m'' -> m' = m''.
+
+  Definition loop_det G m e1 s1 s2 e2 m' :
+    Stmt_loop_eval G m e1 s1 s2 e2 m' -> Prop :=
+    fun le => forall m'',
+      Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m''.
+
+  Lemma Stmt_eval_det : forall G m s m',
+    Stmt_eval G m s m' -> forall m'',
+      Stmt_eval G m s m'' -> m' = m''.
+  Proof.
+    apply
+      (stmt_eval_ind_2
+        stmt_det
+        (fun G m e1 s1 s2 e2 m' =>
+          fun le => forall m'',
+            Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m''));
+      unfold stmt_det; intros; try (inversion H; auto; fail);
+      try (inversion H0; apply H; auto; fail).
+
+    inversion H1; apply H; auto.
+    inversion H0. apply H. auto. congruence.
+    inversion H0. congruence. apply H. auto.
+
+    apply H. inversion H0. assumption.
+    assert (m' = m'0). apply H. assumption. rewrite <- H12 in H10.
+      congruence.
+
+    inversion H1. assert (m' = m''0). apply H. assumption.
+      rewrite <- H12. congruence. assert (m' = m'0). apply H. assumption.
+    apply H0. rewrite H13. assumption.
+
+    inversion H2. apply H1. assert (m'' = m''1). apply H0.
+      assert (m' = m'0). apply H. assumption. rewrite H15.
+      assumption. rewrite H15. assumption.
+  Qed.
 
 (*
   Fixpoint denoteStmt (s : Stmt) : memM unit :=

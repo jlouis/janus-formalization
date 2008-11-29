@@ -1,0 +1,2 @@
+The original semantics doesn't work. The error is subtle, but it can't
+choose between Loop1Base and Loop1Rec properly.
