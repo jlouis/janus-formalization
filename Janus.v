@@ -244,10 +244,10 @@ Section Janus.
 
   Theorem invert_self_inverse : forall (s: Stmt),
     Stmt_invert (Stmt_invert s) = s.
-    induction s; simpl; intuition; congruence.
+    induction s; grind.
   Qed.
 
-  Hint Rewrite invert_self_inverse : invert.
+  Hint Rewrite invert_self_inverse : mortar.
 
   Fixpoint Exp_validity (x: var) (e: Exp) : Prop :=
     match e with
@@ -290,6 +290,26 @@ Section Janus.
       | S_Call _ => True (* Check the fenv elsewhere *)
       | S_Uncall _ => True
     end.
+
+  Inductive fwd_det G m s m' : Stmt_eval G m s m' -> Prop :=
+    | stmt_fwd: forall se,
+         forall m'',
+           bwd_det G m s m' se ->
+           Stmt_eval G m s m' ->
+           Stmt_eval G m s m'' -> m' = m'' ->
+           fwd_det G m s m' se
+
+  with bwd_det G m s m' : Stmt_eval G m s m' -> Prop :=
+    | stmt_bwd: forall se,
+      forall m'',
+        fwd_det G m s m' se ->
+        Stmt_eval G m' s m ->
+        Stmt_eval G m'' s m -> m' = m'' ->
+        bwd_det G m s m' se.
+
+  Scheme fwd_det_ind_2 := Induction for fwd_det Sort Prop
+  with   bwd_det_ind_2 := Induction for bwd_det Sort Prop.
+
 
   Definition stmt_det G m s m' : Stmt_eval G m s m' -> Prop :=
     fun se => forall m'', Stmt_eval G m s m'' -> m' = m''.
