@@ -16,6 +16,7 @@
    ; Implement function definitions and function calls/uncalls.
 *)
 
+Require Import BaseLib.
 Require Import Arith.
 Require Import Word32.
 Require Import Bool.
@@ -78,7 +79,7 @@ Section Janus.
 
   (* Funcalls *)
   | S_Call : fid -> Stmt
-(*  | S_Uncall : fid -> Stmt *).
+  | S_Uncall : fid -> Stmt.
 
   (* Function environments maps fid's to Statements *)
   Definition fenv := fid -> Stmt.
@@ -156,10 +157,11 @@ Section Janus.
 
   Theorem Exp_fwd_det : forall (m : memory) (e : Exp) v1 v2,
     (denoteExp m e = v1) /\ (denoteExp m e = v2) -> (v1 = v2).
-    intros m e v1 v2 [Eq1 Eq2]; congruence.
+  (*    intros m e v1 v2 [Eq1 Eq2]; congruence. *)
+    grind.
   Qed.
 
-  Hint Rewrite Exp_fwd_det : Exp.
+  Hint Rewrite Exp_fwd_det : mortar.
 
   (** Operational semantics for Janus *)
   (* Convenience function *)
@@ -217,16 +219,15 @@ Section Janus.
   | se_call: forall G m v m',
       Stmt_eval G m (G v) m' ->
       Stmt_eval G m (S_Call v) m'
-(*  | se_uncall: forall G m v m',
+  | se_uncall: forall G m v m',
       Stmt_eval G m' (G v) m ->
-      Stmt_eval G m (S_Uncall v) m' *).
+      Stmt_eval G m (S_Uncall v) m'.
 
   (* Produce a rather daunting induction principle on statements mutually
      inductive with the loop rules. *)
   Scheme stmt_eval_ind_2 := Induction for Stmt_eval Sort Prop
   with   loop_eval_ind_2 := Induction for Stmt_loop_eval Sort Prop.
 
-(*
   Fixpoint Stmt_invert (s: Stmt) : Stmt :=
     match s with
       | S_Incr v e => S_Decr v e
@@ -247,7 +248,7 @@ Section Janus.
   Qed.
 
   Hint Rewrite invert_self_inverse : invert.
-*)
+
   Fixpoint Exp_validity (x: var) (e: Exp) : Prop :=
     match e with
       | E_Const z => True
@@ -287,7 +288,7 @@ Section Janus.
       | S_Skip => True
       | S_Semi s1 s2 => (Stmt_validity s1) /\ (Stmt_validity s2)
       | S_Call _ => True (* Check the fenv elsewhere *)
-(*      | S_Uncall _ => True *)
+      | S_Uncall _ => True
     end.
 
   Definition stmt_det G m s m' : Stmt_eval G m s m' -> Prop :=
@@ -310,22 +311,17 @@ Section Janus.
             Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m''));
       unfold stmt_det; intros; try (inversion H; intuition); intros.
 
-    inversion H1; apply H; auto.
-    inversion H0. apply H. auto. congruence.
-    inversion H0. congruence. apply H. auto.
-
-    apply H. inversion H0. assumption.
-    assert (m' = m'0). apply H. assumption. rewrite <- H12 in H10.
-      congruence.
-
-    inversion H1. assert (m' = m''0). apply H. assumption.
-      rewrite <- H12. congruence. assert (m' = m'0). intuition.
-    apply H0. rewrite H13. trivial.
+    inversion H1; intuition.
+    inversion H0; [intuition | congruence].
+    inversion H0; [congruence | intuition].
+    inversion H0. intuition.
+    assert (m' = m'0). intuition. subst. congruence.
+    inversion H1. assert (m' = m''0). intuition. subst. congruence.
+    assert (m' = m'0). intuition. apply H0. subst. trivial.
 
     inversion H0. intuition.
     inversion H2. apply H1. assert (m'' = m''1). apply H0.
-      assert (m' = m'0). intuition. rewrite H15.
-      trivial. rewrite H15. trivial.
+      assert (m' = m'0); intuition; subst; trivial. subst. trivial.
   Qed.
 
 (*
