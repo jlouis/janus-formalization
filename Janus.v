@@ -308,8 +308,7 @@ Section Janus.
         (fun G m e1 s1 s2 e2 m' =>
           fun le => forall m'',
             Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m''));
-      unfold stmt_det; intros; try (inversion H; auto; fail);
-      try (inversion H0; apply H; auto; fail).
+      unfold stmt_det; intros; try (inversion H; intuition); intros.
 
     inversion H1; apply H; auto.
     inversion H0. apply H. auto. congruence.
@@ -320,12 +319,13 @@ Section Janus.
       congruence.
 
     inversion H1. assert (m' = m''0). apply H. assumption.
-      rewrite <- H12. congruence. assert (m' = m'0). apply H. assumption.
-    apply H0. rewrite H13. assumption.
+      rewrite <- H12. congruence. assert (m' = m'0). intuition.
+    apply H0. rewrite H13. trivial.
 
+    inversion H0. intuition.
     inversion H2. apply H1. assert (m'' = m''1). apply H0.
-      assert (m' = m'0). apply H. assumption. rewrite H15.
-      assumption. rewrite H15. assumption.
+      assert (m' = m'0). intuition. rewrite H15.
+      trivial. rewrite H15. trivial.
   Qed.
 
 (*

@@ -1,3 +1,4 @@
+Require Import Eqdep.
 Require Export ZArith.
 Require Export List.
 Require Export Bool.
@@ -25,6 +26,115 @@ Ltac omegaContradiction :=
   cut False; [contradiction|omega].
 
 
+(* Chain injection and substition *)
+Ltac inject H :=
+  injection H; clear H; intros; try subst.
+
+(* apply f to hypotheses *)
+Ltac appHyps f :=
+  match goal with
+    | [ H : _ |- _] => f H
+  end.
+
+Ltac app f ls :=
+  match ls with
+    | (?LS, ?X) => f X || app f LS || fail 1
+    | _ => f ls
+  end.
+
+Ltac inList x ls :=
+  match ls with
+    | x => idtac
+    | (_, x) => idtac
+    | (?LS, _) => inList x LS
+  end.
+
+Ltac simplHyp invOne :=
+  let invert H F :=
+    inList F invOne; (inversion H; fail)
+    || (inversion H; [idtac]; clear H; try subst) in
+      match goal with
+        | [ H : ex _ |- _ ] => destruct H
+        | [ H : ?F ?X = ?F ?Y |- _ ] => injection H;
+          match goal with
+            | [ |- F X = F Y -> _ ] => fail 1
+            | [ |- _ = _ -> _ ] => try clear H; intros; try subst
+          end
+        | [ H : ?F _ _ = ?F _ _ |- _ ] => injection H;
+          match goal with
+            | [ |- _ = _ -> _ = _ -> _ ] => try clear H; intros; try subst
+          end
+        | [ H : ?F _ |- _ ] => invert H F
+        | [ H : ?F _ _ |- _ ] => invert H F
+        | [ H : ?F _ _ _ |- _ ] => invert H F
+        | [ H : ?F _ _ _ _ |- _ ] => invert H F
+        | [ H : ?F _ _ _ _ _ |- _ ] => invert H F
+        | [ H : existT _ ?T _ = existT _ ?T _ |- _ ] =>
+          generalize (inj_pair2 _ _ _ _ _ H); clear H
+        | [ H : existT _ _ _ = existT _ _ _ |- _ ] => inversion H; clear H
+        | [ H : Some _ = Some _ |- _ ] => injection H; clear H
+      end.
+
+Ltac rewriteHyp :=
+  match goal with
+    | [ H : _ |- _ ] => rewrite H; auto; [idtac]
+  end.
+
+Ltac rewriterP := repeat (rewriteHyp; autorewrite with mortar in *).
+Ltac rewriter  := autorewrite with mortar in *; rewriterP.
+
+Hint Rewrite app_ass : mortar.
+
+Definition done (T : Type) (x : T) := True.
+
+Ltac inster e trace :=
+  match type of e with
+    | forall x : _, _ =>
+      match goal with
+        | [ H : _ |- _ ] =>
+          inster (e H) (trace, H)
+        | _ => fail 2
+      end
+    | _ =>
+      match trace with
+        | (_, _) =>
+          match goal with
+            | [ H : done (trace, _) |- _ ] => fail 1
+            | _ =>
+              let T := type of e in
+                match type of T with
+                  | Prop =>
+                    generalize e; intro;
+                      assert (done (trace, tt)); [constructor | idtac]
+                end
+          end
+      end
+  end.
+
+Ltac un_done :=
+  repeat match goal with
+           | [ H : done _ |- _ ] => clear H
+         end.
+
+Ltac grind' lemmas invOne :=
+  let sintuition := simpl in *; intuition; try subst;
+    repeat (simplHyp invOne; intuition; try subst); try congruence in
+      let rewriter := autorewrite with mortar in *;
+        repeat (match goal with
+                  | [ H : _ |- _ ] => (rewrite H; [])
+                    || (rewrite H; [ | solve [grind' lemmas invOne] ])
+                      || (rewrite H; [ | solve [grind' lemmas invOne] |
+                        solve [grind' lemmas invOne ] ])
+                end; autorewrite with mortar in *)
+        in (sintuition; rewriter;
+          match lemmas with
+            | false => idtac
+            | _ => repeat ((app ltac:(fun L => inster L L) lemmas
+              || appHyps ltac:(fun L => inster L L));
+                repeat (simplHyp invOne; intuition)); un_done
+          end; sintuition; rewriter; sintuition; try omega; try (elimtype False; omega)).
+
+Ltac grind := grind' false fail.
 
 (* Definitions and theorems over the type [Z] *)
 Definition zeq: forall (x y: Z), {x = y} + {x <> y} := Z_eq_dec.
