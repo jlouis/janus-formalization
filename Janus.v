@@ -291,30 +291,23 @@ Section Janus.
       | S_Uncall _ => True
     end.
 
-  Inductive fwd_det G m s m' : Stmt_eval G m s m' -> Prop :=
-    | stmt_fwd: forall se,
-           bwd_det G m s m' se ->
+  Inductive fwd_det : fenv -> memory -> Stmt -> memory -> Prop :=
+    | stmt_fwd:
+      (forall G m s m',
+           bwd_det G m s m') ->
+           forall G m s m',
            Stmt_eval G m s m' ->
-           fwd_det G m s m' se
+           fwd_det G m s m'
 
-  with bwd_det G m s m' : Stmt_eval G m s m' -> Prop :=
-    | stmt_bwd: forall se,
-        fwd_det G m s m' se ->
+  with bwd_det : fenv -> memory -> Stmt -> memory -> Prop :=
+    | stmt_bwd: forall G m s m',
+        fwd_det G m s m' ->
+        forall G m s m',
         Stmt_eval G m s m' ->
-        bwd_det G m s m' se.
+        bwd_det G m s m'.
 
   Scheme fwd_det_ind_2 := Induction for fwd_det Sort Prop
   with   bwd_det_ind_2 := Induction for bwd_det Sort Prop.
-
-  Check fwd_det_ind_2.
-
-  Definition fwd_stmt_det G m s m' (s0: Stmt_eval G m s m')
-    : fwd_det G m s m' s0 -> Prop :=
-    fun se => forall m'', Stmt_eval G m s m'' -> m' = m''.
-
-  Definition bwd_stmt_det G m s m' (s0: Stmt_eval G m s m')
-    : bwd_det G m s m' s0 -> Prop :=
-    fun se => forall m'', Stmt_eval G m'' s m' -> m = m''.
 
   Definition stmt_det G m s m' : Stmt_eval G m s m' -> Prop :=
     fun se => forall m'', Stmt_eval G m s m'' -> m' = m''.
@@ -325,21 +318,24 @@ Section Janus.
       Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m''.
 
   Theorem fwd_determinism: forall G m s m',
-    forall se,
-    fwd_det G m s m' se -> forall m'', Stmt_eval G m s m'' -> m' = m''.
+    fwd_det G m s m' -> forall m'',
+      Stmt_eval G m s m'' -> m' = m''.
   Proof.
-    intros until m'.
-    apply
-      (fwd_det_ind_2 G m s m'
-        (fwd_stmt_det G m s m')
-        (bwd_stmt_det G m s m')); unfold fwd_stmt_det; intros.
-    generalize G m s m' s0 m'' H0.
+    apply (fwd_det_ind_2
+      (fun G m s m' =>
+        fun fd => forall m'',
+          Stmt_eval G m s m'' -> m' = m'')
+      (fun G m s m' =>
+        fun fd => forall m'',
+          Stmt_eval G m'' s m' -> m = m'')).
+    intros. generalize G m s m' s0 m'' H0.
     apply (stmt_eval_ind_2
-      stmt_det
+      (fun G m s m' =>
+        fun se => forall m'', Stmt_eval G m s m'' -> m' = m'')
       (fun G m e1 s1 s2 e2 m' =>
         fun le => forall m'',
           Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m''));
-    unfold stmt_det; intros; try (inversion H1; intuition); intros.
+    intros; try (inversion H1; intuition); intros.
 
     inversion H3; intuition.
     inversion H2; [intuition | congruence].
@@ -351,9 +347,15 @@ Section Janus.
     assert (m'0 = m'1). intuition. intuition. subst. intuition.
 
     inversion H2; intuition.
-    inversion H2. unfold bwd_stmt_det in H. grind.
+    inversion H2. grind. eapply H. eauto.
+
+    inversion H4. apply H3. assert (m''0 = m''2). apply H2.
+    assert (m'0 = m'1). intuition; subst; trivial. subst; trivial.
+    subst. trivial.
+
     Abort.
 
+(*
   (* This only works for no UNCALL *)
   Lemma Stmt_eval_det : forall G m s m',
     Stmt_eval G m s m' -> forall m'',
@@ -379,7 +381,7 @@ Section Janus.
     inversion H2. apply H1. assert (m'' = m''1). apply H0.
       assert (m' = m'0); intuition; subst; trivial. subst. trivial.
   Qed.
-
+*)
 (*
   Fixpoint denoteStmt (s : Stmt) : memM unit :=
     match s with
