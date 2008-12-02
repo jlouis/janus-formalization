@@ -36,12 +36,14 @@ Ltac appHyps f :=
     | [ H : _ |- _] => f H
   end.
 
+(* Try to find an element in [ls] that [f] likes *)
 Ltac app f ls :=
   match ls with
     | (?LS, ?X) => f X || app f LS || fail 1
     | _ => f ls
   end.
 
+(* Guard that x is in ls *)
 Ltac inList x ls :=
   match ls with
     | x => idtac
@@ -49,6 +51,7 @@ Ltac inList x ls :=
     | (?LS, _) => inList x LS
   end.
 
+(* Hypothesis simplifier *)
 Ltac simplHyp invOne :=
   let invert H F :=
     inList F invOne; (inversion H; fail)
@@ -132,7 +135,8 @@ Ltac grind' lemmas invOne :=
             | _ => repeat ((app ltac:(fun L => inster L L) lemmas
               || appHyps ltac:(fun L => inster L L));
                 repeat (simplHyp invOne; intuition)); un_done
-          end; sintuition; rewriter; sintuition; try omega; try (elimtype False; omega)).
+          end; sintuition; rewriter; sintuition; try omega;
+          try (elimtype False; omega)).
 
 Ltac grind := grind' false fail.
 

@@ -16,20 +16,31 @@
    ; Implement function definitions and function calls/uncalls.
 *)
 
-Require Import BaseLib.
 Require Import Arith.
-Require Import Word32.
 Require Import Bool.
-Require Import MemMonad.
+Require Import BaseLib.
+Require Import Word32.
 
 Section Janus.
+
+  (* Variables are natural numbers *)
+  Definition var := nat.
+  (* Memories are maps from variables to w32 optional types *)
+  Definition memory := var -> option w32.
+  (* The default store fails any lookup *)
+  Definition empty (_ : var) : option w32 := None.
+
+  (* Write [v] to memory location [x] in memory [m] *)
+  Definition write (m : memory) x v x' :=
+    if eq_nat_dec x x'
+      then Some v
+      else m x'.
+
   (* Janus Expressions. These are taken from {PEPM2007}, Figure 1 *)
-
-
   (* TODO: Arrays *)
   Inductive Exp : Set :=
   | E_Const : w32 -> Exp
-  | E_Var   : nat -> Exp
+  | E_Var   : var -> Exp
 
   (* Arithmetic *)
   | E_Plus  : Exp -> Exp -> Exp
@@ -97,61 +108,113 @@ Section Janus.
      expressions in JANUS *)
 
   (* TODO: Arrays, Fractional product, Arrays *)
-  Fixpoint denoteExp (m : memory) (e : Exp) {struct e} : w32 :=
+  Fixpoint denoteExp (m : memory) (e : Exp) {struct e} : option w32 :=
     match e with
-      (* Arithmetic *)
-      | E_Const z => z
+      (* Arith *)
+      | E_Const z => Some z
       | E_Var l => m l
-      | E_Plus e1 e2 => Word32.add (denoteExp m e1) (denoteExp m e2)
-      | E_Minus e1 e2 => Word32.sub (denoteExp m e1) (denoteExp m e2)
-      | E_Mul e1 e2 => Word32.mul (denoteExp m e1) (denoteExp m e2)
-      | E_Div e1 e2 => Word32.divu (denoteExp m e1) (denoteExp m e2)
-      | E_Mod e1 e2 => Word32.modu (denoteExp m e1) (denoteExp m e2)
-      | E_FracProd e1 e2 => Word32.fracprodu (denoteExp m e1) (denoteExp m e2)
-
+      | E_Plus e1 e2 =>
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') => Some (Word32.add n n')
+          | _ => None
+        end
+      | E_Minus e1 e2 =>
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') => Some (Word32.sub n n')
+          | _ => None
+        end
+      | E_Mul e1 e2 =>
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') => Some (Word32.mul n n')
+          | _ => None
+        end
+      | E_Div e1 e2 =>
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') => Some (Word32.divu n n')
+          | _ => None
+        end
+      | E_Mod e1 e2 =>
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') => Some (Word32.modu n n')
+          | _ => None
+        end
+      | E_FracProd e1 e2 =>
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') => Some (Word32.fracprodu n n')
+          | _ => None
+        end
       (* Bitwise *)
-      | E_Bit_And e1 e2 => Word32.and (denoteExp m e1) (denoteExp m e2)
-      | E_Bit_Xor e1 e2 => Word32.xor (denoteExp m e1) (denoteExp m e2)
-      | E_Bit_Or  e1 e2 => Word32.or  (denoteExp m e1) (denoteExp m e2)
-
+      | E_Bit_And e1 e2 =>
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') => Some (Word32.and n n')
+          | _ => None
+        end
+      | E_Bit_Xor e1 e2 =>
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') => Some (Word32.xor n n')
+          | _ => None
+        end
+      | E_Bit_Or e1 e2 =>
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') => Some (Word32.or n n')
+          | _ => None
+        end
       (* Relational *)
       | E_Eq e1 e2 =>
-        if Word32.cmpu Ceq (denoteExp m e1) (denoteExp m e2)
-          then Word32.one
-          else Word32.zero
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') =>
+            Some (if Word32.cmpu Ceq n n' then Word32.one else Word32.zero)
+          | _ => None
+        end
       | E_Neq e1 e2 =>
-        if Word32.cmpu Cne (denoteExp m e1) (denoteExp m e2)
-          then Word32.one
-          else Word32.zero
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') =>
+            Some (if Word32.cmpu Cne n n' then Word32.one else Word32.zero)
+          | _ => None
+        end
       | E_Lt e1 e2 =>
-        if Word32.cmpu Clt (denoteExp m e1) (denoteExp m e2)
-          then Word32.one
-          else Word32.zero
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') =>
+            Some (if Word32.cmpu Clt n n' then Word32.one else Word32.zero)
+          | _ => None
+        end
       | E_Gt e1 e2 =>
-        if Word32.cmpu Cgt (denoteExp m e1) (denoteExp m e2)
-          then Word32.one
-          else Word32.zero
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') =>
+            Some (if Word32.cmpu Cgt n n' then Word32.one else Word32.zero)
+          | _ => None
+        end
       | E_Leq e1 e2 =>
-        if Word32.cmpu Cleq (denoteExp m e1) (denoteExp m e2)
-          then Word32.one
-          else Word32.zero
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') =>
+            Some (if Word32.cmpu Cleq n n' then Word32.one else Word32.zero)
+          | _ => None
+        end
       | E_Geq e1 e2 =>
-        if Word32.cmpu Cgeq (denoteExp m e1) (denoteExp m e2)
-          then Word32.one
-          else Word32.zero
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') =>
+            Some (if Word32.cmpu Cgeq n n' then Word32.one else Word32.zero)
+          | _ => None
+        end
       | E_And e1 e2 =>
-        match (Word32.unsigned (denoteExp m e1),
-               Word32.unsigned (denoteExp m e2)) with
-          | (0, _) => Word32.zero
-          | (_, 0) => Word32.zero
-          | (_, _) => Word32.one
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') =>
+            match (Word32.unsigned n, Word32.unsigned n') with
+              | (0, _) => Some Word32.zero
+              | (_, 0) => Some Word32.zero
+              | (_, _) => Some Word32.one
+            end
+          | _ => None
         end
       | E_Or e1 e2 =>
-        match (Word32.unsigned (denoteExp m e1),
-               Word32.unsigned (denoteExp m e2)) with
-          | (1, _) => Word32.one
-          | (_, 1) => Word32.one
-          | (_, _) => Word32.zero
+        match (denoteExp m e1, denoteExp m e2) with
+          | (Some n, Some n') =>
+            match (Word32.unsigned n, Word32.unsigned n') with
+              | (1, _) => Some Word32.one
+              | (_, 1) => Some Word32.one
+              | (_, _) => Some Word32.zero
+            end
+          | _ => None
         end
     end.
 
@@ -161,59 +224,73 @@ Section Janus.
     grind.
   Qed.
 
-  Hint Rewrite Exp_fwd_det : mortar.
-
   (** Operational semantics for Janus *)
-  (* Convenience function *)
-  Definition Stmt_assvar m v e op :=
-    (write m v (op (m v) (denoteExp m e))).
-
   Inductive Stmt_loop_eval : fenv -> memory ->
-    Exp -> Stmt -> Stmt -> Exp -> memory -> Prop :=
-  | se_l: forall G m m' m'' m''' e1 s1 e2 s2,
-      Word32.is_false(denoteExp m e2) ->
+      Exp -> Stmt -> Stmt -> Exp ->
+      memory -> Prop :=
+  | se_l_f: forall G m m' m'' m''' e1 s1 e2 s2 v1 v2,
+      denoteExp m e2 = Some v2 ->
+      Word32.is_false(v2) ->
       Stmt_eval G m s2 m' ->
-      Word32.is_false(denoteExp m' e1) ->
+      denoteExp m' e1 = Some v1 ->
+      Word32.is_false(v1) ->
       Stmt_eval G m' s1 m'' ->
       Stmt_loop_eval G m'' e1 s1 s2 e2 m''' ->
       Stmt_loop_eval G m e1 s1 s2 e2 m'''
+  | se_l_t: forall G m e1 s1 s2 e2 v2,
+      denoteExp m e2 = Some v2 ->
+      Word32.is_true(v2) ->
+      Stmt_loop_eval G m e1 s1 s2 e2 m
   with Stmt_eval : fenv -> memory -> Stmt -> memory -> Prop :=
   | se_skip: forall G m,
       Stmt_eval G m S_Skip m
-  | se_assvar_incr: forall G m v e,
-      Stmt_eval G m (S_Incr v e) (Stmt_assvar m v e Word32.add)
-  | se_assvar_decr: forall G m v e,
-      Stmt_eval G m (S_Decr v e) (Stmt_assvar m v e Word32.sub)
-  | se_assvar_xor: forall G m v e,
-      Stmt_eval G m (S_Xor v e) (Stmt_assvar m v e Word32.xor)
-  | se_swap: forall G (m: memory) (v1 v2: var),
-      Stmt_eval G m (S_Swap v1 v2)
-        (let r1 := m v1 in
-         let r2 := m v2 in
-           (write (write m v1 r2) v2 r1))
+  | se_assvar_incr: forall G m v e n n' n'' m',
+      denoteExp m e = Some n ->
+      m v = Some n'' ->
+      Word32.add n n'' = n' ->
+      write m v n' = m' ->
+      Stmt_eval G m (S_Incr v e) m'
+  | se_assvar_decr: forall G m v e n n' n'' m',
+      denoteExp m e = Some n ->
+      m v = Some n'' ->
+      Word32.add n n'' = n' ->
+      write m v n' = m' ->
+      Stmt_eval G m (S_Decr v e) m'
+  | se_assvar_xor: forall G m v e n n' n'' m',
+      denoteExp m e = Some n ->
+      m v = Some n'' ->
+      Word32.add n n'' = n' ->
+      write m v n' = m' ->
+      Stmt_eval G m (S_Xor v e) m'
+  | se_swap: forall G m v1 v2 n1 n2 m',
+      m v1 = Some n1 ->
+      m v2 = Some n2 ->
+      (write (write m v1 n2) v2 n1) = m' ->
+        Stmt_eval G m (S_Swap v1 v2) m'
   | se_semi: forall G s1 s2 m m' m'',
      Stmt_eval G m s1 m' ->
      Stmt_eval G m' s2 m'' ->
        Stmt_eval G m (S_Semi s1 s2) m'
-  | se_if_true: forall G e1 e2 s1 s2 m m',
-      Word32.is_true(denoteExp m e1) ->
+  | se_if_true: forall G e1 e2 s1 s2 m m' n1 n2,
+      denoteExp m e1 = Some n1 ->
+      Word32.is_true(n1) ->
       Stmt_eval G m s1 m' ->
-      Word32.is_true(denoteExp m' e2) ->
+      denoteExp m' e2 = Some n2 ->
+      Word32.is_true(n2) ->
         Stmt_eval G m (S_If e1 s1 s2 e2) m'
-  | se_if_false: forall G e1 e2 s1 s2 m m',
-      Word32.is_false(denoteExp m e1) ->
+  | se_if_false: forall G e1 e2 s1 s2 m m' n1 n2,
+      denoteExp m e1 = Some n1 ->
+      Word32.is_false(n1) ->
       Stmt_eval G m s2 m' ->
-      Word32.is_false(denoteExp m' e2) ->
+      denoteExp m' e2 = Some n2 ->
+      Word32.is_false(n2) ->
       Stmt_eval G m (S_If e1 s1 s2 e2) m'
-  | se_loop_true: forall G e1 s1 s2 e2 m m',
-      Word32.is_true(denoteExp m e1) ->
+  | se_loop: forall G e1 s1 s2 e2 m m' m'' n1 n2,
+      denoteExp m e1 = Some n1 ->
+      Word32.is_true(n1) ->
       Stmt_eval G m s1 m' ->
-      Word32.is_true(denoteExp m' e2) ->
-      Stmt_eval G m (S_Loop e1 s1 s2 e2) m'
-  | se_loop: forall G e1 s1 s2 e2 m m' m'',
-      Word32.is_true(denoteExp m e1) ->
-      Stmt_eval G m s1 m' ->
-      Word32.is_false(denoteExp m' e2) ->
+      denoteExp m' e2 = Some n2 ->
+      Word32.is_false(n2) ->
       Stmt_loop_eval G m' e1 s1 s2 e2 m'' ->
       Stmt_eval G m (S_Loop e1 s1 s2 e2) m''
   | se_call: forall G m v m',
@@ -247,50 +324,6 @@ Section Janus.
     induction s; grind.
   Qed.
 
-  Hint Rewrite invert_self_inverse : mortar.
-
-  Fixpoint Exp_validity (x: var) (e: Exp) : Prop :=
-    match e with
-      | E_Const z => True
-      | E_Var y => x <> y
-      | E_Plus e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_Minus e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_Mul e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_Div e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_Mod e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_FracProd e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-
-      | E_Bit_Xor e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_Bit_And e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_Bit_Or e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-
-      | E_Eq e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_Neq e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_And e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_Or e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_Lt e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_Gt e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_Leq e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-      | E_Geq e1 e2 => (Exp_validity x e1) /\ (Exp_validity x e2)
-    end.
-
-
-  (* Is a statement valid?
-     This is just as simple congruence relation on statements *)
-  Fixpoint Stmt_validity (s: Stmt) : Prop :=
-    match s with
-      | S_Incr v e => Exp_validity v e
-      | S_Decr v e => Exp_validity v e
-      | S_Xor v e => Exp_validity v e
-      | S_Swap _ _ => True
-      | S_If _ s1 s2 _ => (Stmt_validity s1) /\ (Stmt_validity s2)
-      | S_Loop _ s1 s2 _ => (Stmt_validity s1) /\ (Stmt_validity s2)
-      | S_Skip => True
-      | S_Semi s1 s2 => (Stmt_validity s1) /\ (Stmt_validity s2)
-      | S_Call _ => True (* Check the fenv elsewhere *)
-      | S_Uncall _ => True
-    end.
-
   Inductive fwd_det : fenv -> memory -> Stmt -> memory -> Prop :=
     | stmt_fwd:
       (forall G m s m',
@@ -300,8 +333,9 @@ Section Janus.
            fwd_det G m s m'
 
   with bwd_det : fenv -> memory -> Stmt -> memory -> Prop :=
-    | stmt_bwd: forall G m s m',
-        fwd_det G m s m' ->
+    | stmt_bwd:
+      (forall G m s m',
+        fwd_det G m s m') ->
         forall G m s m',
         Stmt_eval G m s m' ->
         bwd_det G m s m'.
@@ -309,15 +343,8 @@ Section Janus.
   Scheme fwd_det_ind_2 := Induction for fwd_det Sort Prop
   with   bwd_det_ind_2 := Induction for bwd_det Sort Prop.
 
-  Definition stmt_det G m s m' : Stmt_eval G m s m' -> Prop :=
-    fun se => forall m'', Stmt_eval G m s m'' -> m' = m''.
-
-  Definition loop_det G m e1 s1 s2 e2 m' :
-    Stmt_loop_eval G m e1 s1 s2 e2 m' -> Prop :=
-    fun le => forall m'',
-      Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m''.
-
-  Theorem fwd_determinism: forall G m s m',
+  (* Rather technical lemma from which we can pull out the wanted value *)
+  Lemma fwd_determinism': forall G m s m',
     fwd_det G m s m' -> forall m'',
       Stmt_eval G m s m'' -> m' = m''.
   Proof.
@@ -337,23 +364,39 @@ Section Janus.
           Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m''));
     intros; try (inversion H1; intuition); intros.
 
-    inversion H3; intuition.
-    inversion H2; [intuition | congruence].
-    inversion H2; [congruence | intuition].
-    inversion H2; intuition.
+    (* Forward non-immediate cases *)
+    grind.
+    grind.
+    grind.
+    grind.
+    inversion H3. grind.
+    inversion H2; grind.
+    inversion H2; grind.
+    inversion H3; grind.
 
-    assert (m'0 = m'1). intuition. subst. congruence.
-    inversion H3. assert (m'0 = m''1). intuition. subst. congruence.
-    assert (m'0 = m'1). intuition. intuition. subst. intuition.
-
-    inversion H2; intuition.
+    assert (m'0 = m'1). intuition. subst. grind.
+    inversion H2; grind.
     inversion H2. grind. eapply H. eauto.
 
     inversion H4. apply H3. assert (m''0 = m''2). apply H2.
     assert (m'0 = m'1). intuition; subst; trivial. subst; trivial.
     subst. trivial.
+    grind.
+    grind.
+
+    (* Backwards *)
+    intros.
+    generalize G m s m' s0 m'' H0.
+    apply (stmt_eval_ind_2
+      (fun G m s m' =>
+        fun se => forall m'', Stmt_eval G m'' s m' -> m = m'')
+      (fun G m e1 s1 s2 e2 m' =>
+        fun le => forall m'',
+          Stmt_loop_eval G m'' e1 s1 s2 e2 m -> m = m'')).
+    intros. inversion H1. trivial.
 
     Abort.
+
 
 (*
   (* This only works for no UNCALL *)
@@ -382,6 +425,22 @@ Section Janus.
       assert (m' = m'0); intuition; subst; trivial. subst. trivial.
   Qed.
 *)
+  (* Is a statement valid?
+     This is just as simple congruence relation on statements *)
+  Fixpoint Stmt_validity (s: Stmt) : Prop :=
+    match s with
+      | S_Incr v e => Exp_validity v e
+      | S_Decr v e => Exp_validity v e
+      | S_Xor v e => Exp_validity v e
+      | S_Swap _ _ => True
+      | S_If _ s1 s2 _ => (Stmt_validity s1) /\ (Stmt_validity s2)
+      | S_Loop _ s1 s2 _ => (Stmt_validity s1) /\ (Stmt_validity s2)
+      | S_Skip => True
+      | S_Semi s1 s2 => (Stmt_validity s1) /\ (Stmt_validity s2)
+      | S_Call _ => True (* Check the fenv elsewhere *)
+      | S_Uncall _ => True
+    end.
+
 (*
   Fixpoint denoteStmt (s : Stmt) : memM unit :=
     match s with
