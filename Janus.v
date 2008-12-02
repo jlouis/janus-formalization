@@ -36,6 +36,11 @@ Section Janus.
       then Some v
       else m x'.
 
+  Definition hide (m : memory) x x' :=
+    if eq_nat_dec x x'
+      then None
+      else m x'.
+
   (* Janus Expressions. These are taken from {PEPM2007}, Figure 1 *)
   (* TODO: Arrays *)
   Inductive Exp : Set :=
@@ -245,19 +250,19 @@ Section Janus.
   | se_skip: forall G m,
       Stmt_eval G m S_Skip m
   | se_assvar_incr: forall G m v e n n' n'' m',
-      denoteExp m e = Some n ->
+      denoteExp (hide m v) e = Some n ->
       m v = Some n'' ->
       Word32.add n n'' = n' ->
       write m v n' = m' ->
       Stmt_eval G m (S_Incr v e) m'
   | se_assvar_decr: forall G m v e n n' n'' m',
-      denoteExp m e = Some n ->
+      denoteExp (hide m v) e = Some n ->
       m v = Some n'' ->
       Word32.add n n'' = n' ->
       write m v n' = m' ->
       Stmt_eval G m (S_Decr v e) m'
   | se_assvar_xor: forall G m v e n n' n'' m',
-      denoteExp m e = Some n ->
+      denoteExp (hide m v) e = Some n ->
       m v = Some n'' ->
       Word32.add n n'' = n' ->
       write m v n' = m' ->
@@ -355,7 +360,7 @@ Section Janus.
       (fun G m s m' =>
         fun fd => forall m'',
           Stmt_eval G m'' s m' -> m = m'')).
-    intros. generalize G m s m' s0 m'' H0.
+    intros bwd X.
     apply (stmt_eval_ind_2
       (fun G m s m' =>
         fun se => forall m'', Stmt_eval G m s m'' -> m' = m'')
@@ -365,35 +370,34 @@ Section Janus.
     intros; try (inversion H1; intuition); intros.
 
     (* Forward non-immediate cases *)
-    grind.
-    grind.
-    grind.
-    grind.
-    inversion H3. grind.
-    inversion H2; grind.
-    inversion H2; grind.
-    inversion H3; grind.
+    inversion H. grind.
+    inversion H. grind.
+    inversion H. grind.
+    inversion H. grind.
+    inversion H. grind.
+    inversion H0. grind.
+    inversion H0; grind.
+    inversion H0; grind.
 
-    assert (m'0 = m'1). intuition. subst. grind.
-    inversion H2; grind.
-    inversion H2. grind. eapply H. eauto.
+    assert (m' = m'0). intuition. subst. grind.
+    inversion H0; grind.
+    inversion H0. grind. eapply X. eauto.
 
-    inversion H4. apply H3. assert (m''0 = m''2). apply H2.
-    assert (m'0 = m'1). intuition; subst; trivial. subst; trivial.
-    subst. trivial.
+    inversion H2. apply H1. assert (m'' = m''1). apply H0.
+    assert (m' = m'0). intuition; subst; trivial. subst; trivial.
     grind.
     grind.
-
+    inversion H. grind. trivial.
     (* Backwards *)
-    intros.
-    generalize G m s m' s0 m'' H0.
+    intros fwd X.
     apply (stmt_eval_ind_2
       (fun G m s m' =>
-        fun se => forall m'', Stmt_eval G m'' s m' -> m = m'')
+        fun se => forall m'',
+          Stmt_eval G m'' s m' -> m = m'')
       (fun G m e1 s1 s2 e2 m' =>
         fun le => forall m'',
           Stmt_loop_eval G m'' e1 s1 s2 e2 m -> m = m'')).
-    intros. inversion H1. trivial.
+    intros. inversion H. trivial.
 
     Abort.
 
