@@ -290,6 +290,13 @@ Section Janus.
       denoteExp m' e2 = Some n2 ->
       Word32.is_false(n2) ->
       Stmt_eval G m (S_If e1 s1 s2 e2) m'
+  | se_loop_t: forall G m e1 s1 s2 e2 m' n1 n2,
+      denoteExp m e1 = Some n1 ->
+      Word32.is_true(n1) ->
+      Stmt_eval G m s1 m' ->
+      denoteExp m' e2 = Some n2 ->
+      Word32.is_true(n2) ->
+      Stmt_eval G m (S_Loop e1 s1 s2 e2) m'
   | se_loop: forall G e1 s1 s2 e2 m m' m'' n1 n2,
       denoteExp m e1 = Some n1 ->
       Word32.is_true(n1) ->
@@ -334,7 +341,6 @@ Section Janus.
       (forall G m s m',
            bwd_det G m s m') ->
            forall G m s m',
-           Stmt_eval G m s m' ->
            fwd_det G m s m'
 
   with bwd_det : fenv -> memory -> Stmt -> memory -> Prop :=
@@ -342,62 +348,45 @@ Section Janus.
       (forall G m s m',
         fwd_det G m s m') ->
         forall G m s m',
-        Stmt_eval G m s m' ->
         bwd_det G m s m'.
 
   Scheme fwd_det_ind_2 := Induction for fwd_det Sort Prop
   with   bwd_det_ind_2 := Induction for bwd_det Sort Prop.
 
-  (* Rather technical lemma from which we can pull out the wanted value *)
   Lemma fwd_determinism': forall G m s m',
-    fwd_det G m s m' -> forall m'',
-      Stmt_eval G m s m'' -> m' = m''.
+    fwd_det G m s m' ->
+      Stmt_eval G m s m' -> forall m'', Stmt_eval G m s m'' -> m' = m''.
   Proof.
     apply (fwd_det_ind_2
       (fun G m s m' =>
-        fun fd => forall m'',
-          Stmt_eval G m s m'' -> m' = m'')
+        fun fd => Stmt_eval G m s m' -> forall m'', Stmt_eval G m s m'' -> m' = m'')
       (fun G m s m' =>
-        fun fd => forall m'',
-          Stmt_eval G m'' s m' -> m = m'')).
+        fun fd => Stmt_eval G m s m' -> forall m'', Stmt_eval G m'' s m' -> m = m'')).
     intros bwd X.
     apply (stmt_eval_ind_2
-      (fun G m s m' =>
-        fun se => forall m'', Stmt_eval G m s m'' -> m' = m'')
-      (fun G m e1 s1 s2 e2 m' =>
-        fun le => forall m'',
-          Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m''));
-    intros; try (inversion H1; intuition); intros.
+    (fun (G: fenv) (m: memory) (s: Stmt) (m': memory) =>
+      fun se => forall m'', Stmt_eval G m s m'' -> m' = m'')
+    (fun (G: fenv) (m: memory) (e1: Exp) (s1 s2: Stmt) (e2: Exp) (m': memory)
+      (le: Stmt_loop_eval G m e1 s1 s2 e2 m') =>
+      forall m'',
+        Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m'')); intros; try (inversion H; grind).
 
-    (* Forward non-immediate cases *)
-    inversion H. grind.
-    inversion H. grind.
-    inversion H. grind.
-    inversion H. grind.
-    inversion H. grind.
-    inversion H0. grind.
+    inversion H1; grind. inversion H0; grind. inversion H0; grind.
     inversion H0; grind.
+    inversion H0. apply H. assumption. assert (m' = m'0). apply H. assumption. grind.
+    inversion H1. subst. assert (m' = m''0). apply H. assumption. grind.
+      subst. assert (m' = m'0). apply H. assumption. subst. grind.
     inversion H0; grind.
+    inversion H0. eapply X. eauto. assumption.
+    inversion H2. assert (m' = m'0). apply H. assumption. subst.
+      assert (m'' = m''1). apply H0. intuition. subst. apply H1. assumption. congruence.
 
-    assert (m' = m'0). intuition. subst. grind.
-    inversion H0; grind.
-    inversion H0. grind. eapply X. eauto.
-
-    inversion H2. apply H1. assert (m'' = m''1). apply H0.
-    assert (m' = m'0). intuition; subst; trivial. subst; trivial.
-    grind.
-    grind.
-    inversion H. grind. trivial.
-    (* Backwards *)
     intros fwd X.
     apply (stmt_eval_ind_2
-      (fun G m s m' =>
-        fun se => forall m'',
-          Stmt_eval G m'' s m' -> m = m'')
-      (fun G m e1 s1 s2 e2 m' =>
-        fun le => forall m'',
-          Stmt_loop_eval G m'' e1 s1 s2 e2 m -> m = m'')).
-    intros. inversion H. trivial.
+      (fun G m s m' (se: Stmt_eval G m s m') =>
+        forall m'', Stmt_eval G m'' s m' -> m = m'')
+      (fun G m e1 s1 s2 e2 m' le =>
+        forall m'', Stmt_loop_eval G m'' e1 s1 s2 e2 m' -> m = m'')); intros; try (inversion H; grind).
 
     Abort.
 
