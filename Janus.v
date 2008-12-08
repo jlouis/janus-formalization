@@ -20,27 +20,9 @@ Require Import Arith.
 Require Import Bool.
 Require Import BaseLib.
 Require Import Word32.
+Require Import Memory.
 
 Section Janus.
-
-  (* Variables are natural numbers *)
-  Definition var := nat.
-  (* Memories are maps from variables to w32 optional types *)
-  Definition memory := var -> option w32.
-  (* The default store fails any lookup *)
-  Definition empty (_ : var) : option w32 := None.
-
-  (* Write [v] to memory location [x] in memory [m] *)
-  Definition write (m : memory) x v x' :=
-    if eq_nat_dec x x'
-      then Some v
-      else m x'.
-
-  Definition hide (m : memory) x x' :=
-    if eq_nat_dec x x'
-      then None
-      else m x'.
-
   (* Janus Expressions. These are taken from {PEPM2007}, Figure 1 *)
   (* TODO: Arrays *)
   Inductive Exp : Set :=
@@ -386,7 +368,8 @@ Section Janus.
       (fun G m s m' (se: Stmt_eval G m s m') =>
         forall m'', Stmt_eval G m'' s m' -> m = m'')
       (fun G m e1 s1 s2 e2 m' le =>
-        forall m'', Stmt_loop_eval G m'' e1 s1 s2 e2 m' -> m = m'')); intros; try (inversion H; grind).
+        forall m'', Stmt_loop_eval G m'' e1 s1 s2 e2 m' -> m = m''));
+    intros; try (inversion H; grind).
 
     Abort.
 
@@ -420,20 +403,6 @@ Section Janus.
 *)
   (* Is a statement valid?
      This is just as simple congruence relation on statements *)
-  Fixpoint Stmt_validity (s: Stmt) : Prop :=
-    match s with
-      | S_Incr v e => Exp_validity v e
-      | S_Decr v e => Exp_validity v e
-      | S_Xor v e => Exp_validity v e
-      | S_Swap _ _ => True
-      | S_If _ s1 s2 _ => (Stmt_validity s1) /\ (Stmt_validity s2)
-      | S_Loop _ s1 s2 _ => (Stmt_validity s1) /\ (Stmt_validity s2)
-      | S_Skip => True
-      | S_Semi s1 s2 => (Stmt_validity s1) /\ (Stmt_validity s2)
-      | S_Call _ => True (* Check the fenv elsewhere *)
-      | S_Uncall _ => True
-    end.
-
 (*
   Fixpoint denoteStmt (s : Stmt) : memM unit :=
     match s with
