@@ -203,4 +203,22 @@ Lemma two_power_nat_pos : forall (n : nat),
 Qed.
 
 
+(* Proofs about functions *)
+Lemma f_ext : forall (A B : Set) (f g : A -> B) (x : A), f = g -> f x = g x.
+Proof.
+  grind.
+Qed.
 
+Lemma f_ext_2 : forall (A B C : Set) (f g : A -> B -> C)
+  (x : A) (y : B),
+  f = g -> f x y = g x y.
+Proof.
+  grind.
+Qed.
+
+Lemma f_ext_3 : forall (A B C D : Set) (f g : A -> B -> C -> D)
+  (x : A) (y : B) (z : C),
+  f = g -> f x y z = g x y z.
+Proof.
+  grind.
+Qed.

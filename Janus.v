@@ -207,8 +207,7 @@ Section Janus.
 
   Theorem Exp_fwd_det : forall (m : memory) (e : Exp) v1 v2,
     (denoteExp m e = v1) /\ (denoteExp m e = v2) -> (v1 = v2).
-  (*    intros m e v1 v2 [Eq1 Eq2]; congruence. *)
-    grind.
+
   Qed.
 
   (** Operational semantics for Janus *)
@@ -315,7 +314,7 @@ Section Janus.
 
   Theorem invert_self_inverse : forall (s: Stmt),
     Stmt_invert (Stmt_invert s) = s.
-    induction s; grind.
+
   Qed.
 
   Inductive fwd_det : fenv -> memory -> Stmt -> memory -> Prop :=

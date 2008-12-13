@@ -1,4 +1,4 @@
-\documentclass[20pt]{beamer}
+\documentclass[18pt]{beamer}
 \usepackage[T1]{fontenc}
 \usepackage[protrusion=true,expansion=true]{microtype}
 %usepackage[minionint,mathlf]{MinionPro}
@@ -16,9 +16,10 @@
 
 \frame{
   \begin{center}
-    Formalization\\
+    Formalization of JANUS\\
     \emph{or}\\
-    ``Explaining your proof to the machine''
+    ``Explaining your proof to the machine''\\
+    (Work in progress)
   \end{center}
 }
 
@@ -32,6 +33,7 @@
   \begin{center}
     \large{Goals:}\\
     \begin{itemize}
+    \item Simplicity
     \item It is in the details!
     \item Understanding the domain.
     \end{itemize}
@@ -65,7 +67,7 @@
 \frame{
   \begin{center}
     Coq:\\
-    ML\\
+    ML + Proven termination\\
     +\\
     \includegraphics[width=200px]{Kruiden}
   \end{center}
@@ -85,7 +87,7 @@
     integer $z \in \mathbb{Z}$, and\\
     A proof of $0 \leq z < 2^{32}$.\\
     Key Lemma:\\
-    $\forall z \in \mathbb{Z}, \quad z \mod 2^{32} < 2^{32}$
+    $\forall z \in \mathbb{Z}, \quad 0 \leq z \mod 2^{32} < 2^{32}$
   \end{center}
 }
 
@@ -142,6 +144,7 @@
     \begin{itemize}
     \item Working towards a proof of forward/backward determinism mutually.
     \item Need properties on stores to do it.
+    \item No arrays yet.
     \item Extensionality may come in handy:
     \end{itemize}
     $\forall x, \quad f \; x = g \; x => f = g$
