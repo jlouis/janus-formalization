@@ -207,7 +207,7 @@ Section Janus.
 
   Theorem Exp_fwd_det : forall (m : memory) (e : Exp) v1 v2,
     (denoteExp m e = v1) /\ (denoteExp m e = v2) -> (v1 = v2).
-
+    grind.
   Qed.
 
   (** Operational semantics for Janus *)
@@ -314,7 +314,8 @@ Section Janus.
 
   Theorem invert_self_inverse : forall (s: Stmt),
     Stmt_invert (Stmt_invert s) = s.
-
+  Proof.
+    induction s; grind.
   Qed.
 
   Inductive fwd_det : fenv -> memory -> Stmt -> memory -> Prop :=
@@ -369,6 +370,20 @@ Section Janus.
       (fun G m e1 s1 s2 e2 m' le =>
         forall m'', Stmt_loop_eval G m'' e1 s1 s2 e2 m' -> m = m''));
     intros; try (inversion H; grind).
+
+    (* assvar_add *)
+    assert ((Word32.add n0 n''0) = (Word32.add n n'')).
+      apply (write_eq_2 m'' m v (Word32.add n0 n''0) (Word32.add n n'')).
+      apply (f_ext nat (option w32)
+        (write m'' v (Word32.add n0 n''0))
+        (write m v (Word32.add n n'')) v). assumption.
+    assert ((hide m v) = (hide m'' v)).
+    eapply write_hide. eauto.
+    rewrite H1 in e0.
+    assert (n = n0).
+      rewrite e0 in H2. injection H2. trivial.
+    subst.
+    assert (n'' = n''0).
 
     Abort.
 

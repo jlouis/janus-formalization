@@ -25,6 +25,15 @@ Axiom proof_irrelevance:
 Ltac omegaContradiction :=
   cut False; [contradiction|omega].
 
+Ltac decEq :=
+  match goal with
+    | [ |- _ = _ ] => f_equal
+    | [ |- (?X ?A <> ?X ?B) ] =>
+      cut (A <> B); [intro; congruence | try discriminate]
+  end.
+
+Ltac caseEq name :=
+  generalize (refl_equal name); pattern name at -1 in |- *; case name.
 
 (* Chain injection and substition *)
 Ltac inject H :=
@@ -221,4 +230,49 @@ Lemma f_ext_3 : forall (A B C D : Set) (f g : A -> B -> C -> D)
   f = g -> f x y z = g x y z.
 Proof.
   grind.
+Qed.
+
+Lemma Zdiv_small:
+  forall x y, 0 <= x < y -> x / y = 0.
+Proof.
+  intros. assert (y > 0). omega.
+  assert (forall a b,
+    0 <= a < y ->
+    0 <= y * b + a < y ->
+    b = 0).
+  intros.
+  assert (b = 0 \/ b > 0 \/ (-b) > 0). omega.
+  elim H3; intro. auto.
+  elim H4; intro. auto.
+  assert (y * b >= y * 1). apply Zmult_ge_compat_l. omega. omega.
+  omegaContradiction.
+  assert (y * (-b) >= y * 1). apply Zmult_ge_compat_l. omega. omega.
+  rewrite <- Zopp_mult_distr_r in H6. omegaContradiction.
+  apply H1 with (x mod y).
+  apply Z_mod_lt. auto.
+  rewrite <- Z_div_mod_eq. auto. auto.
+Qed.
+
+Lemma Zmod_small:
+  forall x y, 0 <= x < y -> x mod y = x.
+Proof.
+  intros. assert (y > 0). omega.
+  generalize (Z_div_mod_eq x y H0).
+  rewrite (Zdiv_small x y H). omega.
+Qed.
+
+Lemma Zmod_unique:
+  forall x y a b,
+    x = a * y + b -> 0 <= b < y -> x mod y = b.
+Proof.
+  intros. subst x. rewrite Zplus_comm.
+  rewrite Z_mod_plus. apply Zmod_small. trivial. omega.
+Qed.
+
+Lemma Zdiv_unique:
+  forall x y a b,
+    x = a * y + b -> 0 <= b < y -> x / y = a.
+Proof.
+  intros. subst x. rewrite Zplus_comm.
+  rewrite Z_div_plus. rewrite (Zdiv_small b y H0). omega. omega.
 Qed.

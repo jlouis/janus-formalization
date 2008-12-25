@@ -65,11 +65,15 @@ Section Memory.
     destruct (eq_nat_dec x x0); grind.
   Qed.
 
+  Hint Rewrite hide_retract : mortar.
+
   Lemma write_extend : forall m m' x v,
     m = m' -> write m x v = write m' x v.
   Proof.
     grind.
   Qed.
+
+  Hint Rewrite write_extend : mortar.
 
   Lemma hide_irrel : forall m m' x,
     hide m x = hide m' x -> forall a, a <> x -> m a = m' a.
@@ -83,12 +87,16 @@ Section Memory.
     grind.
   Qed.
 
+  Hint Rewrite hide_irrel : mortar.
+
   Lemma write_neutral : forall m x v,
     m x = Some v -> write m x v = m.
   Proof.
     intros. apply extensionality. intro. unfold write.
     destruct (eq_nat_dec x x0); grind.
   Qed.
+
+  Hint Rewrite write_neutral : mortar.
 
   Lemma hide_eq : forall m m' x v,
     m x = Some v -> m' x = Some v -> hide m x = hide m' x -> m = m'.
@@ -100,6 +108,19 @@ Section Memory.
     rewrite H3. rewrite H4. apply extensionality. intro. unfold write.
     destruct (eq_nat_dec x x0). trivial. apply H2. apply sym_not_eq.
       assumption.
+  Qed.
+
+  Hint Rewrite hide_eq : mortar.
+
+  Lemma write_hide : forall m m' x v1 v2,
+    write m x v1 = write m' x v2 -> hide m x = hide m' x.
+  Proof.
+    intros.
+    apply extensionality. intro.
+    unfold hide. destruct (eq_nat_dec x x0). trivial.
+    assert ((write m x v1 x0) = m x0). apply write_ne. trivial.
+    assert ((write m' x v2 x0) = m' x0). apply write_ne. trivial.
+    grind.
   Qed.
 
 End Memory.
