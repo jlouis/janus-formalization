@@ -335,6 +335,20 @@ Section Janus.
   Scheme fwd_det_ind_2 := Induction for fwd_det Sort Prop
   with   bwd_det_ind_2 := Induction for bwd_det Sort Prop.
 
+  Lemma word32_add_eq_r:
+    forall x y z,
+      Word32.add x y = Word32.add x z -> y = z.
+  Proof.
+    intros.
+    assert ((Word32.sub (Word32.add x y) x) = (Word32.sub (Word32.add x z) x)).
+    grind.
+    repeat rewrite Word32.sub_add_l in H0.
+    repeat rewrite Word32.sub_idem in H0.
+    rewrite Word32.add_commut in H0. rewrite Word32.add_zero in H0.
+    rewrite Word32.add_commut in H0. rewrite Word32.add_zero in H0.
+    assumption.
+  Qed.
+
   Lemma fwd_determinism': forall G m s m',
     fwd_det G m s m' ->
       Stmt_eval G m s m' -> forall m'', Stmt_eval G m s m'' -> m' = m''.
