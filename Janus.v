@@ -239,13 +239,13 @@ Section Janus.
   | se_assvar_decr: forall G m v e n n' n'' m',
       denoteExp (hide m v) e = Some n ->
       m v = Some n'' ->
-      Word32.add n n'' = n' ->
+      Word32.sub n n'' = n' ->
       write m v n' = m' ->
       Stmt_eval G m (S_Decr v e) m'
   | se_assvar_xor: forall G m v e n n' n'' m',
       denoteExp (hide m v) e = Some n ->
       m v = Some n'' ->
-      Word32.add n n'' = n' ->
+      Word32.xor n n'' = n' ->
       write m v n' = m' ->
       Stmt_eval G m (S_Xor v e) m'
   | se_swap: forall G m v1 v2 n1 n2 m',
