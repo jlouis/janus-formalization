@@ -398,6 +398,11 @@ Section Janus.
       rewrite e0 in H2. injection H2. trivial.
     subst.
     assert (n'' = n''0).
+      eapply word32_add_eq_r. eauto.
+    subst. eapply Memory.hide_eq. eauto. assumption. assumption.
+
+    (* assvar_sub *)
+    
 
     Abort.
 
