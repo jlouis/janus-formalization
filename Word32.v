@@ -997,6 +997,7 @@ Proof.
   apply eqm_small_eq; auto with ints. compute; intuition congruence.
 Qed.
 *)
+
 Theorem or_idem: forall x, or x x = x.
 Proof.
   assert (forall b, b || b = b).
@@ -1034,6 +1035,7 @@ Proof.
   rewrite bits_of_Z_zero. apply xorb_false.
   transitivity (repr (unsigned x)); auto with ints.
   apply eqm_samerepr. apply Z_of_bits_of_Z.
+  apply repr_unsigned.
 Qed.
 
 Theorem xor_zero_one: xor zero one = one.
