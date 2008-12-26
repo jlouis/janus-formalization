@@ -349,6 +349,29 @@ Section Janus.
     assumption.
   Qed.
 
+  Lemma word32_add_neg_zero_r:
+    forall x, Word32.add (Word32.neg x) x = Word32.zero.
+  Proof.
+    intros. rewrite Word32.add_commut. apply Word32.add_neg_zero.
+  Qed.
+
+  Lemma word32_sub_eq_l:
+    forall x y z,
+      Word32.sub x z = Word32.sub y z -> x = y.
+  Proof.
+    intros.
+    assert ((Word32.add (Word32.sub x z) z) = (Word32.add (Word32.sub y z) z)).
+    grind.
+    repeat rewrite Word32.sub_add_opp in H0.
+    repeat rewrite Word32.add_assoc in H0.
+    rewrite Word32.add_commut in H0.
+    repeat rewrite word32_add_neg_zero_r in H0.
+    rewrite Word32.add_commut in H0.
+    rewrite Word32.add_zero in H0.
+    rewrite Word32.add_zero in H0.
+    trivial.
+  Qed.
+
   Lemma fwd_determinism': forall G m s m',
     fwd_det G m s m' ->
       Stmt_eval G m s m' -> forall m'', Stmt_eval G m s m'' -> m' = m''.
