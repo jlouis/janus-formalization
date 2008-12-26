@@ -425,7 +425,22 @@ Section Janus.
     subst. eapply Memory.hide_eq. eauto. assumption. assumption.
 
     (* assvar_sub *)
-    
+    assert ((Word32.sub n''0 n0) = (Word32.sub n'' n)).
+      apply (write_eq_2 m'' m v (Word32.sub n''0 n0) (Word32.sub n'' n)).
+      apply (f_ext nat (option w32)
+        (write m'' v (Word32.sub n''0 n0))
+        (write m   v (Word32.sub n'' n)) v). assumption.
+    assert ((hide m v) = (hide m'' v)).
+    eapply write_hide. eauto.
+    rewrite H1 in e0.
+    assert (n = n0).
+    rewrite e0 in H2. injection H2. trivial.
+    subst.
+    assert (n'' = n''0).
+      eapply word32_sub_eq_l. eauto.
+    subst. eapply Memory.hide_eq. eauto. assumption. assumption.
+
+    (* assvar_xor *)
 
     Abort.
 
