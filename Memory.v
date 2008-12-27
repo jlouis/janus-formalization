@@ -72,8 +72,15 @@ Section Memory.
   Proof.
     grind.
   Qed.
+  Hint Rewrite write_extend: mortar.
 
-  Hint Rewrite write_extend : mortar.
+  Lemma hide_ne: forall m x x',
+    x <> x' -> hide m x x' = m x'.
+  Proof.
+    intros. unfold hide. destruct (eq_nat_dec x x').
+    absurd (x = x'); assumption.
+    trivial.
+  Qed.
 
   Lemma hide_irrel : forall m m' x,
     hide m x = hide m' x -> forall a, a <> x -> m a = m' a.
@@ -86,8 +93,7 @@ Section Memory.
     symmetry in e. contradiction. trivial.
     grind.
   Qed.
-
-  Hint Rewrite hide_irrel : mortar.
+  Hint Rewrite hide_irrel: mortar.
 
   Lemma write_neutral : forall m x v,
     m x = Some v -> write m x v = m.
@@ -109,8 +115,7 @@ Section Memory.
     destruct (eq_nat_dec x x0). trivial. apply H2. apply sym_not_eq.
       assumption.
   Qed.
-
-  Hint Rewrite hide_eq : mortar.
+  Hint Rewrite hide_eq: mortar.
 
   Lemma write_hide : forall m m' x v1 v2,
     write m x v1 = write m' x v2 -> hide m x = hide m' x.
