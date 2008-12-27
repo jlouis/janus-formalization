@@ -1057,6 +1057,18 @@ Proof.
   auto.
 Qed.
 
+(* jlouis@: Added properties *)
+Theorem xor_x_x_zero:
+  forall x,
+    xor x x = zero.
+Proof.
+  unfold xor, bitwise_binop, zero; intros.
+  transitivity (repr (Z_of_bits word_size (bits_of_Z word_size 0))).
+  decEq. apply Z_of_bits_exten. intros.
+  rewrite bits_of_Z_zero. apply xorb_nilpotent.
+  auto with mortar.
+Qed.
+
 (** ** Properties of shifts and rotates *)
 (** ** Properties of sign extensions *)
 (** ** Properties of comparisens ... *)
