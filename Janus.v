@@ -248,11 +248,11 @@ Section Janus.
       Word32.xor n n'' = n' ->
       write m v n' = m' ->
       Stmt_eval G m (S_Xor v e) m'
-  | se_swap: forall G m v1 v2 n1 n2 m',
+(*  | se_swap: forall G m v1 v2 n1 n2 m',
       m v1 = Some n1 ->
       m v2 = Some n2 ->
       (write (write m v1 n2) v2 n1) = m' ->
-        Stmt_eval G m (S_Swap v1 v2) m'
+        Stmt_eval G m (S_Swap v1 v2) m' *)
   | se_semi: forall G s1 s2 m m' m'',
      Stmt_eval G m s1 m' ->
      Stmt_eval G m' s2 m'' ->
@@ -372,6 +372,26 @@ Section Janus.
     trivial.
   Qed.
 
+  Lemma word32_xor_mine:
+    forall x y z,
+      Word32.xor x y = Word32.xor x z -> y = z.
+  Proof.
+    intros.
+    assert (Word32.xor (Word32.xor x y) x = Word32.xor (Word32.xor x z) x).
+    rewrite H. trivial.
+    rewrite Word32.xor_commut in H0.
+    rewrite <- Word32.xor_assoc in H0.
+    rewrite Word32.xor_x_x_zero in H0.
+    rewrite Word32.xor_commut in H0.
+    rewrite Word32.xor_zero in H0.
+    rewrite <- Word32.xor_commut in H0.
+    rewrite <- Word32.xor_assoc in H0.
+    rewrite Word32.xor_x_x_zero in H0.
+    rewrite Word32.xor_commut in H0.
+    rewrite Word32.xor_zero in H0.
+    trivial.
+  Qed.
+
   Lemma fwd_determinism': forall G m s m',
     fwd_det G m s m' ->
       Stmt_eval G m s m' -> forall m'', Stmt_eval G m s m'' -> m' = m''.
@@ -441,9 +461,43 @@ Section Janus.
     subst. eapply Memory.hide_eq. eauto. assumption. assumption.
 
     (* assvar_xor *)
-
+    (* Same game as above save for a nice little treatise of xor... *)
+    assert ((Word32.xor n0 n''0) = (Word32.xor n n'')).
+      apply (write_eq_2 m'' m v (Word32.xor n0 n''0) (Word32.xor n n'')).
+      apply (f_ext nat (option w32)
+        (write m'' v (Word32.xor n0 n''0))
+        (write m   v (Word32.xor n n'')) v). assumption.
+    assert ((hide m v) = (hide m'' v)).
+    eapply write_hide. eauto.
+    rewrite H1 in e0.
+    assert (n = n0).
+    rewrite e0 in H2. injection H2. trivial.
+    subst.
+    assert (n'' = n''0).
+      eapply word32_xor_mine. eauto.
+    subst. eapply Memory.hide_eq. eauto. assumption. assumption.
+    (* We will skip the swap-case for now. It needs more thinking.
+       Perhaps we need to know that either v1 = v2 or v1 <> v2. *)
+    (* Swap *)
+    assert (n0 = n1).
+      apply (Memory.write_eq_2 (write m'' v1 n3) (write m v1 n2) v2 n0 n1).
+      apply (f_ext nat (option w32)
+        (write (write m'' v1 n3) v2 n0)
+        (write (write m v1 n2) v2 n1) v2). assumption.
+    subst.
+    assert (hide (write m'' v1 n3) v2 = hide (write m v1 n2) v2).
+    eapply write_hide. eauto.
+    assert (n2 = n3).
     Abort.
+    *)
 
+    (* Semi, If *)
+    inversion H1. grind.
+    inversion H0; grind.
+    inversion H0; grind.
+    (* Loop *)
+    inversion H0. subst. apply H. assumption.
+      subst.
 
 (*
   (* This only works for no UNCALL *)
