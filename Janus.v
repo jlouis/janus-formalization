@@ -214,6 +214,10 @@ Section Janus.
   Inductive Stmt_loop_eval : fenv -> memory ->
       Exp -> Stmt -> Stmt -> Exp ->
       memory -> Prop :=
+  | se_l_t: forall G m e1 s1 s2 e2 v2,
+      denoteExp m e2 = Some v2 ->
+      Word32.is_true(v2) ->
+      Stmt_loop_eval G m e1 s1 s2 e2 m
   | se_l_f: forall G m m' m'' m''' e1 s1 e2 s2 v1 v2,
       denoteExp m e2 = Some v2 ->
       Word32.is_false(v2) ->
@@ -223,11 +227,13 @@ Section Janus.
       Stmt_eval G m' s1 m'' ->
       Stmt_loop_eval G m'' e1 s1 s2 e2 m''' ->
       Stmt_loop_eval G m e1 s1 s2 e2 m'''
-  | se_l_t: forall G m e1 s1 s2 e2 v2,
-      denoteExp m e2 = Some v2 ->
-      Word32.is_true(v2) ->
-      Stmt_loop_eval G m e1 s1 s2 e2 m
   with Stmt_eval : fenv -> memory -> Stmt -> memory -> Prop :=
+  | se_call: forall G m v m',
+      Stmt_eval G m (G v) m' ->
+      Stmt_eval G m (S_Call v) m'
+  | se_uncall: forall G m v m',
+      Stmt_eval G m' (G v) m ->
+      Stmt_eval G m (S_Uncall v) m'
   | se_skip: forall G m,
       Stmt_eval G m S_Skip m
   | se_assvar_incr: forall G m v e n n' n'' m',
@@ -256,7 +262,7 @@ Section Janus.
   | se_semi: forall G s1 s2 m m' m'',
      Stmt_eval G m s1 m' ->
      Stmt_eval G m' s2 m'' ->
-       Stmt_eval G m (S_Semi s1 s2) m'
+       Stmt_eval G m (S_Semi s1 s2) m''
   | se_if_true: forall G e1 e2 s1 s2 m m' n1 n2,
       denoteExp m e1 = Some n1 ->
       Word32.is_true(n1) ->
@@ -271,27 +277,12 @@ Section Janus.
       denoteExp m' e2 = Some n2 ->
       Word32.is_false(n2) ->
       Stmt_eval G m (S_If e1 s1 s2 e2) m'
-  | se_loop_t: forall G m e1 s1 s2 e2 m' n1 n2,
+  | se_loop: forall G e1 s1 s2 e2 m m' m'' n1,
       denoteExp m e1 = Some n1 ->
       Word32.is_true(n1) ->
       Stmt_eval G m s1 m' ->
-      denoteExp m' e2 = Some n2 ->
-      Word32.is_true(n2) ->
-      Stmt_eval G m (S_Loop e1 s1 s2 e2) m'
-  | se_loop: forall G e1 s1 s2 e2 m m' m'' n1 n2,
-      denoteExp m e1 = Some n1 ->
-      Word32.is_true(n1) ->
-      Stmt_eval G m s1 m' ->
-      denoteExp m' e2 = Some n2 ->
-      Word32.is_false(n2) ->
       Stmt_loop_eval G m' e1 s1 s2 e2 m'' ->
-      Stmt_eval G m (S_Loop e1 s1 s2 e2) m''
-  | se_call: forall G m v m',
-      Stmt_eval G m (G v) m' ->
-      Stmt_eval G m (S_Call v) m'
-  | se_uncall: forall G m v m',
-      Stmt_eval G m' (G v) m ->
-      Stmt_eval G m (S_Uncall v) m'.
+      Stmt_eval G m (S_Loop e1 s1 s2 e2) m''.
 
   (* Produce a rather daunting induction principle on statements mutually
      inductive with the loop rules. *)
@@ -318,257 +309,89 @@ Section Janus.
     induction s; grind.
   Qed.
 
-  Inductive fwd_det : fenv -> memory -> Stmt -> memory -> Prop :=
-    | stmt_fwd:
-      (forall G m s m',
-           bwd_det G m s m') ->
-           forall G m s m',
-           fwd_det G m s m'
-
-  with bwd_det : fenv -> memory -> Stmt -> memory -> Prop :=
-    | stmt_bwd:
-      (forall G m s m',
-        fwd_det G m s m') ->
-        forall G m s m',
-        bwd_det G m s m'.
-
-  Scheme fwd_det_ind_2 := Induction for fwd_det Sort Prop
-  with   bwd_det_ind_2 := Induction for bwd_det Sort Prop.
-
-  Lemma word32_add_eq_r:
-    forall x y z,
-      Word32.add x y = Word32.add x z -> y = z.
+  Lemma hide_write_neutral_no_ext: forall m v x a,
+    hide (write m v x) v a = hide m v a.
   Proof.
-    intros.
-    assert ((Word32.sub (Word32.add x y) x) = (Word32.sub (Word32.add x z) x)).
-    grind.
-    repeat rewrite Word32.sub_add_l in H0.
-    repeat rewrite Word32.sub_idem in H0.
-    rewrite Word32.add_commut in H0. rewrite Word32.add_zero in H0.
-    rewrite Word32.add_commut in H0. rewrite Word32.add_zero in H0.
+    intros. unfold hide. destruct (eq_nat_dec v a).
+    trivial.
+    apply write_ne. trivial.
+  Qed.
+
+  Lemma hide_write_neutral: forall m v x,
+    hide (write m v x) v = hide m v.
+  Proof.
+    intros; apply extensionality. apply hide_write_neutral_no_ext.
+  Qed.
+
+  Lemma hide_write_simpl: forall m v x a,
+    hide (write m v x) v a = hide m v a.
+  Proof.
+    intros. unfold hide. destruct (eq_nat_dec v a). trivial.
+    apply write_ne. trivial.
+  Qed.
+
+  Lemma hide_write_simpl_ext: forall m v x,
+    hide (write m v x) v = hide m v.
+  Proof.
+    intros. apply extensionality. apply hide_write_simpl.
+  Qed.
+
+  Definition fwd_det G m s m' :=
+    Stmt_eval G m s m' -> forall m'', Stmt_eval G m s m'' -> m' = m''.
+
+  Definition bwd_det G m s m' :=
+    Stmt_eval G m s m' -> forall m'', Stmt_eval G m'' s m' -> m = m''.
+
+  Lemma b_forward_det: forall G m s m',
+    (forall G m s m', bwd_det G m s m') -> fwd_det G m s m'.
+  Proof.
+    unfold fwd_det. intros until m'. intro. intro.
+    apply (stmt_eval_ind_2
+      (fun G m s m' (se : Stmt_eval G m s m') => forall m'',
+        Stmt_eval G m s m'' -> m' = m'')
+      (fun G m e1 s1 s2 e2 m' (sle : Stmt_loop_eval G m e1 s1 s2 e2 m') =>
+        forall m'',
+          Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m'')).
+    intros. inversion H2; grind.
+    intros. inversion H2; unfold bwd_det in H. eapply H. eauto.
     assumption.
-  Qed.
-
-  Lemma word32_add_neg_zero_r:
-    forall x, Word32.add (Word32.neg x) x = Word32.zero.
-  Proof.
-    intros. rewrite Word32.add_commut. apply Word32.add_neg_zero.
-  Qed.
-
-  Lemma word32_sub_eq_l:
-    forall x y z,
-      Word32.sub x z = Word32.sub y z -> x = y.
-  Proof.
-    intros.
-    assert ((Word32.add (Word32.sub x z) z) = (Word32.add (Word32.sub y z) z)).
-    grind.
-    repeat rewrite Word32.sub_add_opp in H0.
-    repeat rewrite Word32.add_assoc in H0.
-    rewrite Word32.add_commut in H0.
-    repeat rewrite word32_add_neg_zero_r in H0.
-    rewrite Word32.add_commut in H0.
-    rewrite Word32.add_zero in H0.
-    rewrite Word32.add_zero in H0.
-    trivial.
-  Qed.
-
-  Lemma word32_xor_mine:
-    forall x y z,
-      Word32.xor x y = Word32.xor x z -> y = z.
-  Proof.
-    intros.
-    assert (Word32.xor (Word32.xor x y) x = Word32.xor (Word32.xor x z) x).
-    rewrite H. trivial.
-    rewrite Word32.xor_commut in H0.
-    rewrite <- Word32.xor_assoc in H0.
-    rewrite Word32.xor_x_x_zero in H0.
-    rewrite Word32.xor_commut in H0.
-    rewrite Word32.xor_zero in H0.
-    rewrite <- Word32.xor_commut in H0.
-    rewrite <- Word32.xor_assoc in H0.
-    rewrite Word32.xor_x_x_zero in H0.
-    rewrite Word32.xor_commut in H0.
-    rewrite Word32.xor_zero in H0.
-    trivial.
-  Qed.
-
-  Lemma fwd_determinism': forall G m s m',
-    fwd_det G m s m' ->
-      Stmt_eval G m s m' -> forall m'', Stmt_eval G m s m'' -> m' = m''.
-  Proof.
-    apply (fwd_det_ind_2
-      (fun G m s m' =>
-        fun fd => Stmt_eval G m s m' -> forall m'', Stmt_eval G m s m'' -> m' = m'')
-      (fun G m s m' =>
-        fun fd => Stmt_eval G m s m' -> forall m'', Stmt_eval G m'' s m' -> m = m'')).
-    intros bwd X.
-    apply (stmt_eval_ind_2
-    (fun (G: fenv) (m: memory) (s: Stmt) (m': memory) =>
-      fun se => forall m'', Stmt_eval G m s m'' -> m' = m'')
-    (fun (G: fenv) (m: memory) (e1: Exp) (s1 s2: Stmt) (e2: Exp) (m': memory)
-      (le: Stmt_loop_eval G m e1 s1 s2 e2 m') =>
-      forall m'',
-        Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m'')); intros; try (inversion H; grind).
-
-    inversion H1; grind. inversion H0; grind. inversion H0; grind.
-    inversion H0; grind.
-    inversion H0. apply H. assumption. assert (m' = m'0). apply H. assumption. grind.
-    inversion H1. subst. assert (m' = m''0). apply H. assumption. grind.
-      subst. assert (m' = m'0). apply H. assumption. subst. grind.
-    inversion H0; grind.
-    inversion H0. eapply X. eauto. assumption.
-    inversion H2. assert (m' = m'0). apply H. assumption. subst.
-      assert (m'' = m''1). apply H0. intuition. subst. apply H1. assumption. congruence.
-
-    intros fwd X.
-    apply (stmt_eval_ind_2
-      (fun G m s m' (se: Stmt_eval G m s m') =>
-        forall m'', Stmt_eval G m'' s m' -> m = m'')
-      (fun G m e1 s1 s2 e2 m' le =>
-        forall m'', Stmt_loop_eval G m'' e1 s1 s2 e2 m' -> m = m''));
-    intros; try (inversion H; grind).
-
-    (* assvar_add *)
-    assert ((Word32.add n0 n''0) = (Word32.add n n'')).
-      apply (write_eq_2 m'' m v (Word32.add n0 n''0) (Word32.add n n'')).
-      apply (f_ext nat (option w32)
-        (write m'' v (Word32.add n0 n''0))
-        (write m v (Word32.add n n'')) v). assumption.
-    assert ((hide m v) = (hide m'' v)).
-    eapply write_hide. eauto.
-    rewrite H1 in e0.
-    assert (n = n0).
-      rewrite e0 in H2. injection H2. trivial.
-    subst.
-    assert (n'' = n''0).
-      eapply word32_add_eq_r. eauto.
-    subst. eapply Memory.hide_eq. eauto. assumption. assumption.
-
-    (* assvar_sub *)
-    assert ((Word32.sub n''0 n0) = (Word32.sub n'' n)).
-      apply (write_eq_2 m'' m v (Word32.sub n''0 n0) (Word32.sub n'' n)).
-      apply (f_ext nat (option w32)
-        (write m'' v (Word32.sub n''0 n0))
-        (write m   v (Word32.sub n'' n)) v). assumption.
-    assert ((hide m v) = (hide m'' v)).
-    eapply write_hide. eauto.
-    rewrite H1 in e0.
-    assert (n = n0).
-    rewrite e0 in H2. injection H2. trivial.
-    subst.
-    assert (n'' = n''0).
-      eapply word32_sub_eq_l. eauto.
-    subst. eapply Memory.hide_eq. eauto. assumption. assumption.
-
-    (* assvar_xor *)
-    (* Same game as above save for a nice little treatise of xor... *)
-    assert ((Word32.xor n0 n''0) = (Word32.xor n n'')).
-      apply (write_eq_2 m'' m v (Word32.xor n0 n''0) (Word32.xor n n'')).
-      apply (f_ext nat (option w32)
-        (write m'' v (Word32.xor n0 n''0))
-        (write m   v (Word32.xor n n'')) v). assumption.
-    assert ((hide m v) = (hide m'' v)).
-    eapply write_hide. eauto.
-    rewrite H1 in e0.
-    assert (n = n0).
-    rewrite e0 in H2. injection H2. trivial.
-    subst.
-    assert (n'' = n''0).
-      eapply word32_xor_mine. eauto.
-    subst. eapply Memory.hide_eq. eauto. assumption. assumption.
-    (* We will skip the swap-case for now. It needs more thinking.
-       Perhaps we need to know that either v1 = v2 or v1 <> v2. *)
-    (* Swap *)
-    assert (n0 = n1).
-      apply (Memory.write_eq_2 (write m'' v1 n3) (write m v1 n2) v2 n0 n1).
-      apply (f_ext nat (option w32)
-        (write (write m'' v1 n3) v2 n0)
-        (write (write m v1 n2) v2 n1) v2). assumption.
-    subst.
-    assert (hide (write m'' v1 n3) v2 = hide (write m v1 n2) v2).
-    eapply write_hide. eauto.
-    assert (n2 = n3).
-    Abort.
-    *)
-
-    (* Semi, If *)
-    inversion H1. grind.
-    inversion H0; grind.
-    inversion H0; grind.
+    intros; inversion H1; grind.
+    intros; inversion H1; grind.
+    intros; inversion H1; grind.
+    intros; inversion H1; grind.
+    (* Semi *)
+    intros. inversion H3. subst. apply H2. assert (m'0 = m'1). apply H1.
+    trivial. subst. trivial.
+    (* If *)
+    intros; inversion H2; subst. apply H1. trivial. congruence.
+    intros; inversion H2; subst. apply H1. congruence. apply H1. trivial.
     (* Loop *)
-    inversion H0. subst. apply H. assumption.
-      subst.
-
-(*
-  (* This only works for no UNCALL *)
-  Lemma Stmt_eval_det : forall G m s m',
-    Stmt_eval G m s m' -> forall m'',
-      Stmt_eval G m s m'' -> m' = m''.
-  Proof.
-    apply
-      (stmt_eval_ind_2
-        stmt_det
-        (fun G m e1 s1 s2 e2 m' =>
-          fun le => forall m'',
-            Stmt_loop_eval G m e1 s1 s2 e2 m'' -> m' = m''));
-      unfold stmt_det; intros; try (inversion H; intuition); intros.
-
-    inversion H1; intuition.
-    inversion H0; [intuition | congruence].
-    inversion H0; [congruence | intuition].
-    inversion H0. intuition.
-    assert (m' = m'0). intuition. subst. congruence.
-    inversion H1. assert (m' = m''0). intuition. subst. congruence.
-    assert (m' = m'0). intuition. apply H0. subst. trivial.
-
-    inversion H0. intuition.
-    inversion H2. apply H1. assert (m'' = m''1). apply H0.
-      assert (m' = m'0); intuition; subst; trivial. subst. trivial.
+    intros. inversion H3; subst. apply H2. assert (m'0 = m'1). apply H1.
+    trivial. subst. trivial.
+    (* Loop-Base *)
+    intros. inversion H1; grind.
+    intros. inversion H4; subst.
+      congruence. apply H3. assert (m''= m''1). apply H2.
+        assert (m'0 = m'1). apply H1. trivial. subst. trivial. subst. trivial.
+    trivial.
   Qed.
-*)
-  (* Is a statement valid?
-     This is just as simple congruence relation on statements *)
-(*
-  Fixpoint denoteStmt (s : Stmt) : memM unit :=
-    match s with
-      | S_Incr v e =>
-        (fun m =>
-          (r <- Return (denoteExp m e);
-            r' <- Read v ;
-            Write v (r + r')) m)
-      | S_Decr v e =>
-        (fun m =>
-          (r <- Return (denoteExp m e);
-            r' <- Read v ;
-            Write v (r - r')) m)
-      | S_Swap v1 v2 =>
-        r1 <- Read v1 ;
-        r2 <- Read v2 ;
-        Write v1 r2 ;;
-        Write v2 r1
-      | S_Semi s1 s2 => (denoteStmt s1) ;; (denoteStmt s2)
-      | S_If b t e a =>
-        (fun m =>
-          (* Wrong at the moment *)
-          (match denoteExp m b with
-             | 0 => denoteStmt e
-             | _ => denoteStmt t
-          end) m)
-    end.
 
-    Fixpoint invert (s : Stmt) : Stmt :=
-      match s with
-        | S_Incr v e => S_Decr v e
-        | S_Decr v e => S_Incr v e
-        | S_Swap v1 v2 => S_Swap v1 v2
-        | S_If b t f a => S_If a (invert t) (invert f) b
-        | S_Semi s1 s2 => S_Semi (invert s2) (invert s1)
-      end.
+  Lemma f_backward_det: forall G m s m',
+    (forall G m s m', fwd_det G m s m') -> bwd_det G m s m'.
+  Proof.
+    unfold bwd_det. intros until m'. intro. intro.
+    apply (stmt_eval_ind_2
+      (fun G m s m' (se : Stmt_eval G m s m') => forall m'',
+        Stmt_eval G m'' s m' -> m = m'')
+      (fun G m e1 s1 s2 e2 m' (sle : Stmt_loop_eval G m e1 s1 s2 e2 m') =>
+        forall m'',
+          Stmt_loop_eval G m'' e1 s1 s2 e2 m' -> m = m'')).
+    intros. inversion H2; grind.
+    intros. inversion H2. subst. unfold fwd_det in H. eapply H; eauto.
+    intros. inversion H1; grind.
+    intros. inversion H1; grind.
+      (* TODO: Use Math rules to do this *)
 
-    Theorem invert_self_inverse :
-      forall s, invert (invert s) = s.
-      induction s; intuition;
-      simpl; rewrite IHs1; rewrite IHs2; reflexivity.
-    Qed.
-*)
+    Abort.
+
 End Janus.

@@ -1069,6 +1069,63 @@ Proof.
   auto with mortar.
 Qed.
 
+Lemma add_eq_r:
+    forall x y z,
+      add x y = add x z -> y = z.
+Proof.
+  intros.
+  assert ((sub (add x y) x) = (sub (add x z) x)).
+  grind.
+  repeat rewrite sub_add_l in H0.
+  repeat rewrite sub_idem in H0.
+  rewrite add_commut in H0. rewrite add_zero in H0.
+  rewrite add_commut in H0. rewrite add_zero in H0.
+  assumption.
+Qed.
+
+Lemma add_neg_zero_r:
+  forall x, add (neg x) x = zero.
+Proof.
+  intros. rewrite add_commut. apply add_neg_zero.
+Qed.
+
+Lemma sub_eq_l:
+  forall x y z,
+    sub x z = sub y z -> x = y.
+Proof.
+  intros.
+  assert ((add (sub x z) z) = (add (sub y z) z)).
+  grind.
+  repeat rewrite sub_add_opp in H0.
+  repeat rewrite add_assoc in H0.
+  rewrite add_commut in H0.
+  repeat rewrite add_neg_zero_r in H0.
+  rewrite add_commut in H0.
+  rewrite add_zero in H0.
+  rewrite add_zero in H0.
+  trivial.
+Qed.
+
+Lemma xor_mine:
+  forall x y z,
+    xor x y = xor x z -> y = z.
+Proof.
+  intros.
+  assert (xor (xor x y) x = xor (xor x z) x).
+  rewrite H. trivial.
+  rewrite xor_commut in H0.
+  rewrite <- xor_assoc in H0.
+  rewrite xor_x_x_zero in H0.
+  rewrite xor_commut in H0.
+  rewrite xor_zero in H0.
+  rewrite <- xor_commut in H0.
+  rewrite <- xor_assoc in H0.
+  rewrite xor_x_x_zero in H0.
+  rewrite xor_commut in H0.
+  rewrite xor_zero in H0.
+  trivial.
+Qed.
+
 (** ** Properties of shifts and rotates *)
 (** ** Properties of sign extensions *)
 (** ** Properties of comparisens ... *)
