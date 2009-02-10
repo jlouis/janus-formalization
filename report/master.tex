@@ -1,0 +1,30 @@
+\documentclass[a4paper, oneside, 10pt]{memoir}
+\chapterstyle{culver}
+\usepackage[osf,sc]{mathpazo}
+\linespread{1.05}
+%\usepackage[utopia]{mathdesign}
+\input{../../Preamble/preamble_memoir.tex}
+
+\author{Jesper Louis
+  Andersen\\jesper.louis.andersen@gmail.com\\140280-2029}
+\title{PIRC - Exam}
+\date{\today}
+
+\renewcommand*{\titleM}{\begingroup% Misericords, T&H p 153
+  \drop = 0.08\textheight
+  \centering
+  {\Huge\bfseries JANUS}\\[\baselineskip]
+  {\scshape A formal treatment}\\[\baselineskip]
+  {\scshape by}\\[\baselineskip]
+  {\large\scshape Jesper Louis Andersen\\jesper.louis.andersen@gmail.com}\par
+  \endgroup}
+
+\bibliographystyle{amsalpha}
+\begin{document}
+\titleM
+
+\input{intro}
+\input{tooling}
+\input{syntax}
+\bibliography{biblio}
+\end{document}

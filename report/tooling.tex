@@ -1,0 +1,147 @@
+\chapter{JANUS Primitives}
+
+TODO: Coq integration
+TODO: Examples
+
+Before we can discuss the language of JANUS, we will need to take care
+of the primitives used in the lanugage. Almost any formal treatment of
+a language will start with a certain set of base primitives. In JANUS,
+we have (single) base type of integers and a store.
+
+It might seem wrong to go into great detail with the base
+primitives. But it turns out that we can leverage features of the base
+primitives in our formalization. If the primitives are chosen
+correctly, it is possible to formalize the language more
+precisely. Hence it is beneficial to design the primitives in a way
+that simplifies, or even makes possible, a correct formalization.
+
+When formalizing JANUS, we must take great care in not hiding facts in
+the report text. A mechanical treatment must be understandable by the
+computer, so we can not accept parts in natural language. Every device
+needed for the formalization must exist in a machine readable (formal)
+way. The primary driver for the base primitives is this mechanization:
+we delibarately chose definitions we can use to our advantage in the
+formalization.
+
+\paragraph{Numbers}
+
+The integers chosen in JANUS are modelled as usual machine words. In
+most traditional computers the machine have an upper limit to what
+numbers it can represent. A 32-bit machine has $32$ bits at its
+diposal so it can represent $2^{32}$ different values. A 64-bit
+machine has $2^{64}$ different values and so on. For the case where
+there is no sign, it is obvious to map the representation into $0,
+\dotsc, 2^{32}-1$ and do calculation modulo $2^{32}$. Coincidentially,
+this is how most modern computers work anyway.
+
+From the perspective of mathematics, it means we are working in the
+additive group $\mathbb{Z}/2^{32}\mathbb{Z}$. We could have chosen
+other groups as the base for our numbers in JANUS. In fact, any cyclic
+additive group will do. If we choose the number to mod by as a prime
+number, mulitplication will have an inverse as well\footnote{In fact
+  we would have a mathematical field, $\mathcal{F}_p$}, but the idea
+is not idiomatic with computers: they tend to use powers of $2$ for
+their word size.
+
+Let us recap exactly what is meant by a commutative group:
+\begin{defn}
+  An additive group is a set $G$ with a binary operator $+\colon G
+  \times G \to G$ such that it fulfills the following properties:
+  \begin{itemize}
+  \item For $x,y,z \in G$ we have $(x + y) + z = x + (y + z)$.
+  \item There exist an element $0 \in G$ such that for any element $x
+    \in G$ we have $x + 0 = 0 + x = x$.
+  \item For any element $x \in G$ there exist an \emph{inverse}
+    element, notated $-x$, such that $x + -x = -x + x = 0$
+  \item For elements $x, y \in G$ we have $x + y = y + x$
+  \end{itemize}
+  The first rule is called associativity; the second is the existence
+  of a neutral element and the third is the existence of an inverse
+  element. The fourth rule defines that the binary operation is
+  commutative.
+
+  If the fourth rule is omitted, we talk about a group. This is the
+  normal definition to which one adds commutativity to get a
+  commutative group (also called an abelian group).
+
+  If both the fourth and the third rules are omitted, we have a
+  \emph{monoid}, but these will not be interesting to our work as we
+  need the inversion property.
+\end{defn}
+
+One particular abelian group is well-known and a good candidate for a
+number base for JANUS; the usual group of integers $\mathbb{Z}$. From
+a formal viewpoint, this group is bliss to work with. On the other
+hand, it means that the formal machine we build have arbitrarily sized
+integers, which may be a bit unrealistic. Hence, we chose numbers
+modulo $2^{32}$ as we can easily formalize 64-bit numbers as well if
+needed by changing a constant. We will call these integers $W^{32}$.
+
+\paragraph{The Store}
+
+The JANUS store can be understood as a number of cells, with each cell
+storing a number. Cells have \emph{locations}, so we can read from a
+cell at a given location or store a value at a given location.
+
+In JANUS, we must take great care when handling the store. It is
+paramount that we do not destroy information when we update the
+store. For the store itself, however, we won't define it in a way
+which protect destruction of information. Rather, we will define a
+semantics on top of the store to protect it.
+
+When the store is initialized, every cell will have the value of
+$0$. This leads to the straightforward store definition
+\begin{equation*}
+  \sigma \colon Loc \to W^{32}
+\end{equation*}
+where we initialize the store to be the function $\sigma(l) = 0$ for
+all $l \in Loc$. Reading the store at location $l$ is then simply a
+matter of taking the image $\sigma(l)$. Writing to the store is done
+by extending the definition of the the function. If we want to write
+$v$ at location $l$, we define the new function $\sigma'$ as
+\begin{equation*}
+  \sigma'(k) = \begin{cases}
+    v& \text{if}\quad k = l\\
+    \sigma(k)&\text{if}\quad k \neq l
+    \end{cases}
+\end{equation*}
+
+The method described here is not entirly faithful to the JANUS
+language however. A JANUS program, as we shall see, defines the
+variables in use in the header. Furthermore, by defining that all
+unknown locations maps to $0$, we have lost the ability to
+discriminate between having no information about the cell and a cell
+with the value of $0$. It will become clear later on that this
+discrimination is a desirable feature of our store. This leads to a
+store definition as the following:
+\newcommand{\lift}[1]{\lfloor #1 \rfloor}
+\begin{defn}
+  A Store, $\sigma$ is defined to a function $\sigma \colon Loc \to
+  W^{32}_\perp$. The image $W^{32}_\perp$ is either the no-information
+  value of $\perp$ or it is a normal (lifted) value from $W^{32}$,
+  e.g. $\lift{37}$. The store is initialized with $\sigma(l) = \;\perp$
+  for all $l \in Loc$.
+
+  To extend the store at location $l$ with value $v$ we use the
+  function
+  \begin{equation*}
+    \sigma'(k) = \begin{cases}
+      \lift{v}& \text{if}\quad l = k\\
+      \sigma(k)& \text{if}\quad l \neq k
+      \end{cases}
+  \end{equation*}
+\end{defn}
+It will be beneficial to our work if we can hide certain values. That
+is, we can temporarily define a location $x$ to carry no
+information. This is easily achieved with the following definition
+\begin{equation*}
+  (\sigma \setminus x)(k) = \begin{cases}
+    \perp& \text{if}\quad k = x\\
+    \sigma(k)& \text{otherwise}
+  \end{cases}
+\end{equation*}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "master"
+%%% End: 

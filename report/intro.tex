@@ -1,0 +1,58 @@
+\chapter{Introduction}
+
+The JANUS programming language were conceived as a student project in
+1982 at Caltech by Chris Lutz and Howard Derby. It was first later
+however, with the work in \cite{glueck2007} and \cite{glueck2008} that
+the language were given a modern treatment. In these papers variants
+of the language are established with proper operational semantics. The
+results improves on earlier informal descriptions.
+
+Usually when we add formality to a process, there is a need for
+change. Formality enforces us to optimize and make precise the
+definitions and results, sharpening and refining our knowledge of a
+field.
+
+The current state-of-the-art with respect to formality is
+machine-verifiable formalizations. We encode our formal work in a way
+the machine can understand. We then proceed to encode the meta-theory
+about our formalization as well and make the machine verify the
+correctness.
+
+The goal of this process is not to prove human beings wrong. It is
+rarely the case that the checking process of humans fails to notice
+errors in meta-theory. Rather, the goals are those of simplicity,
+detailed understanding and domain knowledge:
+
+When we explain a theorem to a computer, it is easiest to use simple
+methods. It is more expensive to formalize a complex principle and use
+it rather than taking more time and coming up with a simpler
+proof. This forces us to use humility and simplicity in our work.
+
+A proof explained to the computer can only draw on knowledge we
+already told the computer. The for any proof, we must be able to
+explain any detail, as otherwise it will be impossible to
+machine-verify. The result is a very detailed understanding of the
+area and language.
+
+Finally, we may hope to gain additional knowledge about the domain in
+the formalization process. The precision required yield no place for
+imprecision and can not lure our intuition down the wrong path. Hence,
+we often learn from the formalization process.
+
+This DIKU graduate project establishes a full formalized semantics for
+a variant of the JANUS language in the proof assistant Coq. The
+main academic contribution of the paper is the use of syntax-driven
+semantics for JANUS: Invalid programs are ruled out by having no possible
+inference tree. The secondary contribution establihes the machine
+verification of forward and backward determinism of the JANUS variant.
+
+The report first describes a toolbox needed for JANUS
+formalization. Then it describes the syntax and semantics of JANUS,
+extracted from the work in Coq. Finally, we describe the
+meta-theoretic results achieved. The report is honest to the
+state-of-the-art: any result is mechanically formalized in Coq.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "master"
+%%% End: 
