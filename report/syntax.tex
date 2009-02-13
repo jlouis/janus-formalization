@@ -1,16 +1,20 @@
 \chapter{Syntax driven semantics}
 
-\fixme{Citation of Twelf}
-
 The crucial insight in this formalization was gained by applying an
 idea from the logic LF which is used in Twelf. In LF, the dependently
 typed lambda calculus is restricted in a specific way. To control what
 the valid terms are, an elaborate set of judgements are
 constructed. The main point is that these inference rules drives the
 valid forms: any constructed inference tree is valid. The feat is to
-take great care when introducing the inference rules.
+take great care when introducing the inference rules such that one
+can't produce invalid rules, see \cite{harper+07:mechanizing}.
 
-The same idea has been used in this JANUS formalization. blah blah,
+The same idea has been used in this JANUS formalization. In the
+formalizations of \cite{glueck2007} and \cite{glueck2008}, certain rules
+of the semantics are left in the text-paragraphs of the paper; notably
+the requirement that a statement \texttt{x += e} must have the
+variable \texttt{x} free in the body of \texttt{e}.
+
 \fixme{Write this part}
 
 %%% Local Variables: 
