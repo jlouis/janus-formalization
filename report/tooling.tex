@@ -77,6 +77,88 @@ integers, which may be a bit unrealistic. Hence, we chose numbers
 modulo $2^{32}$ as we can easily formalize 64-bit numbers as well if
 needed by changing a constant. We will call these integers $W^{32}$.
 
+\subparagraph{Coq Implementation}
+
+The Coq implementation of 32-bit numbers owes everything to Xavier
+Leroy et al. The work is taken from the \textsc{CompCert} project as
+it was deemed from the beginning it would be too hard to build a
+number implementation ourselves. Had we chosen the group $\mathbb{Z}$,
+then we would have been able to use the representation in the Coq
+standard library.
+
+But we can't resist the temptation to describe the implementation. A
+32-bit number is a pair: An integer $i$ and a proof that $0 \leq i <
+2^{32}$. The main theorem is:
+\begin{thm}
+  Let $x$ be in integer. For any such $x$ we have
+  \begin{equation*}
+    0 \leq (x \;mod\; 2^{32}) < 2^{32}
+  \end{equation*}
+\end{thm}
+\begin{proof}
+  From our Coq Development:
+\begin{verbatim}
+Lemma mod_in_range:
+  forall x, 0 <= Zmod x modulus < modulus.
+  intros.
+  exact (Z_mod_lt x modulus (two_power_nat_pos word_size)).
+Qed.
+\end{verbatim}
+  Which states that it is exactly given by the common result
+  \texttt{Z\_mod\_lt} from the Coq standard library.
+\end{proof}
+The theorem allows us to take any integer and represent it as a 32-bit
+number as long as we take the integer $\mod 2^{32}$. Thus we have a
+straightforward embed/project pair of functions between normal
+integers and 32 bit integers.
+
+For example, here is the definition of addition:
+\begin{verbatim}
+Definition add (x y: w32) : w32 :=
+  repr (unsigned x + unsigned y).
+\end{verbatim}
+The function \texttt{unsigned} projects $x$ and $y$ to integers. Then
+we integer-add the numbers and re-embed them with the \texttt{repr}
+function.
+
+Bitwise operations in the representation works by creating
+indicator-functions from numbers up to a certain size in bits. Ie a
+number is converted into a function $f \colon \mathbb{Z} \to \{0,
+1\}$, where $f(n) = 1$ if the $n$-th bit is set and $f(n) = 0$
+otherwise. Straightforward combinations and embeddings of these
+functions builds up the bitwise functions.
+
+The properties of the numbers are simply a direct (rather impressive)
+work of standard algebra. The theorems can be found in any math-book
+on algebra. First, we have
+\begin{defn}
+  Two integers $x, y$ are in the same congruence class modulo $m$ iff
+  there exists an integer $k$ such that
+  \begin{equation*}
+    x = k \cdot m + y
+  \end{equation*}
+\end{defn}
+With this definition Xavier and co. then proceeds to build up a
+complete library of known algebraic properties for congruence classes
+like the one above. As an example we present the addition of
+congruence classes:
+\begin{verbatim}
+  Lemma eqmod_add:
+    forall a b c d, eqmod a b -> eqmod c d
+      -> eqmod (a + c) (b + d).
+  Proof.
+    intros a b c d [k1 EQ1] [k2 EQ2]; red.
+    subst a; subst c. exists (k1 + k2). ring.
+  Qed.
+\end{verbatim}
+If $a, b$ is a congruence class pair and $c, d$ also is, then the pair
+$a+c, b+d$ is an equivalence pair (for a fixed modulo). The proof proceeds by the
+well-known method that there must exist a $k_1$ by the first pair such
+that $a = k_1 \cdot m + b$. Likewise $c = k_2 \cdot m + d$. Adding
+these 2 equations and rearranging yields $a + c = (k_1 + k_2) \cdot m
+ + (b + d)$ which is the form one wants. Many of the proofs reflect
+usual mathematical methods like this.
+
 \paragraph{The Store}
 
 The JANUS store can be understood as a number of cells, with each cell
