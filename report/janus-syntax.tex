@@ -1,0 +1,46 @@
+\chapter{JANUS Syntax}
+
+The following section describes the syntax of the JANUS language
+dialect we are working with. Rather than a top-down approach, we will
+introduce the components of the syntax when needed.
+
+\paragraph{Expressions}
+ 
+In JANUS, we have expressions. They have the following grammar:
+\begin{align*}
+  e ::& = w^{32} \;\vert\; x \\
+        & \;\vert\; e_1 + e_2 \;\vert\; e_1 - e_2 \;\vert\; e_1 *
+          e_2 \;\vert\; e_1 / e_2 \;\vert\; e_1 \;\%\; e_2 \;\vert\; e_1 /\!* e_2 \\
+        & \;\vert\; e_1 \otimes e_2 \;\vert\; e_1 \;\&\&\; e_2 \;\vert\;
+        e_1 \;||\; e_2 \\
+        & \;\vert\; e_1 = e_2 \;\vert\; e_1 \neq e_2 \;\vert\; e_1 \;\&\;
+        e_2 \;\vert\; e_1 \;\|\; e_2 \;\vert\; e_1 < e_2 \;\vert\; e_1
+        > e_2 \;\vert\; e_1 \leq e_2 \;\vert\;e_1 \geq e_2 \;\vert\;
+\end{align*}
+The value $w^{32}$ is a 32-bit unsigned integer. All the familiar
+arithmetic expressions are arithmetic on 32-bit integers as
+expected. The operations $\%$ is modulo as in the C programming
+language. \fixme{describe fracprod}
+
+There are three bitwise operators in the language. These operate
+bitwise on their operands, producing the bitwise result. In order they
+are the Xor operation, the And operation and finally the Or
+operation.
+
+There are a number of relational operators in the language. These will
+return the value $1$ if true and $0$ if false, again in correspondance
+with C. For the logical And-operation and the logical Or-operation,
+falsehood of an operand is $0$, everything else is true as one
+expects.
+
+\paragraph{Statements}
+The statement language of JANUS has the following syntax:
+\begin{align*}
+  s ::&= ... \\
+      &\;\vert\; ...
+\end{align*}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "master"
+%%% End: 
