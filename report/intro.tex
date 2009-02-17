@@ -52,6 +52,70 @@ extracted from the work in Coq. Finally, we describe the
 meta-theoretic results achieved. The report is honest to the
 state-of-the-art: any result is mechanically formalized in Coq.
 
+\section{Reversible computation}
+\label{sec:revers-comp}
+
+Suppose we are given a program $p$ and give it an input $x$ and it
+yields an output $y$:
+\begin{equation*}
+  |[p|](x) = y
+\end{equation*}
+For some programs $p$ it will be possible to reconstruct $x$ from the
+pair $(p, y)$.
+
+To achieve this inversion property certain things must be
+fulfilled. The program $p$ must at least be injective: Different
+inputs must map the different outputs. Otherwise it is impossible to
+reconstruct the input from the output in all cases. As an example,
+take the Standard ML program
+\begin{verbatim}
+  fun even_odd x =
+    x mod 2
+\end{verbatim}
+which will take any number $x$ and return either $0$ or $1$. All even
+numbers will be assigned to $0$ and thus it is impossible to know
+which even number was the input. The program is not injective and thus
+not reversible.
+
+\begin{defn}
+  A program $p$ is called \emph{information preserving} if for
+  $|[p|](x) = y$ it is possible to uniquely reconstruct $x$ from the
+  pair $(p, y)$.
+\end{defn}
+Informally, no loss of information may occur in the computation. We
+are interested in this property as it a necessity for quantum
+computing \fixme{CITE QC} and for providing programs for fully
+adiabatic CMOS technology \fixme{CITE ADIABATIC}.
+
+\begin{thm}
+  Any information preserving program is injective.
+\end{thm}
+\begin{proof}
+  Assume the program is not injective. Then we have $x \neq y$ but
+  $|[p|](x) = |[p|](y)$. but then we can't uniquely reconstruct $x$
+  say since $y$ is equally likely.
+\end{proof}
+Injectivity is a necessary condition. The wording of information
+preservation is carefully chosen such that there \emph{is} an input
+yielding the given output. The output space is then the image of all
+possible inputs, automatically making the statement surjective on the
+codomain.
+
+For a reversible programming language, like JANUS, we obtain the
+information preservation by means of an inversion property: Any
+program $p$ can be inverted into a program $p^{-1}$ with
+$|[p^{-1}|](y) = x$. Thus we can always reconstruct $x$ from the pair
+$(p, y)$ by inverting $p$ and inputting $y$.
+
+JANUS is reversible because it is possible to define a term-rewriting
+system for turning a program into its inverse. We will see that it is
+possible since each atomic instruction is ivertible and each compound
+instruction is invertible if its subcomponents are. This let us use an
+inductive argument to show all programs reversible.
+
+Before we discuss the JANUS language itself however, we need to
+discuss some components used in JANUS.
+
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "master"
