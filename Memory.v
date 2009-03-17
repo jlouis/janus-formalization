@@ -2,24 +2,35 @@
 
 Require Import Arith.
 Require Import BaseLib.
-Require Import Word32.
 
-Section Memory.
-  (* Variables are natural numbers *)
-  Definition var := nat.
-  (* Memories are maps from variables to w32 optional types *)
-  Definition memory := var -> option w32.
+Module Type STORE.
+
+  Parameter location : Set. (* Domain of the store mapping *)
+  Parameter value : Set.    (* Codomain of the store mappring *)
+
+  (* locations have equality *)
+  Parameter eq : location -> location -> Prop.
+  Parameter location_eq_dec : forall (n m : location), {n = m} + {n <> m}.
+
+End STORE.
+
+Module Memory(V : STORE).
+
+  Definition var := V.location.
+  Definition value := V.value. (* For convenience *)
+  Definition memory := var -> option V.value.
   (* The default store fails any lookup *)
-  Definition empty (_ : var) : option w32 := None.
+  Definition empty (_ : var) : option value := None.
 
   (* Write [v] to memory location [x] in memory [m] *)
+
   Definition write (m : memory) x v x' :=
-    if eq_nat_dec x x'
+    if V.location_eq_dec x x'
       then Some v
       else m x'.
 
   Definition hide (m : memory) x x' :=
-    if eq_nat_dec x x'
+    if V.location_eq_dec x x'
       then None
       else m x'.
 
@@ -27,7 +38,7 @@ Section Memory.
   Lemma write_eq : forall m a v, write m a v a = Some v.
     unfold write.
     intros.
-    destruct (eq_nat_dec a a); tauto.
+    destruct (V.location_eq_dec a a); tauto.
   Qed.
 
   Hint Rewrite write_eq : mortar.
@@ -46,7 +57,7 @@ Section Memory.
     -> write m a v a' = m a'.
     unfold write.
     intros.
-    destruct (eq_nat_dec a a'); tauto.
+    destruct (V.location_eq_dec a a'); tauto.
   Qed.
 
   Hint Rewrite write_ne using omega : mortar.
@@ -55,14 +66,14 @@ Section Memory.
     m = m' ->
       hide (write m x v1) x x' = hide (write m' x v2) x x'.
   Proof.
-    intros. unfold hide, write. destruct (eq_nat_dec x x'); grind.
+    intros. unfold hide, write. destruct (V.location_eq_dec x x'); grind.
   Qed.
 
   Lemma hide_retract : forall m m' x,
     m = m' -> hide m x = hide m' x.
   Proof.
     intros. apply extensionality. intro. unfold hide.
-    destruct (eq_nat_dec x x0); grind.
+    destruct (V.location_eq_dec x x0); grind.
   Qed.
 
   Hint Rewrite hide_retract : mortar.
@@ -77,7 +88,7 @@ Section Memory.
   Lemma hide_ne: forall m x x',
     x <> x' -> hide m x x' = m x'.
   Proof.
-    intros. unfold hide. destruct (eq_nat_dec x x').
+    intros. unfold hide. destruct (V.location_eq_dec x x').
     absurd (x = x'); assumption.
     trivial.
   Qed.
@@ -86,10 +97,10 @@ Section Memory.
     hide m x = hide m' x -> forall a, a <> x -> m a = m' a.
   Proof.
     intros. assert (hide m x a = hide m' x a).
-    apply (f_ext nat (option w32) (hide m x) (hide m' x)). assumption.
-    assert (hide m x a = m a). unfold hide. destruct (eq_nat_dec x a).
+    apply (f_ext V.location (option value) (hide m x) (hide m' x)). assumption.
+    assert (hide m x a = m a). unfold hide. destruct (V.location_eq_dec x a).
     symmetry in e. contradiction. trivial.
-    assert (hide m' x a = m' a). unfold hide. destruct (eq_nat_dec x a).
+    assert (hide m' x a = m' a). unfold hide. destruct (V.location_eq_dec x a).
     symmetry in e. contradiction. trivial.
     grind.
   Qed.
@@ -99,7 +110,7 @@ Section Memory.
     m x = Some v -> write m x v = m.
   Proof.
     intros. apply extensionality. intro. unfold write.
-    destruct (eq_nat_dec x x0); grind.
+    destruct (V.location_eq_dec x x0); grind.
   Qed.
 
   Hint Rewrite write_neutral : mortar.
@@ -112,7 +123,7 @@ Section Memory.
     assert (m = write m x v). symmetry. apply write_neutral; grind.
     assert (m' = write m' x v). symmetry. apply write_neutral; grind.
     rewrite H3. rewrite H4. apply extensionality. intro. unfold write.
-    destruct (eq_nat_dec x x0). trivial. apply H2. apply sym_not_eq.
+    destruct (V.location_eq_dec x x0). trivial. apply H2. apply sym_not_eq.
       assumption.
   Qed.
   Hint Rewrite hide_eq: mortar.
@@ -122,7 +133,7 @@ Section Memory.
   Proof.
     intros.
     apply extensionality. intro.
-    unfold hide. destruct (eq_nat_dec x x0). trivial.
+    unfold hide. destruct (V.location_eq_dec x x0). trivial.
     assert ((write m x v1 x0) = m x0). apply write_ne. trivial.
     assert ((write m' x v2 x0) = m' x0). apply write_ne. trivial.
     grind.
