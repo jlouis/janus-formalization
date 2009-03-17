@@ -4,4 +4,16 @@
 .#*
 *.vo
 Makefile.coq
+*.log
+*.aux
+*.bbl
+*.out
+*.pdf
+*.ps
+*.blg
+*.nav
+*.dvi
+*.snm
+*.toc
+*/auto/
 
