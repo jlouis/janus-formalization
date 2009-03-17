@@ -1,0 +1,113 @@
+\documentclass[a4paper, oneside, 10pt, draft]{memoir}
+\chapterstyle{culver}
+\usepackage{fixme}
+\usepackage[osf,sc]{mathpazo}
+\linespread{1.05}
+%\usepackage[utopia]{mathdesign}
+\input{../../Preamble/preamble_memoir.tex}
+
+\usepackage{semantic}
+\author{Jesper Louis
+  Andersen\\jesper.louis.andersen@gmail.com\\140280-2029}
+\title{A Formalization of JANUS}
+\date{\today}
+
+\renewcommand*{\titleM}{\begingroup% Misericords, T&H p 153
+  \drop = 0.08\textheight
+  \centering
+  {\Huge\bfseries JANUS}\\[\baselineskip]
+  {\scshape a mechanized verification}\\[\baselineskip]
+  {\scshape by}\\[\baselineskip]
+  {\large\scshape Jesper Louis Andersen\\jesper.louis.andersen@gmail.com}\par
+  \endgroup}
+
+\bibliographystyle{amsalpha}
+\begin{document}
+\titleM
+
+\paragraph{Project Description}
+
+The JANUS programming language is a reversible programming language,
+suitable for research in reversible computation. This 15 ECTS project
+has the goal of providing a full, machine-verified formal semantics
+for the JANUS programming language.
+
+We plan to start with the formal semantics present in the literature
+(\cite{glueck2007}, \cite{glueck2008}) and then formalize the
+semantics and a couple of key proofs in a proof assistant. The goal is
+not to show the existing proofs wrong, but rather to sharpen the
+details of the proofs and alter the semantics to make proof simpler.
+
+In the first phase of the project, we will work with a simplified
+version of the language called $\mathrm{JANUS}_0$. This version will
+let us introduce the concepts in a pedagogical way and build up
+towards a full formalization -- but it will probably not be a Turing
+Complete language.
+
+Next, we will introduce $\mathrm{JANUS_1}$ which is a larger subset of
+the full JANUS language. Finally, we will use the bootstrapping
+sequence to provide a full or nearly full formalization of the
+complete JANUS language.
+
+The framework for formalization and mechanical, computer aided
+verification, is not decided at project start, though the contenders
+are the ``Twelf logical framework'' (\cite{harper+07:mechanizing},
+\cite{hhp93lf}, \cite{twelf}) and the ``Coq proof assistant'' (\cite{coqdev}).
+We intend to deliver:
+\begin{itemize}
+\item A full encoding of the formal semantics from the literature.
+\item An encoding and verification of key proofs.
+\item A report describing the methods used.
+\item Eventual alterations of the semantics in order to simplify the
+  proofs.
+\end{itemize}
+
+\subparagraph{Outcome}
+\label{sec:consequence}
+
+It might very well be that the academic contribution will come from
+the reshaping of the semantics. In the case that the proofs and
+encoding are already perfect, the academic contribution will then be
+the formalization work.
+
+\paragraph{Learning goals}
+
+Writing a graduate project is as much a learning situation as it is
+academic work. Hence, we have several learning goals associated with
+the project.
+
+At the end of the project, I will have learned:
+\begin{itemize}
+\item How to write down formal semantics for a medium sized
+  project. While I have done smaller semantics as part of exercises in
+  courses, this endeavour is much more involved.
+\item How to verify proof correctness by the use of formal
+  frameworks. The verification will make sure that only sound valid
+  logical rules are being used so any kind of logical mistake is
+  corrected.
+\item How to \emph{program} proofs in the logical framework Coq for
+  larger developments. This is largely a skill that one can improve
+  over time, much akin to programming.
+\end{itemize}
+In addition I will have gained knowledge about:
+\begin{itemize}
+\item The details of the JANUS language and reversible programming in
+  general. A formal development will force us to acquire intimate
+  knowledge of the language in particular.
+\item The Coq formal framework. While I have used it before, it was
+  rather superficial. This work will force me to gain much more
+  knowledge about its intrisics.
+\end{itemize}
+
+These learning goals will enable further studies in formal frameworks
+as well as reversible programming.
+
+\bibliography{biblio} 
+% What is the project about?
+% What am I going to learn?
+% What is the ECTS valuation
+\end{document}
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

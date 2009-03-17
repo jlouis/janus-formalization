@@ -1,0 +1,179 @@
+\newcommand{\janusz}{$\mathrm{JANUS}_0$}
+\newcommand{\coq}{\textsc{Coq}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\chapter{\janusz{}}
+
+The \janusz{} programming language is a subset of the full JANUS
+language from \cite{glueck2007}. It not a Turing Complete language and
+contains only simple linear constructs. However, it contains enough to
+provide a vehicle for explaining the basics of a formalization. We aim
+to provide a big step operational semantics for the language, suitable
+for encoding into the logical framework \coq{}.
+
+Describing a language requires us to define the basic object that is
+manipulated. There are two such objects in \janusz{}: integers and
+stores.
+
+The integers are the mathematical integers, ie drawn from $\ZZ$. In
+full JANUS the primary object are 32-bit integers but in our
+simplified version, we just use usual integers.
+
+\newcommand{\lift}[1]{\lfloor #1 \rfloor}
+\begin{defn}
+  For any set, $S$ we define its domain-theoretic \emph{lift} to be
+  $S_{\perp} = S \cup \{\perp\} $ for a special value $\perp$ called
+  ``bottom''. Values $s \in S$ are notated as $\lift{s}$ which is
+  called the ``lift''.
+\end{defn}
+Information-theoretically, the bottom values represents ``no
+information'' whereas the lift of a value represents that value. This
+is akin to the well-known ML datatype ``option''.
+
+The stores, notated as $\rho, \rho', \dotsc$ are functions from
+integers to lifted integers: $\rho \colon \ZZ \to \ZZ_{\perp}$. The
+domain of integers are called \emph{locations}. We usually give them
+names $x, y, z, \dotsc$ and assume each variable is associated with a
+specific integer for the duration of the program. The co-domain
+defines the contents of the current location in the store. If no value
+is associated with the location $x$ then $x \mapsto \perp$ and
+otherwise $x \mapsto \lift{i}$ for some $i \in \ZZ$. This process is
+used as lookup.
+
+Stores are altered under the course of running a program. In our
+formalization this amounts to changing the function
+$\rho$. The notation $\rho[x \mapsto k]$ means ``update the contents
+of location $x$ with the value $k$''. The mathematical formal meaning
+is:
+\begin{equation*}
+  \rho[x \mapsto k](z) = \begin{cases}
+    \lift{k} & \quad x = z\\
+    \rho(z)  & \quad \text{otherwise}
+  \end{cases}
+\end{equation*}
+
+The empty store $\epsilon$ maps everything to $\perp$, ie. for all
+locations $l \in \ZZ$ we have $\epsilon(l) = \perp$. We will use the
+empty store as the inital store.
+
+\subsection{Coq encoding}
+
+In \coq{} there are already integers built-in, ready for use in our
+formaliztion. This means we can focus entirely on providing an
+implementation of stores.
+
+A Store maps 
+
+\section{Expressions in \janusz{}}
+
+The \janusz{} language has a very simplified expression language
+compared to full JANUS. In this language there are 5 expression
+constructs: integer constants, store referencing, addition,
+subtraction and multiplication.
+
+The syntax of expressions $e$ is the following in BNF notation:
+\newcommand{\bor}{\; | \;}
+\begin{equation*}
+  e ::= n \bor \mathtt{x} \bor e + e \bor e - e \bor e * e
+\end{equation*}
+The judgement forms are $\rho |- e => z$ stating that under the
+assumption of a store $\rho$ the expression $e$ evaluates to the
+integer $z$. The inference rules for this system is straightforward:
+\begin{gather*}
+  \inference[Const]{}{\rho |- n => n} \quad \inference[Var]{\rho(\mathtt{x}) =
+    \lift{k}}{\rho |- \mathtt{x} => k} \\
+  \inference[Add]{\rho |- e_1 => n_1 \quad \rho |- e_2 => n_2 \quad
+    n_1 + n_2 = n}{\rho |- e_1 + e_2 => n} \\
+  \inference[Sub]{\rho |- e_1 => n_1 \quad \rho |- e_2 => n_2 \quad
+    n_1 - n_2 = n}{\rho |- e_1 - e_2 => n} \\
+  \inference[Mul]{\rho |- e_1 => n_1 \quad \rho |- e_2 => n_2 \quad
+    n_1 * n_2 = n}{\rho |- e_1 * e_2 => n}
+\end{gather*}
+
+\section{Statements in \janusz{}}
+
+The statement syntax of \janusz{} defines a small, purely linear
+subset of the full JANUS language. There are 4 constructs given via
+the following notation in BNF:
+\reservestyle{\command}{\mathbf}
+\command{if[\;if\;],then[\;then\;],else[\;else\;],fi[\;fi\;]}
+\begin{gather*}
+  s ::= x +\!\!= e \bor x -\!\!= e \bor s; s
+  \\ \bor \<if> e \<then> s \<else> s \<fi> e
+\end{gather*}
+We will interleave the description of each of these syntactical
+elements with the inference rules for them. The judgement form for
+execution of statements is $\rho |- s -> \rho'$ which designates that
+under the assumption of a store $\rho$, execution of statement $s$
+will yield the altered store $\rho'$.
+
+The first operation is the increment operation of an element in the
+store. This operation, written as $x +\!\!= e$ will evaluate the
+expression $e$ to a number $k$ and then add this amount to the
+location in the store to which $x$ points:
+\begin{equation*}
+  \inference[Inc0]{\rho |- e => k \quad \rho(x) = \lift{k'} \quad k +
+    k' = n}{\rho |- x +\!\!= e -> \rho[x \mapsto n]}
+\end{equation*}
+In JANUS it is a requirement that the variable $x$ must not occur in
+the expression $e$. The same requiremnt is present in \janusz{} and
+has to do with the invertibility of such statements. There is,
+however, an alternative semantics not present in the current
+literature which directly encodes the requirement in the inference
+rule.
+
+Recall we defined an ability to ``hide'' certain variables in our
+store. We can utilize this by hiding $x$ in the expression evaluation:
+\begin{equation*}
+  \inference[Inc]{(\rho \setminus x) |- e => k \quad \rho(x) =
+    \lift{k'} \quad k + k' = n}{\rho |- x +\!\!= e -> \rho[x \mapsto n]}
+\end{equation*}
+Now, because expression evaluation of the ``Var'' case requires a
+lifted value it is now impossible to construct an inference tree where
+the expression $e$ refers to the value $x$. We have effectively
+encoded the informal requirement into a formal one. This method,
+correctness by construction, simplifies proof formalization: had we
+chosen a predicate judgement for an non-occurring variable $x$, then
+we would have to provide a proof with this added structure.
+
+For subtraction, the definition is similar:
+\begin{equation*}
+  \inference[Sub]{(\rho \setminus x) |- e => k \quad \rho(x) =
+    \lift{k'} \quad k - k' = n}{\rho |- x -\!\!= e -> \rho[x \mapsto n]}
+\end{equation*}
+
+The next rule is for sequencing operations. In the statement $s_1;
+s_2$ one first executes $s_1$ and then feeds the resulting store into
+the execution of $s_2$:
+\begin{equation*}
+  \inference[Seq]{\rho |- s_1 -> \rho'' \quad \rho'' |- s_2 -> \rho'}
+  {\rho |- s_1; s_2 -> \rho'}
+\end{equation*}
+
+Finally, there is the rule for the branching instruction. In \janusz{}
+the value $0$ is ``false'' and any value different from $0$ is the
+``true'' value. This yields two rules, one for each case. The first
+rule is for the ``false'' case:
+\begin{equation*}
+  \inference[If-false]{\rho |- e_1 => 0 \quad \rho |- s_2 -> \rho'
+    \quad \rho' |- e_2 => 0}{\<if> e_1 \<then> s_1 \<else> s_2 \<fi>
+    e_2 -> \rho'}
+\end{equation*}
+This rule states that if the $e_1$ \emph{test} evaluates to a false
+value, then the ``else''-branch is executed. Finally the
+\emph{assertion} $e_2$ must be false as well.
+
+The true case is similar, the difference being extra (mathematical)
+requirements on what the expressions evaluates to:
+\begin{equation*}
+  \inference[If-true]{\rho |- e_1 => k \quad k \neq 0 \quad \rho |- s_1 -> \rho'
+    \quad \rho' |- e_2 => k' \quad k' \neq 0}{\<if> e_1 \<then> s_1 \<else> s_2 \<fi>
+    e_2 -> \rho'}
+\end{equation*}
+
+The need for assertions has to do with reversibility, as we shall see
+later on.
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "master"
+%%% End: 

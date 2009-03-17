@@ -52,6 +52,60 @@ extracted from the work in Coq. Finally, we describe the
 meta-theoretic results achieved. The report is honest to the
 state-of-the-art: any result is mechanically formalized in Coq.
 
+\section{Why Coq}
+
+One might want to know what decided the formal verification framework
+to use. The author has used two frameworks in the past, Coq and Twelf
+and it felt logical to use one of those in the formal verification.
+
+One has to make the choice of framework early on and then stick to
+it. It is exactly like choosing a programming language for a given
+task.
+
+Coq is a proof assistant using an (co-)inductive variant of the
+Calculus of Constructions (CoC). It relies on the Curry-Howard
+correspondence to prove a link between program/proof and
+types/theorems. Proof are carried out by giving tactics. These tactics
+then build up the desired proof term and a low level type checker
+makes sure the proof is correct.
+
+Twelf uses a dependently typed lambda calculus constrained to certain
+canonical forms. This calculus is called LF. The logic and the proofs
+are then encoded in this LF-language. A separate checker then verifies
+certain properties of the encoding, which finally constitutes a proof
+\fixme{Reference to Harper/Crary}.
+
+Coq supports proof automation where parts of proofs are done
+automatically by the computer. However, most of the time carrying out
+proofs are spent on things other than the proof structure: a
+considerable amount of time is spent on figuring out how to condiuct
+the proof. Another time consumer is feeding the necessary prior
+knowledge to the proof system for the development. You can only carry
+out 32-bit addition if the system knows, by definition, what a 32-bit
+number is, and what addition means. Properties of JANUS relies on
+properties of 32-bit addition, so this must be fed to the framework as
+well.
+
+The JANUS development needs 32-bit numbers. These were available
+for Coq, but not for Twelf. One could have used classic integers of
+infinite size however. Coq further had support for arithmetic in
+libraries, whereas in Twelf, we would have to encode this
+ourselves. On the other hand, Twelf has a simpler system and excels at
+working with lambda-style binders. For Twelf, it would be beneficial
+to encode the store as \emph{contextual worlds}. Twelf also has
+support for several mutual induction schemes. These are also available
+in Coq, but are considerably harder to use. From Coq version 8.2
+however, some syntactic sugar has been added to make its use
+easier. But at the start of the project, only Coq version 8.1 were
+available.
+
+
+It was deemed that it would be best to have easy access to 32-bit
+numbers and hence Coq were chosen. In hindsight certain mutual
+induction proofs would probably have been easier to carry out in Twelf
+and to rely on arbitrary sized integers would not have been
+detrimental to the demonstration of the findings in this report.
+
 \section{Reversible computation}
 \label{sec:revers-comp}
 
