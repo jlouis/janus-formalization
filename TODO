@@ -1,0 +1,9 @@
+
+
+* Figure out types in Coq
+   We need to know that Z and value are the same type. We then need to
+   instruct Coq that this is the case.
+
+* Write about denotational semantics in the report
+   Rather than using an Operational Semantics, we use one that is
+   Denotational. Explain this.
