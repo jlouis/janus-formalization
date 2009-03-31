@@ -239,6 +239,51 @@ integer $z$. The inference rules for this system is straightforward:
     n_1 * n_2 = n}{\rho |- e_1 * e_2 => n}
 \end{gather*}
 
+There is another, denotational, semantics for expressions
+however. This semantics are equal to the operational semantics given
+above. One aspect of Coq is that it is more natural to express
+denotational semantics than operational semantics.
+
+For a denotational semantics, we define a computation
+$\mathcal{E}|[-|] \colon E \to \Sigma \to \ZZ_{\perp}$ from an
+expression and a Store $\Sigma$ to a lifted value. The definition is a
+case analysis on the structure of the expression given:
+\begin{align*}
+  \mathcal{E}|[n|](\rho) & = \lift{n}\\
+  \mathcal{E}|[x|](\rho) & = \rho (x)\\
+  \mathcal{E}|[e_1 + e_2|](\rho) & = \mathcal{E}|[e_1|](\rho) \;
+  +_{\ZZ} \;
+  \mathcal{E}|[e_2|](\rho)\\
+  \mathcal{E}|[e_1 - e_2|](\rho) & = \mathcal{E}|[e_1|](\rho) \;
+  -_{\ZZ} \;
+  \mathcal{E}|[e_2|](\rho)\\
+  \mathcal{E}|[e_1 * e_2|](\rho) & = \mathcal{E}|[e_1|](\rho) \;
+  *_{\ZZ} \;
+  \mathcal{E}|[e_2|](\rho)
+\end{align*}
+The operation $+$ is the operation from our expression language
+whereas the operation $+_{\ZZ}$ is the mathematical integer addition
+here made explicit by its annotation. Likewise is the case for $-$ and
+$*$.
+
+The advantage of the latter, denotational, definition is that is
+allows for simpler proofs in Coq. Basically a standard Case analysis
+will do over the structure. Operational semantics uses a Prolog-style
+where a relation between the premises and conclusion is defined. The
+advantage of this prolog style is of course its generality. The
+denotational style above is a function definition based on case
+analysis which is a special case of a relation.
+
+If $R \subseteq X \times Y$ is a relation on $X$ and $Y$, then the
+relation would be a function in the folowing case: if $(a, b) \in R$
+and also $(a, c) \in R$ then we must have $b = c$. In other words, a
+function is deterministic in its output based on its output.
+
+We will only need the forward determinism for expressions and hence
+there is no need for the generality of the relation. We therefore
+employ a denotational definition as it greatly simplifies the needed
+proof of forward determinism.
+
 \section{Statements in \janusz{}}
 
 The statement syntax of \janusz{} defines a small, purely linear
