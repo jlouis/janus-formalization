@@ -1,6 +1,43 @@
 \newcommand{\janusz}{$\mathrm{JANUS}_0$}
 \newcommand{\coq}{\textsc{Coq}}
+\newcommand{\NN}{\mathbb{N}}
 \newcommand{\ZZ}{\mathbb{Z}}
+\chapter{Choice of proof system}
+
+... To be written ...
+
+\subsection{Coq Calculus assumptions}
+
+The \coq{} system provides the Calculus of (co-)inductive
+constructions. In this system, there are certain properties which are
+unprovable but nice to have. In the litterature about \coq{} one can
+find certain axioms that can be added safely to the proof system
+without making it inconsistent. Great care must be taken, but we know
+that adding \emph{Proof irrelevance} and \emph{Extensionality} at the
+same time doesn't introduce inconsistencies.
+
+\paragraph{Proof Irrelevance}
+\label{sec:proof-irrelevance}
+
+The Irrelevance of proofs state that if we have two ways of proving
+the same thing, it is irrelevant which one we look at. They are
+decided as being equal. Formally:
+\begin{axm}
+  Suppose $P$ is any proposition. Let $p_1$ and $p_2$ be proofs of
+  proposition $P$. In \coq{} this means $p_1$ and $p_2$ are terms of
+  type $P$. Then $p_1 = p_2$.
+\end{axm}
+
+\paragraph{Extensionality}
+\label{sec:extensionality}
+
+The extensionality axiom states that if two functions agree on all
+values, then they are equal. Formally:
+\begin{axm}
+  Suppose we have $f, g \colon A \to B$. Then if $\forall x \in A,
+  f(x) = g(x)$ we have $f = g$.
+\end{axm}
+
 \chapter{\janusz{}}
 
 The \janusz{} programming language is a subset of the full JANUS
@@ -20,6 +57,7 @@ simplified version, we just use usual integers.
 
 \newcommand{\lift}[1]{\lfloor #1 \rfloor}
 \begin{defn}
+  \label{defn-lift}
   For any set, $S$ we define its domain-theoretic \emph{lift} to be
   $S_{\perp} = S \cup \{\perp\} $ for a special value $\perp$ called
   ``bottom''. Values $s \in S$ are notated as $\lift{s}$ which is
@@ -30,12 +68,13 @@ information'' whereas the lift of a value represents that value. This
 is akin to the well-known ML datatype ``option''.
 
 The stores, notated as $\rho, \rho', \dotsc$ are functions from
-integers to lifted integers: $\rho \colon \ZZ \to \ZZ_{\perp}$. The
-domain of integers are called \emph{locations}. We usually give them
-names $x, y, z, \dotsc$ and assume each variable is associated with a
-specific integer for the duration of the program. The co-domain
-defines the contents of the current location in the store. If no value
-is associated with the location $x$ then $x \mapsto \perp$ and
+natural numbers to lifted integers: $\rho \colon \NN \to
+\ZZ_{\perp}$. The domain of natural numbers are called
+\emph{locations}. We usually give them names $x, y, z, \dotsc$ and
+assume each variable is associated with a specific number for the
+duration of the program. The co-domain defines the contents of the
+current location in the store. These are called \emph{values}. If no
+value is associated with the location $x$ then $x \mapsto \perp$ and
 otherwise $x \mapsto \lift{i}$ for some $i \in \ZZ$. This process is
 used as lookup.
 
@@ -55,13 +94,124 @@ The empty store $\epsilon$ maps everything to $\perp$, ie. for all
 locations $l \in \ZZ$ we have $\epsilon(l) = \perp$. We will use the
 empty store as the inital store.
 
+It will be beneficial to provide \emph{hiding} of values in the store. A
+hiding of a variable $x$ is a new store in which $x$ does not
+exist. Because we have the value $\perp$ in our store-values, there is
+a straightforward definition. We use the notation $(\rho \setminus x)$
+for the hiding of the variable $x$ in the store $\rho$. The definition
+is:
+\begin{equation*}
+  (\rho \setminus x)(z) = \begin{cases}
+    \perp & \quad z = x\\
+    \rho(z) & \quad \text{otherwise}
+  \end{cases}
+\end{equation*}
+
 \subsection{Coq encoding}
 
 In \coq{} there are already integers built-in, ready for use in our
 formaliztion. This means we can focus entirely on providing an
 implementation of stores.
 
-A Store maps 
+In the stores given above in, we operate with a domain of $\NN$ and a
+codomain of $\ZZ$ used as the locations and values respectively. For
+encoding this in \coq{}, we define a \texttt{Module Type}. For ML
+people this is a type signature. The implementation is:
+\begin{verbatim}
+Module Type STORE.
+
+  Parameter location : Set. (* Domain of the store mapping *)
+  Parameter value : Set.    (* Codomain of the store mappring *)
+
+  (* locations have equality *)
+  Parameter eq : location -> location -> Prop.
+  Parameter location_eq_dec : forall (n m : location), {n = m} + {n <> m}.
+
+End STORE.
+\end{verbatim}
+In this definition we define two parameters, locations and
+values. Both belong to the ``Set'' world, which is the world of
+objects in \coq{}. The \texttt{eq} parameter specifies an equality
+predicate on locations. It returns its result as a ``Prop'' which is
+the world of propositions in the universe. The distinction between
+``Set'' and ``Prop'' is made such that we keep the language and its
+properties apart in the formalization.
+
+Finally, we require the existence an equality decider for
+locations. It states that either $n = m$ or $n \neq m$ for locations
+$n, m$.
+
+Memories are defined as a \emph{module functor} expecting a
+\texttt{STORE} fulfilling module as input and producing a
+\texttt{Memory} as output. By using a functor we hoist the specifics
+of the domain and codomain of the memory, so we can change the
+definition later on.
+
+The memory is a function from locations to values $S_{\perp}$, encoded
+as an option type as known from ML. This encodes a lift as given in
+Definition \ref{defn-lift}. The value of $\perp$ is encoded as
+\texttt{None} and the lift $\lift{s}$ as \texttt{Some s}. The
+definition of the empty store is then straightforward, where locations
+are named ``var'' for convenience:
+\begin{verbatim}
+  Definition empty (_ : var) : option value := None.
+\end{verbatim}
+Lookup on a memory is function application of the location to the
+memory function. Writing a new value to a given location is happening
+according the update function given above:
+\begin{verbatim}
+  Definition write (m : memory) x v x' :=
+    if location_eq_dec x x'
+      then Some v
+      else m x'.
+\end{verbatim}
+Hiding is also carried out according to the matematical definition.
+
+\subsection{Properties of stores}
+
+The stores we have defined has a set of properties associated with
+them. These properties are important when we want to prove theorems
+about \janusz{} as they form the \emph{Knowledge basis} for the
+stores. The knowledge basis is the set of properties we build on when
+we formalize properties of \janusz{}, but are not directly
+related. When humans carry out proofs there is an implicit temptation
+to assume the existence of most of this work by intuition. For a
+machine however, we will have to provide it with the theorems as well
+as the proofs. The proofs presented here is a selection from the
+development.
+
+\begin{thm}
+  \label{write-eq}
+  For a store $\rho$ we have $\rho[x \mapsto v](v) = \lift{v}$
+\end{thm}
+\begin{proof}
+  In \coq{} (case analysis on $x$ after unfolding the definition of updates).
+\end{proof}
+Theorem \ref{write-eq} has a similar proposition:
+\begin{thm}
+  Assume a store $\rho$ and let $x, y$ be locations with $x \neq
+  y$. Then we have, for any value $v$:
+  \begin{equation*}
+    \rho[x \mapsto v](y) = \rho(y)
+  \end{equation*}
+\end{thm}
+\begin{proof}
+  By \coq{}.
+\end{proof}
+
+
+\fixme{Provide proof descriptions}
+
+To be written.
+
+
+
+\subsection{History}
+
+To be written. In this section we will describe some of the failed
+attempts at formalizing the store we tried in the process. These are
+interesting because they hint at the need for coming up with the
+simple solutions rather than the complex or naive ones.
 
 \section{Expressions in \janusz{}}
 

@@ -3,6 +3,8 @@
 .depend
 .#*
 *.vo
+*.glob
+*.v.d
 Makefile.coq
 *.log
 *.aux
