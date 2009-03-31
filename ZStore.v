@@ -2,7 +2,7 @@ Require Import ZArith.
 Require Import Memory.
 
 (* Stores with integers as their base *)
-Module ZS : STORE.
+Module ZS <: STORE.
   Definition location := nat.
   Definition value := Z.
 
