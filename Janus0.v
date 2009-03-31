@@ -2,6 +2,7 @@
  * containing only the most important parts of it
  *)
 
+Require Import BaseLib.
 Require Import ZArith.
 Require Import Memory.
 Require Import ZStore.
@@ -30,23 +31,27 @@ Section Janus0.
         | Exp_Const z => Some z
         | Exp_Var x => m x
         | Exp_Add e1 e2 =>
-            match (denote_Exp e1, denote_Exp e2) with
+            match (denote_Exp m e1, denote_Exp m e2) with
               | (Some n1, Some n2) => Some (n1 + n2)
               | _ => None
             end
         | Exp_Sub e1 e2 =>
-          match (denote_Exp e1, denote_Exp e2) with
+          match (denote_Exp m e1, denote_Exp m e2) with
             | (Some n1, Some n2) => Some (n1 - n2)
             | _ => None
             end
         | Exp_Mul e1 e2 =>
-          match (denote_Exp e1, denote_Exp e2) with
+          match (denote_Exp m e1, denote_Exp m e2) with
             | (Some n1, Some n2) => Some (n1 - n2)
             | _ => None
           end
       end.
 
-
+    Theorem exp_determ : forall m e v1 v2,
+      denote_Exp m e = v1 -> denote_Exp m e = v2 -> v1 = v2.
+    Proof.
+      grind.
+    Qed.
 
 End Expr.
 
