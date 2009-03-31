@@ -282,7 +282,26 @@ function is deterministic in its output based on its output.
 We will only need the forward determinism for expressions and hence
 there is no need for the generality of the relation. We therefore
 employ a denotational definition as it greatly simplifies the needed
-proof of forward determinism.
+proof of forward determinism:
+
+\begin{thm}
+  \janusz{} expressions are forward deterministic: suppose we have a
+  store $\sigma$ and an expression $e$. Now let
+  $\mathcal{E}|[e|](\sigma) = v_1$ for a value $v_1 \in \ZZ_{\perp}$
+  and also let $\mathcal{E}|[e|](\sigma) = v_2$ for a value $v_2 \in
+  \ZZ_{\perp}$. Then we have $v_1 = v_2$.
+\end{thm}
+\begin{proof}
+By the use of \coq{} and the \texttt{grind}-tactic from
+\cite{chlipala+08:cpdt}:
+\begin{verbatim}
+    Theorem exp_determ : forall m e v1 v2,
+      denote_Exp m e = v1 -> denote_Exp m e = v2 -> v1 = v2.
+    Proof.
+      grind.
+    Qed.
+\end{verbatim}
+\end{proof}
 
 \section{Statements in \janusz{}}
 
