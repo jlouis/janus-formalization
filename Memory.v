@@ -14,7 +14,7 @@ Module Type STORE.
 
 End STORE.
 
-Module Memory(V : STORE).
+Module Mem(V : STORE).
 
   Definition var := V.location.
   Definition value := V.value. (* For convenience *)
@@ -139,4 +139,4 @@ Module Memory(V : STORE).
     grind.
   Qed.
 
-End Memory.
+End Mem.

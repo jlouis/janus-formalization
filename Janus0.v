@@ -4,14 +4,18 @@
 
 Require Import ZArith.
 Require Import Memory.
+Require Import ZStore.
+
+Module ZMem := Mem(ZS).
 
 Section Janus0.
 
   Open Scope Z_scope.
+
+  Definition Var := ZMem.var.
+  Definition Value := ZMem.value.
   (* This section defines the expression language of Janus0 *)
   Section Expr.
-
-    Definition Var := nat.
 
     (* Minimal syntax definition *)
     Inductive Exp : Set :=
@@ -21,25 +25,26 @@ Section Janus0.
     | Exp_Sub : Exp -> Exp -> Exp
     | Exp_Mul : Exp -> Exp -> Exp.
 
-    Fixpoint denote_Exp (m : memory) (e : Exp) {struct e} : option Z :=
+    Fixpoint denote_Exp (m : ZMem.memory) (e : Exp) {struct e} : option Z :=
       match e with
-        | E_Const z => Some z
-        | E_Var x => m x
-        | E_Add e1 e2 =>
-            match (denoteExp e1, denoteExp e2) with
+        | Exp_Const z => Some z
+        | Exp_Var x => m x
+        | Exp_Add e1 e2 =>
+            match (denote_Exp e1, denote_Exp e2) with
               | (Some n1, Some n2) => Some (n1 + n2)
               | _ => None
             end
-        | E_Sub e1 e2 =>
-          match (denoteExp e1, denoteExp e2) with
+        | Exp_Sub e1 e2 =>
+          match (denote_Exp e1, denote_Exp e2) with
             | (Some n1, Some n2) => Some (n1 - n2)
             | _ => None
             end
-        | E_Mul e1 e2 =>
-          match (denoteExp e1, denoteExp e2) with
+        | Exp_Mul e1 e2 =>
+          match (denote_Exp e1, denote_Exp e2) with
             | (Some n1, Some n2) => Some (n1 - n2)
             | _ => None
-          end.
+          end
+      end.
 
 
 
