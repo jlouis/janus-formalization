@@ -96,6 +96,8 @@ Section Janus0.
     k' = 0 ->
     Stm_eval m (S_If e1 s1 s2 e2) m'.
 
+  Theorem fwd_det: forall (m m' m'': mem) (s : Stm),
+    Stm_eval m s m' -> Stm_eval m s m'' -> m' = m''.
   End Stmt.
 
 End Janus0.
