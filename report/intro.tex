@@ -2,10 +2,17 @@
 
 The JANUS programming language were conceived as a student project in
 1982 at Caltech by Chris Lutz and Howard Derby. It was first later
-however, with the work in \cite{glueck2007} and \cite{glueck2008} that
+however, with the work in \cite{glueck2007, glueck2008} that
 the language was given a modern formal treatment. In these papers, variants
 of the language are established with proper operational semantics. The
 results improves on earlier informal descriptions.
+
+We study the JANUS programming language because it is an example of a
+small reversible imperative language. These languages have the
+interesting property that programs can be run backwards to obtain
+the original input of a computation. The implications are that this
+study forms the base of programming languages for reversible CMOS
+techology and quantum computing.
 
 Usually when we add formality to a process, there is a need for
 changing the original informal description. Formality enforces us to
@@ -62,7 +69,7 @@ mechanically formalized and verified in \coq{}.
 \section{Why \coq{}}
 
 One might want to know what decided the formal verification framework
-to use. The author has used two frameworks in the past, \coq{} and Twelf
+to use. The author has used two frameworks in the past, \coq{} and \twelf{}
 and it felt logical to use one of those in the formal verification.
 
 One has to make the choice of framework early on and then stick to
@@ -76,11 +83,11 @@ types/theorems. Proof are carried out by giving tactics. These tactics
 then build up the desired proof term and a low level type checker
 makes sure the proof is correct.
 
-Twelf uses a dependently typed lambda calculus constrained to certain
+\twelf{} uses a dependently typed lambda calculus constrained to certain
 canonical forms. This calculus is called LF. The logic and the proofs
 are then encoded in this LF-language. A separate checker then verifies
-certain properties of the encoding, which finally constitutes a proof
-\fixme{Reference to Harper/Crary}.
+certain properties on the correctness of the proof
+\cite{harper+05:how-to-believe, harper+07:mechanizing}.
 
 \coq{} supports proof automation where parts of proofs are done
 automatically by the computer. However, most of the time carrying out
@@ -93,15 +100,21 @@ number is, and what addition means. Properties of JANUS relies on
 properties of 32-bit addition, so this must be fed to the framework as
 well.
 
-\fixme{Write about adequacy of Twelf}
+\twelf{} does not currently support automation of proof. On the other
+hand, it provides proof \emph{adequacy}: there is an isomorphism
+between the proof in \twelf{} and proof on paper. In other words, any
+proof can be transcribed to a standard paper proof. If one is
+interested in how the proof is carried out, \twelf{} has a more direct
+approach. \coq{} does not provide a proof that is easily digestible by
+a human reader.
 
 The JANUS development needs 32-bit numbers. These were available
-for \coq{}, but not for Twelf. One could have used classic integers of
+for \coq{}, but not for \twelf{}. One could have used classic integers of
 infinite size however. \coq{} further had support for arithmetic in
-libraries, whereas in Twelf, we would have to encode this
-ourselves. On the other hand, Twelf has a simpler system and excels at
-working with lambda-style binders. For Twelf, it would be beneficial
-to encode the store as \emph{contextual worlds}. Twelf also has
+libraries, whereas in \twelf{}, we would have to encode this
+ourselves. On the other hand, \twelf{} has a simpler system and excels at
+working with lambda-style binders. For \twelf{}, it would be beneficial
+to encode the store as \emph{contextual worlds}. \twelf{} also has
 support for several mutual induction schemes. These are also available
 in \coq{}, but are considerably harder to use. From \coq{} version 8.2
 however, some syntactic sugar has been added to make its use
@@ -111,9 +124,10 @@ available.
 
 It was deemed that it would be best to have easy access to 32-bit
 numbers and hence \coq{} were chosen. In hindsight certain mutual
-induction proofs would probably have been easier to carry out in Twelf
-and to rely on arbitrary sized integers would not have been
-detrimental to the demonstration of the findings in this report.
+induction proofs would probably have been easier to carry out in
+\twelf{} and to rely on arbitrary sized integers would not have been
+detrimental to the demonstration of the findings in this report. The
+author would probably have used \twelf{} should he do the task again.
 
 \section{Reversible computation}
 \label{sec:revers-comp}
@@ -145,10 +159,7 @@ not reversible.
   $|[p|](x) = y$ it is possible to uniquely reconstruct $x$ from the
   pair $(p, y)$.
 \end{defn}
-Informally, no loss of information may occur in the computation. We
-are interested in this property as it a necessity for quantum
-computing \fixme{CITE QC} and for providing programs for fully
-adiabatic CMOS technology \fixme{CITE ADIABATIC}.
+Informally, no loss of information may occur in the computation.
 
 \begin{thm}
   Any information preserving program is injective.
