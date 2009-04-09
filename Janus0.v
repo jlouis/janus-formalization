@@ -53,6 +53,49 @@ Section Janus0.
       grind.
     Qed.
 
-End Expr.
+  End Expr.
+
+  Section Stmt.
+    Inductive Stm : Set :=
+    | S_Incr : Var -> Exp -> Stm
+    | S_Decr : Var -> Exp -> Stm
+    | S_Semi : Stm -> Stm -> Stm
+    | S_If : Exp -> Stm -> Stm -> Exp -> Stm.
+
+  Definition mem := ZMem.memory.
+
+  Inductive Stm_eval : mem -> Stm -> mem -> Prop :=
+  | se_assvar_incr: forall (m m': mem) (v: Var) (z z' r: Z) (e: Exp),
+    denote_Exp (ZMem.hide m v) e = Some z ->
+    m v = Some z' ->
+    r = (z + z') ->
+    m' = ZMem.write m v r ->
+    Stm_eval m (S_Incr v e) m'
+  | se_assvar_decr: forall (m m': mem) (v: Var) (z z' r: Z) (e: Exp),
+    denote_Exp (ZMem.hide m v) e = Some z ->
+    m v = Some z' ->
+    r = (z - z') ->
+    m' = ZMem.write m v r ->
+    Stm_eval m (S_Decr v e) m'
+  | se_semi: forall (m m' m'': mem) (s1 s2: Stm),
+    Stm_eval m s1 m' ->
+    Stm_eval m' s2 m'' ->
+    Stm_eval m (S_Semi s1 s2) m''
+  | se_if_t: forall (m m': mem) (e1 e2: Exp) (s1 s2: Stm) (k k': Z),
+    denote_Exp m e1 = Some k ->
+    k <> 0 ->
+    Stm_eval m s1 m' ->
+    denote_Exp m' e2 = Some k' ->
+    k' <> 0 ->
+    Stm_eval m (S_If e1 s1 s2 e2) m'
+  | se_if_f: forall (m m': mem) (e1 e2: Exp) (s1 s2: Stm) (k k': Z),
+    denote_Exp m e1 = Some k ->
+    k = 0 ->
+    Stm_eval m s2 m' ->
+    denote_Exp m' e2 = Some k' ->
+    k' = 0 ->
+    Stm_eval m (S_If e1 s1 s2 e2) m'.
+
+  End Stmt.
 
 End Janus0.
