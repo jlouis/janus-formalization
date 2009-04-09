@@ -1,13 +1,18 @@
 \chapter{Extensions to C(co-)iC}
 
-\fixme{Introduce the CiC, read throught this part}
-The \coq{} system provides the Calculus of (co-)inductive
-constructions. In this system, there are certain properties which are
-unprovable but nice to have. In the litterature about \coq{} one can
-find certain axioms that can be added safely to the proof system
-without making it inconsistent. Great care must be taken, but we know
-that adding \emph{Proof irrelevance} and \emph{Extensionality} at the
-same time doesn't introduce inconsistencies.
+The \coq{} system uses the Calculus of (co-)inductive
+constructions as its underlying programming language and thus (by
+Curry-Howard) as its logic. This system is immensively powerful and
+can encode large parts of traditional matematics. However, there are
+certain properties which are unprovable in the C(co-)iC.
+
+An unprovable property should not let an aspiring \coq{} user down. We
+can just add that property as an axiom to the system and take it for
+granted. We must be very careful not to add a property to the system
+which makes the system inconsistent though. It is known,
+\cite{coq-add} section 5.2, that one can add the properties of \emph{Proof
+  irrelevance} and \emph{Extensionality} simultaneously without
+introducing any inconsistencies.
 
 \paragraph{Proof Irrelevance}
 \label{sec:proof-irrelevance}
