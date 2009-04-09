@@ -3,7 +3,7 @@
 The JANUS programming language were conceived as a student project in
 1982 at Caltech by Chris Lutz and Howard Derby. It was first later
 however, with the work in \cite{glueck2007} and \cite{glueck2008} that
-the language was given a modern treatment. In these papers, variants
+the language was given a modern formal treatment. In these papers, variants
 of the language are established with proper operational semantics. The
 results improves on earlier informal descriptions.
 
@@ -43,14 +43,21 @@ This DIKU graduate project establishes a full formalized semantics for
 a variant of the JANUS language in the proof assistant Coq. The
 main academic contribution of the paper is the use of syntax-driven
 semantics for JANUS: Invalid programs are ruled out by having no possible
-inference tree. The secondary contribution establihes the machine
+inference tree. The secondary contribution establishes the machine
 verification of forward and backward determinism of the JANUS variant.
 
-The report first describes a toolbox needed for JANUS
-formalization. Then it describes the syntax and semantics of JANUS,
-extracted from the work in Coq. Finally, we describe the
-meta-theoretic results achieved. The report is honest to the
-state-of-the-art: any result is mechanically formalized in Coq.
+To make the work digestible, it has been split in several subsets of
+the JANUS language. First, we introduce some simplified versions,
+\janusz{}, \januso{} -- before processing the complete language. It is
+our hope that these subsets make it easier to understand the full
+development.
+
+The report also describes the toolbox needed for formalization in
+Coq with the concepts introduced as they are needed around the
+formalization of JANUS.
+
+Finally, this report is honest to the state-of-the-art: any result is
+mechanically formalized and verified in Coq.
 
 \section{Why Coq}
 
@@ -85,6 +92,8 @@ out 32-bit addition if the system knows, by definition, what a 32-bit
 number is, and what addition means. Properties of JANUS relies on
 properties of 32-bit addition, so this must be fed to the framework as
 well.
+
+\fixme{Write about adequacy of Twelf}
 
 The JANUS development needs 32-bit numbers. These were available
 for Coq, but not for Twelf. One could have used classic integers of
@@ -163,12 +172,9 @@ $(p, y)$ by inverting $p$ and inputting $y$.
 
 JANUS is reversible because it is possible to define a term-rewriting
 system for turning a program into its inverse. We will see that it is
-possible since each atomic instruction is ivertible and each compound
+possible since each atomic instruction is invertible and each compound
 instruction is invertible if its subcomponents are. This let us use an
 inductive argument to show all programs reversible.
-
-Before we discuss the JANUS language itself however, we need to
-discuss some components used in JANUS.
 
 %%% Local Variables: 
 %%% mode: latex
