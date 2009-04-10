@@ -138,31 +138,48 @@ machine however, we will have to provide it with the theorems as well
 as the proofs. The proofs presented here is a selection from the
 development.
 
-\begin{thm}
+\begin{lem}
   \label{write-eq}
   For a store $\sigma$ we have $\sigma[x \mapsto v](v) = \lift{v}$
-\end{thm}
+\end{lem}
 \begin{proof}
   In \coq{} (case analysis on $x$ after unfolding the definition of updates).
 \end{proof}
 Theorem \ref{write-eq} has a similar proposition:
-\begin{thm}
+\begin{lem}
   Assume a store $\sigma$ and let $x, y$ be locations with $x \neq
   y$. Then we have, for any value $v$:
   \begin{equation*}
     \sigma[x \mapsto v](y) = \sigma(y)
   \end{equation*}
-\end{thm}
+\end{lem}
 \begin{proof}
   By \coq{}.
 \end{proof}
+Another lemma on stores establishes a property when we are hiding
+information:
+\begin{lem}
+\label{lem:hide_ne}
+  Assume a store $\sigma \in \Sigma$ and two variables $x$ and
+  $x'$. If $x \neq x'$ then we have $(\sigma \setminus x)(x') = \sigma(x')$.
+\end{lem}
+\begin{proof}
+  In \coq{}, by the definition of hiding and case analysis.
+\end{proof}
 
-
-\fixme{Provide proof descriptions}
-
-To be written.
-
-
+The following lemma will come in handy later. It is based on hiding
+stores:
+\begin{lem}
+  Assume two stores $\sigma, \sigma' \in \Sigma$, a variable $x$ and
+  two values $v_1, v_2 \in V$, for any value domain $V$. Then
+  $\sigma[x \mapsto v_1] = \sigma'[x \mapsto v_2]$ implies $(\sigma
+  \setminus x) = (\sigma' \setminus x)$
+\end{lem}
+\begin{proof}
+  In \coq{}. The proof relies on backwards reasoning. It uses
+  extensionality (see \ref{coqext:extensionality}) and then it uses
+  case analysis. In the cases, it applies lemma \eqref{lem:hide_ne}.
+\end{proof}
 
 \subsection{History}
 
@@ -375,25 +392,27 @@ justified after the following determinism proofs.
   \end{equation*}
 \end{lem}
 \begin{proof}
-  In \coq{}. The proof proceeds by induction over the 1st dependent
-  hypothesis, ie $\sigma |- s -> \sigma'$. The increment and decrement
-  cases are similar. They proceed by noting (for increment) that
-  $(\sigma \setminus x) |- e => k$ occurs in the premise of $\sigma |-
-  s -> \sigma''$ as well, so the $k$ must be identical. The same is
-  the case for $\sigma(x) = \lift{k'}$ and hence $k + k'$ is written
-  in both cases.
-
-  The semi-case just aspires to the induction hypothesis. Due to the
-  way the lemma is worded we have $\forall \sigma'' \colon \sigma |- s
-  -> \sigma''$ as the induction hypothesis and then this is trivially
-  proven.
-
-  The if-case is done by inversion of $\sigma |- \<if> e1 \<then> s1
-  \<else> s2 \<fi> e2 -> \sigma''$. One of these are solvable by the
-  induction hypothesis. The other is solvable because it is an
-  impossible case (false-inversion occuring while proving the if-true
-  subgoal -- or true-inversion when proving the if-false subgoal).
+  In \coq{}.
 \end{proof}
+
+The proof proceeds by induction over the 1st dependent
+hypothesis, ie $\sigma |- s -> \sigma'$. The increment and decrement
+cases are similar. They proceed by noting (for increment) that
+$(\sigma \setminus x) |- e => k$ occurs in the premise of $\sigma |-
+s -> \sigma''$ as well, so the $k$ must be identical. The same is
+the case for $\sigma(x) = \lift{k'}$ and hence $k + k'$ is written
+in both cases.
+
+The semi-case just aspires to the induction hypothesis. Due to the
+way the lemma is worded we have $\forall \sigma'' \colon \sigma |- s
+-> \sigma''$ as the induction hypothesis and then this is trivially
+proven.
+
+The if-case is done by inversion of $\sigma |- \<if> e1 \<then> s1
+\<else> s2 \<fi> e2 -> \sigma''$. One of these are solvable by the
+induction hypothesis. The other is solvable because it is an
+impossible case (false-inversion occuring while proving the if-true
+subgoal -- or true-inversion when proving the if-false subgoal).
 
 \begin{thm}
   \janusz{} is forward deterministic, ie:
@@ -409,6 +428,30 @@ justified after the following determinism proofs.
   hypotheses and then generalizing over the form needed to apply lemma
   \eqref{j0-fwd-det-prime}.
 \end{proof}
+
+In the forward determinism-proof nothing special has been applied to
+carry out the proof. Either one can calculate (in the integer ring
+$\ZZ$) and conclude the result by identification or one can apply the
+induction hypothesis to obtain the result after inversion. As we shall
+see, the backwards determistic proof is not as simple, though it
+holds:
+
+\begin{lem}
+  Let $\sigma, \sigma' \in \Sigma$ be stores. Let $s \in Stm$ be any
+  statement. Assume $\sigma' |- s -> \sigma$ (note the position of
+  $\sigma'$, compare with lemma \eqref{j0-fwd-det-prime}). Then
+  $\forall \sigma'' \colon \sigma'' |- s -> \sigma$ implies $\sigma' =
+  \sigma''$. Formally:
+  \begin{equation*}
+    \forall \sigma, \sigma' \colon \sigma' |- s -> \sigma \implies
+    (\forall \sigma'' \colon \sigma'' |- s -> \sigma \implies \sigma'
+    = \sigma'')
+  \end{equation*}
+\end{lem}
+\begin{proof}
+  Via \coq{}
+\end{proof}
+
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "master"
