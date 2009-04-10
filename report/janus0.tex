@@ -139,13 +139,13 @@ as the proofs. The proofs presented here is a selection from the
 development.
 
 \begin{lem}
-  \label{write-eq}
+  \label{lem:write-eq}
   For a store $\sigma$ we have $\sigma[x \mapsto v](v) = \lift{v}$
 \end{lem}
 \begin{proof}
   In \coq{} (case analysis on $x$ after unfolding the definition of updates).
 \end{proof}
-Theorem \ref{write-eq} has a similar proposition:
+Theorem \ref{lem:write-eq} has a similar proposition:
 \begin{lem}
   Assume a store $\sigma$ and let $x, y$ be locations with $x \neq
   y$. Then we have, for any value $v$:
@@ -156,6 +156,40 @@ Theorem \ref{write-eq} has a similar proposition:
 \begin{proof}
   By \coq{}.
 \end{proof}
+
+Naturally, the above statement can be extended to equalities, which
+will be used later on:
+\begin{lem}
+\label{lem:write-eq2}
+  We have:
+  \begin{equation*}
+    \forall \sigma, \sigma' \in \Sigma, x \in Loc, v_1, v_2 \in Value
+    \colon \sigma[x \mapsto v_1](x) = \sigma[x \mapsto v_2](x)
+    \implies v_1 = v_2
+  \end{equation*}
+\end{lem}
+\begin{proof}
+  By \coq{}
+\end{proof}
+
+The following property states that ``if you have enough pieces placed
+correctly you have the whole puzzle''; that is, if you enough about a
+store, you can decide its equality:
+\begin{lem}
+\label{lem:hide-eq}
+  Assume two arbitrary stores $\sigma, \sigma' \in \Sigma$. Assume a
+  variable $x$ and a value $v$ from any value domain. Now suppose
+  \begin{itemize}
+  \item $\sigma(x) = v$
+  \item $\sigma'(x) = v$
+  \item $(\sigma \setminus x) = (\sigma' \setminus x)$
+  \end{itemize}
+  Then $\sigma = sigma'$
+\end{lem}
+\begin{proof}
+  By \coq{}.
+\end{proof}
+
 Another lemma on stores establishes a property when we are hiding
 information:
 \begin{lem}
@@ -170,6 +204,7 @@ information:
 The following lemma will come in handy later. It is based on hiding
 stores:
 \begin{lem}
+\label{lem:write_hide}
   Assume two stores $\sigma, \sigma' \in \Sigma$, a variable $x$ and
   two values $v_1, v_2 \in V$, for any value domain $V$. Then
   $\sigma[x \mapsto v_1] = \sigma'[x \mapsto v_2]$ implies $(\sigma
@@ -451,6 +486,24 @@ holds:
 \begin{proof}
   Via \coq{}
 \end{proof}
+
+Completing this proof requires considerably more ingenuity than the
+forward proof. Again, we run induction on the 1st dependent
+hypothesis. For the increment case, we first run inversion, and
+identify equal terms via the \texttt{subst} tactic. We must have
+$(\sigma' \setminus x) = (\sigma'' \setminus x)$ because we have
+$\sigma'[x \mapsto k + k'] = \sigma''[x \mapsto k_0 + k_0']$ (lemma
+\eqref{lem:write_hide}). This means, that $k = k_0$. Next, we have $k
++ k' = k_0 + k_0'$. This is because of lemma \eqref{lem:write-eq2} and
+analysis on $\sigma'[x \mapsto k + k'] = \sigma''[x \mapsto k_0 +
+k_0']$. Computation in the ring $\ZZ$ now gives that $k' =
+k_0'$. After substitution, we then use lemma \eqref{lem:hide-eq}
+proving the case. The decrement case is equivalent.
+
+The cases using the induction hypothesis (semi/if) are trivial. But
+note that they in no place utilize the fact that $e_2$ is being
+evaluated. This supports my claim that backwards determinism is not
+sufficient. \fixme{Check this!}
 
 %%% Local Variables: 
 %%% mode: latex
