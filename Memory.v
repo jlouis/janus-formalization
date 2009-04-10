@@ -97,7 +97,7 @@ Module Mem(V : STORE).
     hide m x = hide m' x -> forall a, a <> x -> m a = m' a.
   Proof.
     intros. assert (hide m x a = hide m' x a).
-    apply (f_ext V.location (option value) (hide m x) (hide m' x)). assumption.
+    apply (equal_f V.location (option value) (hide m x) (hide m' x)). assumption.
     assert (hide m x a = m a). unfold hide. destruct (V.location_eq_dec x a).
     symmetry in e. contradiction. trivial.
     assert (hide m' x a = m' a). unfold hide. destruct (V.location_eq_dec x a).
