@@ -223,6 +223,8 @@ attempts at formalizing the store we tried in the process. These are
 interesting because they hint at the need for coming up with the
 simple solutions rather than the complex or naive ones.
 
+\fixme{write this!}
+
 \section{Expressions in \janusz{}}
 
 The \janusz{} language has a very simplified expression language
@@ -312,7 +314,8 @@ By the use of \coq{} and the \texttt{grind}-tactic from
     Qed.
 \end{verbatim}
 \end{proof}
-
+\fixme{Note that a functional denotational definition if deterministic
+  by default!}
 \section{Statements in \janusz{}}
 
 The statement syntax of \janusz{} defines a small, purely linear
@@ -450,6 +453,7 @@ impossible case (false-inversion occuring while proving the if-true
 subgoal -- or true-inversion when proving the if-false subgoal).
 
 \begin{thm}
+\label{thm:j0-fwd-det}
   \janusz{} is forward deterministic, ie:
   \begin{equation*}
     \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon \sigma |- s
@@ -504,6 +508,19 @@ The cases using the induction hypothesis (semi/if) are trivial. But
 note that they in no place utilize the fact that $e_2$ is being
 evaluated. This supports my claim that backwards determinism is not
 sufficient. \fixme{Check this!}
+
+\begin{thm}
+  \janusz{} is backward deterministic, ie:
+  \begin{equation*}
+    \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon \sigma' |- s
+    -> \sigma \implies \sigma'' |- s -> \sigma \implies \sigma' = \sigma''
+  \end{equation*}
+\end{thm}
+\begin{proof}
+  Like the proof of theorem \eqref{thm:j0-fwd-det}, we can hoist the
+  forall-quantifier and formalize it in \coq{}.
+\end{proof}
+
 
 %%% Local Variables: 
 %%% mode: latex
