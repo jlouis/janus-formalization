@@ -25,8 +25,8 @@ Information-theoretically, the bottom values represents ``no
 information'' whereas the lift of a value represents that value. This
 is akin to the well-known ML datatype ``option''.
 
-The stores, notated as $\rho, \rho', \dotsc$ are functions from
-natural numbers to lifted integers: $\rho \colon \NN \to
+The stores, notated as $\sigma, \sigma', \dotsc$ are functions from
+natural numbers to lifted integers: $\sigma \colon \NN \to
 \ZZ_{\perp}$. The domain of natural numbers are called
 \emph{locations}. We usually give them names $x, y, z, \dotsc$ and
 assume each variable is associated with a specific number for the
@@ -38,13 +38,13 @@ used as lookup.
 
 Stores are altered under the course of running a program. In our
 formalization this amounts to changing the function
-$\rho$. The notation $\rho[x \mapsto k]$ means ``update the contents
+$\sigma$. The notation $\sigma[x \mapsto k]$ means ``update the contents
 of location $x$ with the value $k$''. The mathematical formal meaning
 is:
 \begin{equation*}
-  \rho[x \mapsto k](z) = \begin{cases}
+  \sigma[x \mapsto k](z) = \begin{cases}
     \lift{k} & \quad x = z\\
-    \rho(z)  & \quad \text{otherwise}
+    \sigma(z)  & \quad \text{otherwise}
   \end{cases}
 \end{equation*}
 
@@ -55,13 +55,13 @@ empty store as the inital store.
 It will be beneficial to provide \emph{hiding} of values in the store. A
 hiding of a variable $x$ is a new store in which $x$ does not
 exist. Because we have the value $\perp$ in our store-values, there is
-a straightforward definition. We use the notation $(\rho \setminus x)$
-for the hiding of the variable $x$ in the store $\rho$. The definition
+a straightforward definition. We use the notation $(\sigma \setminus x)$
+for the hiding of the variable $x$ in the store $\sigma$. The definition
 is:
 \begin{equation*}
-  (\rho \setminus x)(z) = \begin{cases}
+  (\sigma \setminus x)(z) = \begin{cases}
     \perp & \quad z = x\\
-    \rho(z) & \quad \text{otherwise}
+    \sigma(z) & \quad \text{otherwise}
   \end{cases}
 \end{equation*}
 
@@ -140,17 +140,17 @@ development.
 
 \begin{thm}
   \label{write-eq}
-  For a store $\rho$ we have $\rho[x \mapsto v](v) = \lift{v}$
+  For a store $\sigma$ we have $\sigma[x \mapsto v](v) = \lift{v}$
 \end{thm}
 \begin{proof}
   In \coq{} (case analysis on $x$ after unfolding the definition of updates).
 \end{proof}
 Theorem \ref{write-eq} has a similar proposition:
 \begin{thm}
-  Assume a store $\rho$ and let $x, y$ be locations with $x \neq
+  Assume a store $\sigma$ and let $x, y$ be locations with $x \neq
   y$. Then we have, for any value $v$:
   \begin{equation*}
-    \rho[x \mapsto v](y) = \rho(y)
+    \sigma[x \mapsto v](y) = \sigma(y)
   \end{equation*}
 \end{thm}
 \begin{proof}
@@ -183,18 +183,18 @@ The syntax of expressions $e$ is the following in BNF notation:
 \begin{equation*}
   e ::= n \bor \mathtt{x} \bor e + e \bor e - e \bor e * e
 \end{equation*}
-The judgement forms are $\rho |- e => z$ stating that under the
-assumption of a store $\rho$ the expression $e$ evaluates to the
+The judgement forms are $\sigma |- e => z$ stating that under the
+assumption of a store $\sigma$ the expression $e$ evaluates to the
 integer $z$. The inference rules for this system is straightforward:
 \begin{gather*}
-  \inference[Const]{}{\rho |- n => n} \quad \inference[Var]{\rho(\mathtt{x}) =
-    \lift{k}}{\rho |- \mathtt{x} => k} \\
-  \inference[Add]{\rho |- e_1 => n_1 \quad \rho |- e_2 => n_2 \quad
-    n_1 + n_2 = n}{\rho |- e_1 + e_2 => n} \\
-  \inference[Sub]{\rho |- e_1 => n_1 \quad \rho |- e_2 => n_2 \quad
-    n_1 - n_2 = n}{\rho |- e_1 - e_2 => n} \\
-  \inference[Mul]{\rho |- e_1 => n_1 \quad \rho |- e_2 => n_2 \quad
-    n_1 * n_2 = n}{\rho |- e_1 * e_2 => n}
+  \inference[Const]{}{\sigma |- n => n} \quad \inference[Var]{\sigma(\mathtt{x}) =
+    \lift{k}}{\sigma |- \mathtt{x} => k} \\
+  \inference[Add]{\sigma |- e_1 => n_1 \quad \sigma |- e_2 => n_2 \quad
+    n_1 + n_2 = n}{\sigma |- e_1 + e_2 => n} \\
+  \inference[Sub]{\sigma |- e_1 => n_1 \quad \sigma |- e_2 => n_2 \quad
+    n_1 - n_2 = n}{\sigma |- e_1 - e_2 => n} \\
+  \inference[Mul]{\sigma |- e_1 => n_1 \quad \sigma |- e_2 => n_2 \quad
+    n_1 * n_2 = n}{\sigma |- e_1 * e_2 => n}
 \end{gather*}
 
 There is another, denotational, semantics for expressions
@@ -207,17 +207,17 @@ $\mathcal{E}|[-|] \colon E \to \Sigma \to \ZZ_{\perp}$ from an
 expression and a Store $\Sigma$ to a lifted value. The definition is a
 case analysis on the structure of the expression given:
 \begin{align*}
-  \mathcal{E}|[n|](\rho) & = \lift{n}\\
-  \mathcal{E}|[x|](\rho) & = \rho (x)\\
-  \mathcal{E}|[e_1 + e_2|](\rho) & = \mathcal{E}|[e_1|](\rho) \;
+  \mathcal{E}|[n|](\sigma) & = \lift{n}\\
+  \mathcal{E}|[x|](\sigma) & = \sigma (x)\\
+  \mathcal{E}|[e_1 + e_2|](\sigma) & = \mathcal{E}|[e_1|](\sigma) \;
   +_{\ZZ} \;
-  \mathcal{E}|[e_2|](\rho)\\
-  \mathcal{E}|[e_1 - e_2|](\rho) & = \mathcal{E}|[e_1|](\rho) \;
+  \mathcal{E}|[e_2|](\sigma)\\
+  \mathcal{E}|[e_1 - e_2|](\sigma) & = \mathcal{E}|[e_1|](\sigma) \;
   -_{\ZZ} \;
-  \mathcal{E}|[e_2|](\rho)\\
-  \mathcal{E}|[e_1 * e_2|](\rho) & = \mathcal{E}|[e_1|](\rho) \;
+  \mathcal{E}|[e_2|](\sigma)\\
+  \mathcal{E}|[e_1 * e_2|](\sigma) & = \mathcal{E}|[e_1|](\sigma) \;
   *_{\ZZ} \;
-  \mathcal{E}|[e_2|](\rho)
+  \mathcal{E}|[e_2|](\sigma)
 \end{align*}
 The operation $+$ is the operation from our expression language
 whereas the operation $+_{\ZZ}$ is the mathematical integer addition
@@ -274,17 +274,17 @@ the following notation in BNF:
 \end{gather*}
 We will interleave the description of each of these syntactical
 elements with the inference rules for them. The judgement form for
-execution of statements is $\rho |- s -> \rho'$ which designates that
-under the assumption of a store $\rho$, execution of statement $s$
-will yield the altered store $\rho'$.
+execution of statements is $\sigma |- s -> \sigma'$ which designates that
+under the assumption of a store $\sigma$, execution of statement $s$
+will yield the altered store $\sigma'$.
 
 The first operation is the increment operation of an element in the
 store. This operation, written as $x +\!\!= e$ will evaluate the
 expression $e$ to a number $k$ and then add this amount to the
 location in the store to which $x$ points:
 \begin{equation*}
-  \inference[Inc0]{\rho |- e => k \quad \rho(x) = \lift{k'} \quad k +
-    k' = n}{\rho |- x +\!\!= e -> \rho[x \mapsto n]}
+  \inference[Inc0]{\sigma |- e => k \quad \sigma(x) = \lift{k'} \quad k +
+    k' = n}{\sigma |- x +\!\!= e -> \sigma[x \mapsto n]}
 \end{equation*}
 In JANUS it is a requirement that the variable $x$ must not occur in
 the expression $e$. The same requiremnt is present in \janusz{} and
@@ -296,8 +296,8 @@ rule.
 Recall we defined an ability to ``hide'' certain variables in our
 store. We can utilize this by hiding $x$ in the expression evaluation:
 \begin{equation*}
-  \inference[Inc]{(\rho \setminus x) |- e => k \quad \rho(x) =
-    \lift{k'} \quad k + k' = n}{\rho |- x +\!\!= e -> \rho[x \mapsto n]}
+  \inference[Inc]{(\sigma \setminus x) |- e => k \quad \sigma(x) =
+    \lift{k'} \quad k + k' = n}{\sigma |- x +\!\!= e -> \sigma[x \mapsto n]}
 \end{equation*}
 Now, because expression evaluation of the ``Var'' case requires a
 lifted value it is now impossible to construct an inference tree where
@@ -309,16 +309,16 @@ we would have to provide a proof with this added structure.
 
 For subtraction, the definition is similar:
 \begin{equation*}
-  \inference[Sub]{(\rho \setminus x) |- e => k \quad \rho(x) =
-    \lift{k'} \quad k - k' = n}{\rho |- x -\!\!= e -> \rho[x \mapsto n]}
+  \inference[Sub]{(\sigma \setminus x) |- e => k \quad \sigma(x) =
+    \lift{k'} \quad k - k' = n}{\sigma |- x -\!\!= e -> \sigma[x \mapsto n]}
 \end{equation*}
 
 The next rule is for sequencing operations. In the statement $s_1;
 s_2$ one first executes $s_1$ and then feeds the resulting store into
 the execution of $s_2$:
 \begin{equation*}
-  \inference[Seq]{\rho |- s_1 -> \rho'' \quad \rho'' |- s_2 -> \rho'}
-  {\rho |- s_1; s_2 -> \rho'}
+  \inference[Seq]{\sigma |- s_1 -> \sigma'' \quad \sigma'' |- s_2 -> \sigma'}
+  {\sigma |- s_1; s_2 -> \sigma'}
 \end{equation*}
 
 Finally, there is the rule for the branching instruction. In \janusz{}
@@ -326,9 +326,9 @@ the value $0$ is ``false'' and any value different from $0$ is the
 ``true'' value. This yields two rules, one for each case. The first
 rule is for the ``false'' case:
 \begin{equation*}
-  \inference[If-false]{\rho |- e_1 => 0 \quad \rho |- s_2 -> \rho'
-    \quad \rho' |- e_2 => 0}{\<if> e_1 \<then> s_1 \<else> s_2 \<fi>
-    e_2 -> \rho'}
+  \inference[If-false]{\sigma |- e_1 => 0 \quad \sigma |- s_2 -> \sigma'
+    \quad \sigma' |- e_2 => 0}{\<if> e_1 \<then> s_1 \<else> s_2 \<fi>
+    e_2 -> \sigma'}
 \end{equation*}
 This rule states that if the $e_1$ \emph{test} evaluates to a false
 value, then the ``else''-branch is executed. Finally the
@@ -337,14 +337,78 @@ value, then the ``else''-branch is executed. Finally the
 The true case is similar, the difference being extra (mathematical)
 requirements on what the expressions evaluates to:
 \begin{equation*}
-  \inference[If-true]{\rho |- e_1 => k \quad k \neq 0 \quad \rho |- s_1 -> \rho'
-    \quad \rho' |- e_2 => k' \quad k' \neq 0}{\<if> e_1 \<then> s_1 \<else> s_2 \<fi>
-    e_2 -> \rho'}
+  \inference[If-true]{\sigma |- e_1 => k \quad k \neq 0 \quad \sigma |- s_1 -> \sigma'
+    \quad \sigma' |- e_2 => k' \quad k' \neq 0}{\<if> e_1 \<then> s_1 \<else> s_2 \<fi>
+    e_2 -> \sigma'}
 \end{equation*}
 
 The need for assertions has to do with reversibility, as we shall see
 later on.
 
+\subsection{Proving determinism of \janusz{}}
+
+For \janusz{}, we will prove a couple of theorems. The 2 main theorems
+to be proven are those of forward and backward determinism. The
+language must be deterministic in the forward direction, so there is
+only one possible outcome of any computation. Also, it must be
+deterministic in the backwards direction: if we have a computation
+resulting in a resulting store, the original store must be equivalent.
+
+It is clear this establishes a necessary condition for
+reversibility. Had the language not been backwards deterministic, it
+would be outright impossible to reconstruct the input store from the
+output store.
+
+I claim that the condition is not sufficient however. My claim will be
+justified after the following determinism proofs.
+
+\begin{lem}
+\label{j0-fwd-det-prime}
+  Let $\sigma, \sigma' \in \Sigma$ be stores. Let $s$ be any \janusz{}
+  statement. Now, if $\sigma |- s -> \sigma'$ implies for all $\sigma''
+  \in \Sigma$ we have $\sigma |- s -> \sigma''$, then $\sigma' =
+  \sigma''$. Formally:
+  \begin{equation*}
+    \forall \sigma, \sigma' \in \Sigma, s \in Stm \colon \sigma |- s
+    -> \sigma' \implies (\forall \sigma'' \in \Sigma \colon \sigma |-
+    s -> \sigma'' \implies \sigma' = \sigma'')
+  \end{equation*}
+\end{lem}
+\begin{proof}
+  In \coq{}. The proof proceeds by induction over the 1st dependent
+  hypothesis, ie $\sigma |- s -> \sigma'$. The increment and decrement
+  cases are similar. They proceed by noting (for increment) that
+  $(\sigma \setminus x) |- e => k$ occurs in the premise of $\sigma |-
+  s -> \sigma''$ as well, so the $k$ must be identical. The same is
+  the case for $\sigma(x) = \lift{k'}$ and hence $k + k'$ is written
+  in both cases.
+
+  The semi-case just aspires to the induction hypothesis. Due to the
+  way the lemma is worded we have $\forall \sigma'' \colon \sigma |- s
+  -> \sigma''$ as the induction hypothesis and then this is trivially
+  proven.
+
+  The if-case is done by inversion of $\sigma |- \<if> e1 \<then> s1
+  \<else> s2 \<fi> e2 -> \sigma''$. One of these are solvable by the
+  induction hypothesis. The other is solvable because it is an
+  impossible case (false-inversion occuring while proving the if-true
+  subgoal -- or true-inversion when proving the if-false subgoal).
+\end{proof}
+
+\begin{thm}
+  \janusz{} is forward deterministic, ie:
+  \begin{equation*}
+    \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon \sigma |- s
+    -> \sigma' \implies \sigma |- s -> \sigma'' \implies \sigma' = \sigma''
+  \end{equation*}
+\end{thm}
+\begin{proof}
+  The $\forall \sigma''...$ is hoistable in lemma
+  \eqref{j0-fwd-det-prime} due to logic rules. This is made formal in
+  \coq{} by introducing everything but $\sigma' = \sigma''$ as as
+  hypotheses and then generalizing over the form needed to apply lemma
+  \eqref{j0-fwd-det-prime}.
+\end{proof}
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "master"
