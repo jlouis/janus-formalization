@@ -47,6 +47,10 @@ Section Janus0.
           end
       end.
 
+    Definition exp_equiv (e1: Exp) (e2: Exp) :=
+      forall (v: Value) (m: ZMem.memory),
+        denote_Exp m e1 = Some v <-> denote_Exp m e2 = Some v.
+
     Theorem exp_determ : forall m e v1 v2,
       denote_Exp m e = v1 -> denote_Exp m e = v2 -> v1 = v2.
     Proof.
