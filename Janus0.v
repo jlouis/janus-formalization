@@ -169,4 +169,22 @@ Section Janus0.
 
   End Stmt.
 
+  Section Invert.
+    Fixpoint invert (s : Stm) {struct s} :=
+      match s with
+        | S_Incr x e => S_Decr x e
+        | S_Decr x e => S_Incr x e
+        | S_Semi s1 s2 => S_Semi (invert s2) (invert s1)
+        | S_If e1 s1 s2 e2 => S_If e2 (invert s1) (invert s2) e1
+      end.
+
+    Theorem invert_invert_id: forall s,
+      invert (invert s) = s.
+    Proof.
+      induction s; grind.
+    Qed.
+  End Invert.
+
+  
+
 End Janus0.
