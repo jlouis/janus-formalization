@@ -51,6 +51,25 @@ Section Janus0.
       forall (v: Value) (m: ZMem.memory),
         denote_Exp m e1 = Some v <-> denote_Exp m e2 = Some v.
 
+    Lemma exp_equiv_refl: forall e, exp_equiv e e.
+    Proof. unfold exp_equiv. grind. Qed.
+
+    Lemma exp_equiv_sym: forall e1 e2, exp_equiv e1 e2 <-> exp_equiv e2 e1.
+    Proof.
+      unfold exp_equiv. intros. split. intros. symmetry. eapply H.
+                                       intros. symmetry. eapply H.
+    Qed.
+
+    Lemma exp_equiv_tr: forall e1 e2 e3,
+      exp_equiv e1 e2 -> exp_equiv e2 e3 -> exp_equiv e1 e3.
+    Proof.
+      unfold exp_equiv. intros.
+      split. intro. assert (denote_Exp m e2 = Some v). eapply H. eauto.
+                    eapply H0. eauto.
+             intro. assert (denote_Exp m e2 = Some v). eapply H0. eauto.
+                    eapply H. eauto.
+    Qed.
+
     Theorem exp_determ : forall m e v1 v2,
       denote_Exp m e = v1 -> denote_Exp m e = v2 -> v1 = v2.
     Proof.
