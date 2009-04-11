@@ -100,6 +100,43 @@ Section Janus0.
       k' = 0 ->
       Stm_eval m (S_If e1 s1 s2 e2) m'.
 
+    Definition stm_equiv (s1 s2: Stm) :=
+      forall (m m': ZMem.memory),
+        Stm_eval m s1 m' <-> Stm_eval m s2 m'.
+
+    (* Show stm_equiv *is* an equivalence relation *)
+    Lemma stm_equiv_refl: forall s, stm_equiv s s.
+    Proof.
+      unfold stm_equiv. grind.
+    Qed.
+
+    Lemma stm_equiv_sym: forall s t, stm_equiv s t -> stm_equiv t s.
+    Proof. unfold stm_equiv.
+      intros. symmetry. apply H.
+    Qed.
+
+    Lemma stm_equiv_tr: forall s t u,
+      stm_equiv s t -> stm_equiv t u -> stm_equiv s u.
+    Proof.
+      intros. unfold stm_equiv. intros. unfold stm_equiv in H.
+      unfold stm_equiv in H0.
+      grind. eapply H0. eauto. eapply H. eauto.
+             eapply H. eauto. eapply H0. eauto.
+    Qed.
+
+    Lemma semi_assoc: forall s1 s2 s3,
+      stm_equiv (S_Semi (S_Semi s1 s2) s3) (S_Semi s1 (S_Semi s2 s3)).
+    Proof.
+      intros. unfold stm_equiv. grind.
+      inversion H. subst. inversion H3. subst.
+        assert (Stm_eval m'1 (S_Semi s2 s3) m'). constructor 3 with (m' := m'0);
+          assumption. constructor 3 with (m' := m'1); assumption.
+      inversion H. subst. inversion H5. subst.
+        assert (Stm_eval m (S_Semi s1 s2) m'1). constructor 3 with (m' := m'0);
+          assumption.
+        constructor 3 with (m' := m'1); assumption.
+    Qed.
+
     Theorem fwd_det': forall (m m': mem) (s : Stm),
       Stm_eval m s m' -> (forall m'', Stm_eval m s m'' -> m' = m'').
     Proof.
