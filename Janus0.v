@@ -80,6 +80,7 @@ Section Janus0.
 
   Section Stmt.
     Inductive Stm : Set :=
+    | S_Skip : Stm
     | S_Incr : Var -> Exp -> Stm
     | S_Decr : Var -> Exp -> Stm
     | S_Semi : Stm -> Stm -> Stm
@@ -88,6 +89,7 @@ Section Janus0.
     Definition mem := ZMem.memory.
 
     Inductive Stm_eval : mem -> Stm -> mem -> Prop :=
+    | se_skip: forall m, Stm_eval m S_Skip m
     | se_assvar_incr: forall (m m': mem) (v: Var) (z z' r: Z) (e: Exp),
       denote_Exp (ZMem.hide m v) e = Some z ->
       m v = Some z' ->
@@ -148,18 +150,28 @@ Section Janus0.
     Proof.
       intros. unfold stm_equiv. grind.
       inversion H. subst. inversion H3. subst.
-        assert (Stm_eval m'1 (S_Semi s2 s3) m'). constructor 3 with (m' := m'0);
-          assumption. constructor 3 with (m' := m'1); assumption.
+        assert (Stm_eval m'1 (S_Semi s2 s3) m'). constructor 4 with (m' := m'0);
+          assumption. constructor 4 with (m' := m'1); assumption.
       inversion H. subst. inversion H5. subst.
-        assert (Stm_eval m (S_Semi s1 s2) m'1). constructor 3 with (m' := m'0);
+        assert (Stm_eval m (S_Semi s1 s2) m'1). constructor 4 with (m' := m'0);
           assumption.
-        constructor 3 with (m' := m'1); assumption.
+        constructor 4 with (m' := m'1); assumption.
     Qed.
+
+    Lemma ref_transp: forall s s' s1 s2,
+      stm_equiv s s' ->
+        stm_equiv (S_Semi (S_Semi s1 s) s2) (S_Semi (S_Semi s1 s') s2).
+    Proof. Admitted.
+
+    Lemma inverse_p: forall s1 s2,
+      stm_equiv (S_Semi s1 s2) S_Skip <-> stm_equiv (S_Semi s2 s1) S_Skip.
+    Proof. Admitted.
 
     Theorem fwd_det': forall (m m': mem) (s : Stm),
       Stm_eval m s m' -> (forall m'', Stm_eval m s m'' -> m' = m'').
     Proof.
       induction 1; intros.
+      inversion H. trivial.
 
       inversion H3. subst.
       assert (z' = z'0). assert (Some z' = Some z'0). rewrite <- H0. rewrite <- H7. trivial.
@@ -190,6 +202,7 @@ Section Janus0.
       Stm_eval m' s m -> (forall m'', Stm_eval m'' s m -> m' = m'').
     Proof.
       induction 1; intros.
+      inversion H. trivial.
 
       inversion H3. subst.
       assert (ZMem.hide m v = ZMem.hide m'' v). eapply ZMem.write_hide. eauto.
@@ -228,6 +241,7 @@ Section Janus0.
   Section Invert.
     Fixpoint invert (s : Stm) {struct s} :=
       match s with
+        | S_Skip => S_Skip
         | S_Incr x e => S_Decr x e
         | S_Decr x e => S_Incr x e
         | S_Semi s1 s2 => S_Semi (invert s2) (invert s1)
@@ -240,7 +254,4 @@ Section Janus0.
       induction s; grind.
     Qed.
   End Invert.
-
-  
-
 End Janus0.
