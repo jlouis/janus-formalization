@@ -157,7 +157,7 @@ Section Janus0.
           assumption.
         constructor 4 with (m' := m'1); assumption.
     Qed.
-
+(*
     Lemma ref_transp: forall s s' s1 s2,
       stm_equiv s s' ->
         stm_equiv (S_Semi (S_Semi s1 s) s2) (S_Semi (S_Semi s1 s') s2).
@@ -166,7 +166,7 @@ Section Janus0.
     Lemma inverse_p: forall s1 s2,
       stm_equiv (S_Semi s1 s2) S_Skip <-> stm_equiv (S_Semi s2 s1) S_Skip.
     Proof. Admitted.
-
+*)
     Theorem fwd_det': forall (m m': mem) (s : Stm),
       Stm_eval m s m' -> (forall m'', Stm_eval m s m'' -> m' = m'').
     Proof.
@@ -216,7 +216,7 @@ Section Janus0.
 
       inversion H3. subst.
       assert (ZMem.hide m v = ZMem.hide m'' v). eapply ZMem.write_hide. eauto.
-      assert (z - z' = z0 - z'0). assert (ZMem.write m v (z - z') v = ZMem.write m'' v (z0 - z'0) v).
+      assert (z' - z = z'0 - z0). assert (ZMem.write m v (z' - z) v = ZMem.write m'' v (z'0 - z0) v).
       apply equal_f. trivial. apply (ZMem.write_eq_2 m m'' v). trivial.
       assert (z = z0). assert (Some z = Some z0). grind. injection H4.
       trivial.
@@ -252,6 +252,63 @@ Section Janus0.
       invert (invert s) = s.
     Proof.
       induction s; grind.
+    Qed.
+
+    Theorem stm_inverter: forall m m' s,
+      Stm_eval m s m' <-> Stm_eval m' (invert s) m.
+    Proof.
+      split. induction 1.
+      simpl. constructor.
+      inversion H. simpl.
+      apply (se_assvar_decr m' m v z r (r - z)).
+       rewrite H2. rewrite ZMem.hide_write. assumption.
+       rewrite H2. apply ZMem.write_eq.
+       trivial.
+      apply (ZMem.hide_eq m (ZMem.write m' v (r - z)) v z').
+        assumption.
+        assert (r - z = z'). omega. rewrite H3. apply ZMem.write_eq.
+        rewrite ZMem.hide_write. rewrite H2. rewrite ZMem.hide_write.
+        trivial.
+      simpl.
+      apply (se_assvar_incr m' m v z r (r + z)).
+        rewrite H2. rewrite ZMem.hide_write. assumption.
+        rewrite H2. apply ZMem.write_eq. omega.
+      apply (ZMem.hide_eq m (ZMem.write m' v (r + z)) v z').
+        trivial. rewrite ZMem.write_eq. assert (r + z = z'). omega. rewrite H3.
+        trivial.
+        rewrite ZMem.hide_write. rewrite H2. rewrite ZMem.hide_write. trivial.
+      simpl. eapply se_semi. eauto. trivial.
+      simpl. eapply se_if_t; eauto.
+      simpl. eapply se_if_f; eauto.
+
+      generalize m m'. induction s. intros. inversion H. constructor.
+      intros.
+      simpl in H. inversion H.
+      apply (se_assvar_incr m0 m'0 v z r (r + z)).
+        rewrite H7. rewrite ZMem.hide_write. assumption.
+        rewrite H7. apply ZMem.write_eq. omega.
+      apply (ZMem.hide_eq m'0 (ZMem.write m0 v (r + z)) v z').
+        trivial.
+        rewrite ZMem.write_eq. rewrite H5. assert (z' = z' - z + z). omega.
+          rewrite <- H8. trivial.
+          rewrite ZMem.hide_write. rewrite H7. rewrite ZMem.hide_write.
+          trivial.
+      intros.
+      simpl in H. inversion H.
+      apply (se_assvar_decr m0 m'0 v z r (r - z)).
+        rewrite H7. rewrite ZMem.hide_write. trivial.
+        rewrite H7. apply ZMem.write_eq. trivial.
+        apply (ZMem.hide_eq m'0 (ZMem.write m0 v (r - z)) v z').
+        trivial.
+        assert (r - z = z'). rewrite H5. omega.
+        rewrite H8. apply ZMem.write_eq.
+        rewrite ZMem.hide_write. rewrite H7. rewrite ZMem.hide_write.
+        trivial.
+      intros.
+      inversion H. apply (se_semi m0 m'1 m'0). apply IHs1. trivial.
+        apply IHs2. trivial.
+      intros.
+        inversion H. eapply se_if_t; eauto. eapply se_if_f; eauto.
     Qed.
   End Invert.
 End Janus0.
