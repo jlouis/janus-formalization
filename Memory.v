@@ -62,7 +62,14 @@ Module Mem(V : STORE).
 
   Hint Rewrite write_ne using omega : mortar.
 
-  Lemma hide_write : forall m m' x x' v1 v2 ,
+  Lemma hide_write: forall m x v,
+    hide (write m x v) x = hide m x.
+  Proof.
+    intros. apply extensionality. intro. unfold hide, write. destruct (V.location_eq_dec x x0).
+    trivial. trivial.
+  Qed.
+
+  Lemma hide_write_2 : forall m m' x x' v1 v2 ,
     m = m' ->
       hide (write m x v1) x x' = hide (write m' x v2) x x'.
   Proof.
