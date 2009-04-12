@@ -99,7 +99,7 @@ Section Janus0.
     | se_assvar_decr: forall (m m': mem) (v: Var) (z z' r: Z) (e: Exp),
       denote_Exp (ZMem.hide m v) e = Some z ->
       m v = Some z' ->
-      r = (z - z') ->
+      r = (z' - z) ->
       m' = ZMem.write m v r ->
       Stm_eval m (S_Decr v e) m'
     | se_semi: forall (m m' m'': mem) (s1 s2: Stm),
