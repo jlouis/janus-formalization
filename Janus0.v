@@ -1,5 +1,5 @@
-(* This file defines the Janus0 language which is a watered down version of JANUS,
- * containing only the most important parts of it
+(* This file defines the Janus0 language which is a watered down
+ * version of JANUS, * containing only the most important parts of it
  *)
 
 Require Import BaseLib.
