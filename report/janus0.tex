@@ -416,10 +416,6 @@ It is clear this establishes a necessary condition for
 reversibility. Had the language not been backwards deterministic, it
 would be outright impossible to reconstruct the input store from the
 output store.
-
-I claim that the condition is not sufficient however. My claim will be
-justified after the following determinism proofs.
-
 \begin{lem}
 \label{j0-fwd-det-prime}
   Let $\sigma, \sigma' \in \Sigma$ be stores. Let $s$ be any \janusz{}
@@ -507,10 +503,9 @@ k_0']$. Computation in the ring $\ZZ$ now gives that $k' =
 k_0'$. After substitution, we then use lemma \eqref{lem:hide-eq}
 proving the case. The decrement case is equivalent.
 
-The cases using the induction hypothesis (semi/if) are trivial. But
-note that they in no place utilize the fact that $e_2$ is being
-evaluated. This supports my claim that backwards determinism is not
-sufficient. \fixme{Check this!}
+The cases using the induction hypothesis (semi/if) are trivial,
+utilizing the \texttt{congruence} tactic to solve the impossible cases
+in the evaluation of the ``if'' cases.
 
 \begin{thm}
   \janusz{} is backward deterministic, ie:
@@ -594,6 +589,7 @@ place.
 \begin{proof}
   In \coq{}.
 \end{proof}
+
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "master"
