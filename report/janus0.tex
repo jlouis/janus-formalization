@@ -215,6 +215,7 @@ stores:
   extensionality (see \ref{coqext:extensionality}) and then it uses
   case analysis. In the cases, it applies lemma \eqref{lem:hide_ne}.
 \end{proof}
+\fixme{Add hide-write here}
 
 \subsection{History}
 
@@ -323,9 +324,10 @@ The statement syntax of \janusz{} defines a small, purely linear
 subset of the full JANUS language. There are 4 constructs given via
 the following notation in BNF:
 \reservestyle{\command}{\mathbf}
-\command{if[\;if\;],then[\;then\;],else[\;else\;],fi[\;fi\;]}
+\command{if[\;if\;],then[\;then\;],else[\;else\;],fi[\;fi\;],skip[\;skip\;],
+ +=[+\!\!=],-=[-\!\!=]}
 \begin{gather*}
-  s ::= \quad x +\!\!= e \bor x -\!\!= e \bor s; s
+  s ::= \quad x \<+=> e \bor x \<-=> \bor s; s
   \bor \<if> e \<then> s \<else> s \<fi> e
 \end{gather*}
 We will interleave the description of each of these syntactical
@@ -522,7 +524,76 @@ sufficient. \fixme{Check this!}
   forall-quantifier and formalize it in \coq{}.
 \end{proof}
 
+\section{Inversion of \janusz{}}
 
+In order to invert \janusz{}, we define a rewriting system
+$\mathcal{I}(\cdot) \colon Stm \to Stm$ from statements to
+statements. The rewriting system is straightforwardly defined: note
+that each atomic operation has a in inverse in the language and that
+each compound statement can be inductively inverted:
+\begin{align*}
+  \mathcal{I}(\<skip>)& = \<skip>\\
+  \mathcal{I}(x \<+=> e)& = x \<-=> e\\
+  \mathcal{I}(x -= e)& = x += e\\
+  \mathcal{I}(s1; s2)& = \mathcal{I}(s2); \mathcal{I}(s1)\\
+  \mathcal{I}(\<if> e_1 \<then> s_1 \<else> s_2 \<fi> e_2)& = \<if> e_2 \<then> \mathcal{I}(s_1) \<else> \mathcal{I}(s_2) \<fi> e_1
+\end{align*}
+
+The first sanity-check on the rewriting system is that of
+self-isomorphism; applying the rewriting system twice yields the
+original:
+\begin{thm}
+  For any statement $s$, we readily have:
+  \begin{equation*}
+    \mathcal{I}(\mathcal{I}(s)) = s
+  \end{equation*}
+\end{thm}
+\begin{proof}
+  By induction over $s$ in \coq{}.
+\end{proof}
+
+In the paper \cite{glueck2007} an equivalence relation, $e_1 \sim e_2$,
+is created between expressions $e_1$ and $e_2$ by
+\begin{equation*}
+  e_1 \sim e_2 \equiv \forall v \in Value, \sigma \in \Sigma \colon
+  \sigma |- e_1 => v <=> \sigma |- e2 => v
+\end{equation*}
+Similarly, a relation $s_1 \sim s_2$ is created between statements
+$s_1$ and $s_2$ by
+\begin{equation*}
+  s_1 \sim s_2 \equiv \forall \sigma, \sigma' \in \Sigma \colon
+  \sigma |- s_1 -> \sigma' <=> \sigma |- s_2 -> \sigma'
+\end{equation*}
+
+We have defined these in \coq{} for \janusz{} and shown them to be
+equivalence relations indeed. It can then be proven that the
+sequencing in \janusz{} is associative: $s_1; (s_2; s_3) \sim (s_1;
+s_2); s_3$. This proof was carried out in \coq{}. In the paper
+associative property among others is used to prove the following theorem:
+\begin{thm}
+  Let $s$ be an arbitrary \janusz{} statement and let $\sigma$ and
+  $\sigma'$ be arbitrary stores. The following is then true:
+  \begin{equation*}
+    \sigma |- s -> \sigma' <=> \sigma' |- \mathcal{I}(s) -> \sigma
+  \end{equation*}
+\end{thm}
+
+At least for \janusz{} however, you don't need the equivalence
+relation at all. Perhaps it is needed when running induction on the
+statement $s$ as is done in the paper, but another path is to run a
+generalized induction hypothesis on $\forall \sigma, \sigma' \in
+\Sigma, s \in Stm, \sigma |- s -> \sigma' \implies \sigma'
+\mathcal{I}(s) -> \sigma$ (and the converse in the other
+direction). This allows you to apply the induction hypothesis in the
+sequence case \texttt{semi} in the obvious way and stitch the result
+together. The hardest part of proving this statement in \coq{} is to
+get the math right in the inversion of $\<+=>$ and $\<-=>$. You need
+several properties of stores, including lemmas \eqref{lem:hide-write},
+\eqref{lem:hide-eq} and \eqref{lem:write-eq} to mangle the store into
+place.
+\begin{proof}
+  In \coq{}.
+\end{proof}
 %%% Local Variables: 
 %%% mode: latex
 %%% TeX-master: "master"
