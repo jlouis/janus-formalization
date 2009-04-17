@@ -146,11 +146,26 @@ Section Janus1.
     | S_Incr : Var -> Exp -> Stm
     | S_Decr : Var -> Exp -> Stm
     | S_Semi : Stm -> Stm -> Stm
-    | S_If : Exp -> Stm -> Stm -> Exp -> Stm.
+    | S_If : Exp -> Stm -> Stm -> Exp -> Stm
+    | S_Loop : Exp -> Stm -> Stm -> Exp -> Stm.
 
     Definition mem := ZMem.memory.
 
-    Inductive Stm_eval : mem -> Stm -> mem -> Prop :=
+    Inductive Stm_loop_eval : mem -> Exp -> Stm -> Stm -> Exp -> mem -> Prop :=
+    | se_l_t: forall m e1 s1 s2 e2 v2,
+      denote_Exp m e2 = Some v2 ->
+      v2 <> 0 ->
+      Stm_loop_eval m e1 s1 s2 e2 m
+    | se_l_f: forall m m' m'' m''' e1 s1 s2 e2 v1 v2,
+      denote_Exp m e2 = Some v2 ->
+      v2 = 0 ->
+      Stm_eval m s2 m' ->
+      denote_Exp m e1 = Some v1 ->
+      v1 = 0 ->
+      Stm_eval m' s1 m'' ->
+      Stm_loop_eval m'' e1 s1 s2 e2 m''' ->
+      Stm_loop_eval m e1 s1 s2 e2 m'''
+    with Stm_eval : mem -> Stm -> mem -> Prop :=
     | se_skip: forall m, Stm_eval m S_Skip m
     | se_assvar_incr: forall (m m': mem) (v: Var) (z z' r: Z) (e: Exp),
       denote_Exp (ZMem.hide m v) e = Some z ->
@@ -181,7 +196,17 @@ Section Janus1.
       Stm_eval m s2 m' ->
       denote_Exp m' e2 = Some k' ->
       k' = 0 ->
-      Stm_eval m (S_If e1 s1 s2 e2) m'.
+      Stm_eval m (S_If e1 s1 s2 e2) m'
+    | se_loop: forall e1 s1 s2 e2 m m' m'' n1,
+      denote_Exp m e1 = Some n1 ->
+      n1 <> 0 ->
+      Stm_eval m s1 m' ->
+      Stm_loop_eval m' e1 s1 s2 e2 m'' ->
+      Stm_eval m (S_Loop e1 s1 s2 e2) m''.
+
+    (* Produce dual induction principles on statements and loops at the same time *)
+    Scheme stm_eval_ind_2  := Induction for Stm_eval Sort Prop
+    with   loop_eval_ind_2 := Induction for Stm_loop_eval Sort Prop.
 
     Definition stm_equiv (s1 s2: Stm) :=
       forall (m m': ZMem.memory),
@@ -219,16 +244,9 @@ Section Janus1.
           assumption.
         constructor 4 with (m' := m'1); assumption.
     Qed.
-(*
-    Lemma ref_transp: forall s s' s1 s2,
-      stm_equiv s s' ->
-        stm_equiv (S_Semi (S_Semi s1 s) s2) (S_Semi (S_Semi s1 s') s2).
-    Proof. Admitted.
 
-    Lemma inverse_p: forall s1 s2,
-      stm_equiv (S_Semi s1 s2) S_Skip <-> stm_equiv (S_Semi s2 s1) S_Skip.
-    Proof. Admitted.
-*)
+(*
+
     Theorem fwd_det': forall (m m': mem) (s : Stm),
       Stm_eval m s m' -> (forall m'', Stm_eval m s m'' -> m' = m'').
     Proof.
@@ -252,6 +270,7 @@ Section Janus1.
 
       inversion H4. subst. apply (IHStm_eval m''). trivial. congruence.
       inversion H4. subst. congruence. subst. apply (IHStm_eval m''). trivial.
+      inversion H3. subst.
     Qed.
 
     Theorem fwd_det : forall m m' m'' s,
@@ -373,4 +392,6 @@ Section Janus1.
         inversion H. eapply se_if_t; eauto. eapply se_if_f; eauto.
     Qed.
   End Invert.
+*)
+End Stmt.
 End Janus1.
