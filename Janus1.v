@@ -33,10 +33,10 @@ Section Janus1.
     (* Relational operators *)
 
     | Exp_Eq    : Exp -> Exp -> Exp
-    | Exp_Neq   : Exp -> Exp -> Exp.
-(*
+    | Exp_Neq   : Exp -> Exp -> Exp
     | Exp_And   : Exp -> Exp -> Exp
-    | Exp_Or    : Exp -> Exp -> Exp
+    | Exp_Or    : Exp -> Exp -> Exp.
+(*
     | Exp_Lt    : Exp -> Exp -> Exp.
 *)
 
@@ -79,6 +79,25 @@ Section Janus1.
           match (denote_Exp m e1, denote_Exp m e2) with
             | (Some n1, Some n2) =>
                 Some (if Z_eq_dec n1 n2 then 0 else 1)
+            | _ => None
+          end
+        | Exp_And e1 e2 =>
+          match (denote_Exp m e1, denote_Exp m e2) with
+            | (Some n1, Some n2) =>
+              Some match (n1, n2) with
+                     | (0, _) => 0
+                     | (_, 0) => 0
+                     | (_, _) => 1
+                   end
+            | _ => None
+          end
+        | Exp_Or e1 e2 =>
+          match (denote_Exp m e1, denote_Exp m e2) with
+            | (Some n1, Some n2) =>
+              Some match (n1, n2) with
+                     | (0, 0) => 0
+                     | (_, _) => 1
+                   end
             | _ => None
           end
       end.
