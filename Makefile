@@ -1,4 +1,4 @@
-MODULES := BaseLib Memory ZStore Janus0 Word32 MemMonad Janus
+MODULES := BaseLib Memory ZStore Janus0 Janus1 #Word32 MemMonad Janus
 VS      := $(MODULES:%=%.v)
 
 GLOBALS := .coq_globals
