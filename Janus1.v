@@ -28,12 +28,13 @@ Section Janus1.
     | Exp_Sub : Exp -> Exp -> Exp
     | Exp_Mul : Exp -> Exp -> Exp
     | Exp_Div : Exp -> Exp -> Exp
-    | Exp_Mod : Exp -> Exp -> Exp.
+    | Exp_Mod : Exp -> Exp -> Exp
 
     (* Relational operators *)
-(*
+
     | Exp_Eq    : Exp -> Exp -> Exp
-    | Exp_Neq   : Exp -> Exp -> Exp
+    | Exp_Neq   : Exp -> Exp -> Exp.
+(*
     | Exp_And   : Exp -> Exp -> Exp
     | Exp_Or    : Exp -> Exp -> Exp
     | Exp_Lt    : Exp -> Exp -> Exp.
@@ -66,6 +67,18 @@ Section Janus1.
         | Exp_Mod e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
             | (Some n1, Some n2) => Some (Zmod n1 n2)
+            | _ => None
+          end
+        | Exp_Eq e1 e2 =>
+          match (denote_Exp m e1, denote_Exp m e2) with
+            | (Some n1, Some n2) =>
+                Some (if Z_eq_dec n1 n2 then 1 else 0)
+            | _ => None
+          end
+        | Exp_Neq e1 e2 =>
+          match (denote_Exp m e1, denote_Exp m e2) with
+            | (Some n1, Some n2) =>
+                Some (if Z_eq_dec n1 n2 then 0 else 1)
             | _ => None
           end
       end.
