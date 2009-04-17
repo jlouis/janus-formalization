@@ -245,32 +245,42 @@ Section Janus1.
         constructor 4 with (m' := m'1); assumption.
     Qed.
 
-(*
-
     Theorem fwd_det': forall (m m': mem) (s : Stm),
       Stm_eval m s m' -> (forall m'', Stm_eval m s m'' -> m' = m'').
     Proof.
-      induction 1; intros.
-      inversion H. trivial.
+      intros until m'. intro. intro.
+      apply (stm_eval_ind_2
+        (fun m s m0 (se : Stm_eval m s m0) => forall m'',
+          Stm_eval m s m'' -> m0 = m'')
+        (fun m e1 s1 s2 e2 m' sle => forall m'',
+          Stm_loop_eval m e1 s1 s2 e2 m'' -> m' = m'')); intros.
+      inversion H0. trivial.
 
-      inversion H3. subst.
-      assert (z' = z'0). assert (Some z' = Some z'0). rewrite <- H0. rewrite <- H7. trivial.
+      inversion H0. subst.
+      assert (z' = z'0). assert (Some z' = Some z'0). rewrite <- e1. rewrite <- H4. trivial.
       injection H1. trivial.
-      assert (z = z0). assert (Some z = Some z0). rewrite <- H. rewrite <- H6. trivial.
+      assert (z = z0). assert (Some z = Some z0). rewrite <- e0. rewrite <- H3. trivial.
       injection H2. trivial. subst. trivial.
 
-      inversion H3. subst.
-      assert (z' = z'0). assert (Some z' = Some z'0). rewrite <- H0. rewrite <- H7. trivial.
+      inversion H0. subst.
+      assert (z' = z'0). assert (Some z' = Some z'0). rewrite <- e1. rewrite <- H4. trivial.
       injection H1. trivial.
-      assert (z = z0). assert (Some z = Some z0). rewrite <- H. rewrite <- H6. trivial.
+      assert (z = z0). assert (Some z = Some z0). rewrite <- e0. rewrite <- H3. trivial.
       injection H2. trivial. subst. trivial.
 
-      inversion H1. subst. apply IHStm_eval2. assert (m' = m'0). apply (IHStm_eval1 m'0). trivial.
+      inversion H2. subst. apply H1. assert (m'1 = m'0). symmetry. apply H0. trivial.
       subst. trivial.
 
-      inversion H4. subst. apply (IHStm_eval m''). trivial. congruence.
-      inversion H4. subst. congruence. subst. apply (IHStm_eval m''). trivial.
-      inversion H3. subst.
+      inversion H1. subst. apply (H0 m''). trivial. congruence.
+      inversion H1. subst. congruence. subst. apply (H0 m''). trivial.
+      inversion H2. subst. apply H1. assert (m'1 = m'0). symmetry. apply H0. trivial.
+        subst. trivial.
+
+      inversion H0; congruence.
+      inversion H3. congruence.
+        subst. apply H2. assert (m'' = m''1). apply H1. assert (m'0 = m'1). apply H0.
+        trivial. subst. trivial. subst. trivial.
+      trivial.
     Qed.
 
     Theorem fwd_det : forall m m' m'' s,
@@ -279,6 +289,7 @@ Section Janus1.
       intros. generalize m'' H0. eapply fwd_det'. eauto.
     Qed.
 
+(*
     Theorem bwd_det': forall m m' s,
       Stm_eval m' s m -> (forall m'', Stm_eval m'' s m -> m' = m'').
     Proof.
