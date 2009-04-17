@@ -27,7 +27,17 @@ Section Janus1.
     | Exp_Add : Exp -> Exp -> Exp
     | Exp_Sub : Exp -> Exp -> Exp
     | Exp_Mul : Exp -> Exp -> Exp
-    | Exp_Div : Exp -> Exp -> Exp.
+    | Exp_Div : Exp -> Exp -> Exp
+    | Exp_Mod : Exp -> Exp -> Exp.
+
+    (* Relational operators *)
+(*
+    | Exp_Eq    : Exp -> Exp -> Exp
+    | Exp_Neq   : Exp -> Exp -> Exp
+    | Exp_And   : Exp -> Exp -> Exp
+    | Exp_Or    : Exp -> Exp -> Exp
+    | Exp_Lt    : Exp -> Exp -> Exp.
+*)
 
     Fixpoint denote_Exp (m : ZMem.memory) (e : Exp) {struct e} : option Z :=
       match e with
@@ -51,6 +61,11 @@ Section Janus1.
         | Exp_Div e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
             | (Some n1, Some n2) => Some (n1 / n2)
+            | _ => None
+          end
+        | Exp_Mod e1 e2 =>
+          match (denote_Exp m e1, denote_Exp m e2) with
+            | (Some n1, Some n2) => Some (Zmod n1 n2)
             | _ => None
           end
       end.
