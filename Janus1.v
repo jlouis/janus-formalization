@@ -35,10 +35,8 @@ Section Janus1.
     | Exp_Eq    : Exp -> Exp -> Exp
     | Exp_Neq   : Exp -> Exp -> Exp
     | Exp_And   : Exp -> Exp -> Exp
-    | Exp_Or    : Exp -> Exp -> Exp.
-(*
+    | Exp_Or    : Exp -> Exp -> Exp
     | Exp_Lt    : Exp -> Exp -> Exp.
-*)
 
     Fixpoint denote_Exp (m : ZMem.memory) (e : Exp) {struct e} : option Z :=
       match e with
@@ -98,6 +96,15 @@ Section Janus1.
                      | (0, 0) => 0
                      | (_, _) => 1
                    end
+            | _ => None
+          end
+        | Exp_Lt e1 e2 =>
+          match (denote_Exp m e1, denote_Exp m e2) with
+            | (Some n1, Some n2) =>
+              Some (match n1 ?= n2 with
+                      | Lt => 1
+                      | _ => 0
+                    end)
             | _ => None
           end
       end.
