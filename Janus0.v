@@ -42,7 +42,7 @@ Section Janus0.
             end
         | Exp_Mul e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
-            | (Some n1, Some n2) => Some (n1 - n2)
+            | (Some n1, Some n2) => Some (n1 * n2)
             | _ => None
           end
       end.
