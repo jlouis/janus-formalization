@@ -22,9 +22,12 @@ Section Janus1.
     Inductive Exp : Set :=
     | Exp_Const : Z -> Exp
     | Exp_Var : Var -> Exp
+
+    (* Arithmetic *)
     | Exp_Add : Exp -> Exp -> Exp
     | Exp_Sub : Exp -> Exp -> Exp
-    | Exp_Mul : Exp -> Exp -> Exp.
+    | Exp_Mul : Exp -> Exp -> Exp
+    | Exp_Div : Exp -> Exp -> Exp.
 
     Fixpoint denote_Exp (m : ZMem.memory) (e : Exp) {struct e} : option Z :=
       match e with
@@ -42,7 +45,12 @@ Section Janus1.
             end
         | Exp_Mul e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
-            | (Some n1, Some n2) => Some (n1 - n2)
+            | (Some n1, Some n2) => Some (n1 * n2)
+            | _ => None
+          end
+        | Exp_Div e1 e2 =>
+          match (denote_Exp m e1, denote_Exp m e2) with
+            | (Some n1, Some n2) => Some (n1 / n2)
             | _ => None
           end
       end.
