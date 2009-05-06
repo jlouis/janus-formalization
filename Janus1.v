@@ -234,70 +234,72 @@ Section Janus1.
         constructor 4 with (m' := m'1); assumption.
     Qed.
 
-    Theorem fwd_det': forall (d : defs) (m m': mem) (s : Stm),
-      Stm_eval d m s m' -> (forall m'', Stm_eval d m s m'' -> m' = m'')
-    with bwd_det': forall (d : defs) (m m': mem) (s : Stm),
-      Stm_eval d m' s m -> (forall m'', Stm_eval d m'' s m -> m' = m'').
+    Definition fwd_det G m s m' :=
+      Stm_eval G m s m' -> forall m'', Stm_eval G m s m'' -> m' = m''.
+
+    Definition bwd_det G m s m' :=
+      Stm_eval G m s m' -> forall m'', Stm_eval G m'' s m' -> m = m''.
+
+    Lemma b_forward_det: forall G m s m',
+      (forall G m s m', bwd_det G m s m') -> fwd_det G m s m'.
     Proof.
-      induction 1; intros.
-      inversion H. intuition.
+      unfold fwd_det. intros until m'. intro. induction 1; intros.
+      inversion H0. intuition.
 
-      inversion H3. subst.
-      assert (z' = z'0). assert (Some z' = Some z'0). rewrite <- H0. rewrite <- H7. trivial.
-      injection H1. trivial.
-      assert (z = z0). assert (Some z = Some z0). rewrite <- H. rewrite <- H6.
-      trivial.
-      injection H2. trivial. subst. trivial.
+      inversion H4. subst.
+      assert (z' = z'0). grind.
+      assert (z = z0). grind. grind.
 
-      Guarded.
+      inversion H4. subst.
+      assert (z' = z'0). grind.
+      assert (z = z0). grind. grind.
 
-      inversion H3. subst.
-      assert (z' = z'0). assert (Some z' = Some z'0). rewrite <- H0. rewrite <- H7. trivial.
-      injection H1. trivial.
-      assert (z = z0). assert (Some z = Some z0). rewrite <- H. rewrite <- H6. trivial.
-      injection H2. trivial. subst. trivial.
-
-      inversion H. subst. apply IHevl2. assert (m' = m'0). apply (IHevl1 m'0). trivial.
+      inversion H0. subst. apply IHStm_eval2. assert (m' = m'0). eapply IHStm_eval1. eauto.
       subst. trivial.
 
-      inversion H3. subst. apply (IHevl m''). trivial. congruence.
-      inversion H3. subst. congruence. subst. apply (IHevl m''). trivial.
+      inversion H5. subst. apply (IHStm_eval m''). trivial. congruence.
+      inversion H5. subst. congruence. subst. apply (IHStm_eval m''). trivial.
 
-      inversion H0. subst. apply IHevl. trivial.
-      inversion H0. subst. eapply bwd_det'. eauto. trivial.
+      inversion H2. subst. apply IHStm_eval. trivial.
+      inversion H2. subst. eapply H. eauto. trivial.
+   Qed.
 
-      induction 1; intros.
-      inversion H. trivial.
+   Lemma b_backward_det: forall G m s m',
+     (forall G m s m', fwd_det G m s m') -> bwd_det G m s m'.
+   Proof.
+      intros until m'. intro. unfold bwd_det. induction 1; intros.
+      inversion H0. trivial.
 
-      inversion H3. subst.
+      inversion H4. subst.
       assert (ZMem.hide m v = ZMem.hide m'' v). eapply ZMem.write_hide. eauto.
       assert (z + z' = z0 + z'0). assert (ZMem.write m v (z + z') v = ZMem.write m'' v (z0 + z'0) v).
       apply equal_f. trivial. apply (ZMem.write_eq_2 m m'' v). trivial.
-      assert (z = z0). assert (Some z = Some z0). grind. injection H4.
-      trivial.
+      assert (z = z0). assert (Some z = Some z0). grind. grind.
       subst.
       assert (z' = z'0). omega.
       subst. apply (ZMem.hide_eq m m'' v z'0). trivial. trivial. trivial.
 
-      inversion H3. subst.
+      inversion H4. subst.
       assert (ZMem.hide m v = ZMem.hide m'' v). eapply ZMem.write_hide. eauto.
       assert (z' - z = z'0 - z0). assert (ZMem.write m v (z' - z) v = ZMem.write m'' v (z'0 - z0) v).
       apply equal_f. trivial. apply (ZMem.write_eq_2 m m'' v). trivial.
-      assert (z = z0). assert (Some z = Some z0). grind. injection H4.
-      trivial.
+      assert (z = z0). assert (Some z = Some z0); grind.
       assert (z' = z'0). omega.
       subst. apply (ZMem.hide_eq m m'' v z'0). trivial. trivial. trivial.
 
-      inversion H1. subst. assert (m' = m'0). apply IHStm_eval2. trivial.
+      inversion H0. subst. assert (m' = m'0). apply IHStm_eval2. trivial.
       subst. apply IHStm_eval1. trivial.
 
-      inversion H4. subst. apply IHStm_eval. trivial. congruence.
-      inversion H4. subst. congruence. apply IHStm_eval. trivial.
+      inversion H5. subst. apply IHStm_eval. trivial. congruence.
+      inversion H5. subst. congruence. apply IHStm_eval. trivial.
 
-      inversion H1. subst. apply IHStm_eval. trivial.
+      inversion H2. subst. apply IHStm_eval. trivial.
 
-      inversion H1. subst. eapply fwd_det'. eauto. trivial.
+      inversion H2. subst. eapply H. eauto. trivial.
     Qed.
+
+    Theorem fwd_det_t: forall G m s m', fwd_det G m s m'
+       with bwd_det_t: forall G m s m', bwd_det G m s m'.
 
     Theorem fwd_det : forall m m' m'' s,
       Stm_eval m s m' -> Stm_eval m s m'' -> m' = m''.
