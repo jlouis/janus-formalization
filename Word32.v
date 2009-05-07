@@ -1075,7 +1075,7 @@ Lemma add_eq_r:
 Proof.
   intros.
   assert ((sub (add x y) x) = (sub (add x z) x)).
-  grind.
+  unfold sub, add. grind.
   repeat rewrite sub_add_l in H0.
   repeat rewrite sub_idem in H0.
   rewrite add_commut in H0. rewrite add_zero in H0.
