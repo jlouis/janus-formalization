@@ -267,19 +267,20 @@ Section Janus1.
 
       inversion H4. subst.
       assert (W32Mem.hide m v = W32Mem.hide m'' v). eapply W32Mem.write_hide. eauto.
-      assert (z + z' = z0 + z'0). assert (W32Mem.write m v (z + z') v = W32Mem.write m'' v (z0 + z'0) v).
+      assert (Word32.add z z' = Word32.add z0 z'0). assert (W32Mem.write m v (Word32.add z z') v = W32Mem.write m'' v (Word32.add z0 z'0) v).
       apply equal_f. trivial. apply (W32Mem.write_eq_2 m m'' v). trivial.
       assert (z = z0). assert (Some z = Some z0). grind. grind.
       subst.
-      assert (z' = z'0). omega.
+      assert (z' = z'0). eapply Word32.add_eq_r. eauto.
       subst. apply (W32Mem.hide_eq m m'' v z'0). trivial. trivial. trivial.
 
       inversion H4. subst.
       assert (W32Mem.hide m v = W32Mem.hide m'' v). eapply W32Mem.write_hide. eauto.
-      assert (z' - z = z'0 - z0). assert (W32Mem.write m v (z' - z) v = W32Mem.write m'' v (z'0 - z0) v).
+      assert (Word32.sub z' z = Word32.sub z'0 z0).
+      assert (W32Mem.write m v (Word32.sub z' z) v = W32Mem.write m'' v (Word32.sub z'0 z0) v).
       apply equal_f. trivial. apply (W32Mem.write_eq_2 m m'' v). trivial.
       assert (z = z0). assert (Some z = Some z0); grind.
-      assert (z' = z'0). omega.
+      assert (z' = z'0). subst. eapply Word32.sub_eq_l. eauto.
       subst. apply (W32Mem.hide_eq m m'' v z'0). trivial. trivial. trivial.
 
       inversion H0. subst. assert (m' = m'0). apply IHStm_eval2. trivial.
@@ -324,22 +325,29 @@ Section Janus1.
       split. induction 1.
       simpl. constructor.
       inversion H. simpl.
-      apply (se_assvar_decr d m' m v z r (r - z)).
+      apply (se_assvar_decr d m' m v z r (Word32.sub r z)).
        rewrite H2. rewrite W32Mem.hide_write. assumption.
        rewrite H2. apply W32Mem.write_eq.
        trivial.
-      apply (W32Mem.hide_eq m (W32Mem.write m' v (r - z)) v z').
+      apply (W32Mem.hide_eq m (W32Mem.write m' v (Word32.sub r z)) v z').
         assumption.
-        assert (r - z = z'). omega. rewrite H3. apply W32Mem.write_eq.
+        assert (Word32.sub r z = z').
+          rewrite H1. rewrite Word32.add_commut. rewrite Word32.sub_add_opp.
+          rewrite Word32.add_assoc. rewrite Word32.add_neg_zero. rewrite Word32.add_zero. trivial.
+        rewrite H3. apply W32Mem.write_eq.
         rewrite W32Mem.hide_write. rewrite H2. rewrite W32Mem.hide_write.
         trivial.
       simpl.
-      apply (se_assvar_incr d m' m v z r (r + z)).
+      apply (se_assvar_incr d m' m v z r (Word32.add r z)).
         rewrite H2. rewrite W32Mem.hide_write. assumption.
-        rewrite H2. apply W32Mem.write_eq. omega.
-      apply (W32Mem.hide_eq m (W32Mem.write m' v (r + z)) v z').
-        trivial. rewrite W32Mem.write_eq. assert (r + z = z'). omega. rewrite H3.
-        trivial.
+        rewrite H2. apply W32Mem.write_eq. rewrite Word32.add_commut. trivial.
+      apply (W32Mem.hide_eq m (W32Mem.write m' v (Word32.add r z)) v z').
+        trivial. rewrite W32Mem.write_eq. assert (Word32.add r z = z').
+          rewrite H1. rewrite Word32.sub_add_opp. rewrite Word32.add_assoc.
+          assert (Word32.add (Word32.neg z) z = Word32.add z (Word32.neg z)).
+            apply Word32.add_commut. rewrite H3. clear H3. rewrite Word32.add_neg_zero.
+            rewrite Word32.add_zero. trivial.
+        rewrite H3. trivial.
         rewrite W32Mem.hide_write. rewrite H2. rewrite W32Mem.hide_write. trivial.
       simpl. eapply se_semi. eauto. trivial.
       simpl. eapply se_if_t; eauto.
@@ -350,23 +358,29 @@ Section Janus1.
       generalize m m'. induction s. intros. inversion H. constructor.
       intros.
       simpl in H. inversion H.
-      apply (se_assvar_incr G m0 m'0 v z r (r + z)).
+      apply (se_assvar_incr G m0 m'0 v z r (Word32.add r z)).
         rewrite H8. rewrite W32Mem.hide_write. assumption.
-        rewrite H8. apply W32Mem.write_eq. omega.
-      apply (W32Mem.hide_eq  m'0 (W32Mem.write m0 v (r + z)) v z').
+        rewrite H8. apply W32Mem.write_eq. rewrite Word32.add_commut. trivial.
+      apply (W32Mem.hide_eq  m'0 (W32Mem.write m0 v (Word32.add r z)) v z').
         trivial.
-        rewrite W32Mem.write_eq. rewrite H6. assert (z' = z' - z + z). omega.
+        rewrite W32Mem.write_eq. rewrite H6. assert (z' = Word32.add (Word32.sub z' z) z).
+          rewrite Word32.sub_add_opp. rewrite Word32.add_commut. rewrite Word32.add_permut.
+          rewrite Word32.add_neg_zero. rewrite Word32.add_zero. trivial.
           rewrite <- H9. trivial.
           rewrite W32Mem.hide_write. rewrite H8. rewrite W32Mem.hide_write.
           trivial.
       intros.
       simpl in H. inversion H.
-      apply (se_assvar_decr G m0 m'0 v z r (r - z)).
+      apply (se_assvar_decr G m0 m'0 v z r (Word32.sub r z)).
         rewrite H8. rewrite W32Mem.hide_write. trivial.
         rewrite H8. apply W32Mem.write_eq. trivial.
-        apply (W32Mem.hide_eq m'0 (W32Mem.write m0 v (r - z)) v z').
+        apply (W32Mem.hide_eq m'0 (W32Mem.write m0 v (Word32.sub r z)) v z').
         trivial.
-        assert (r - z = z'). rewrite H6. omega.
+        assert (Word32.sub r z = z'). rewrite H6. rewrite Word32.sub_add_opp.
+        rewrite Word32.add_commut. rewrite <- Word32.add_assoc.
+        assert (Word32.add (Word32.neg z) z = Word32.add z (Word32.neg z)).
+        apply Word32.add_commut. rewrite H9. clear H9. rewrite Word32.add_neg_zero.
+        rewrite Word32.add_commut. rewrite Word32.add_zero. trivial.
         rewrite H9. apply W32Mem.write_eq.
         rewrite W32Mem.hide_write. rewrite H8. rewrite W32Mem.hide_write.
         trivial.
