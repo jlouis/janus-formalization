@@ -4,24 +4,22 @@
 
 Require Import Classical.
 Require Import BaseLib.
-Require Import ZArith.
+Require Import Word32.
 Require Import Memory.
-Require Import ZStore.
+Require Import W32Store.
 
-Module ZMem := Mem(ZS).
+Module W32Mem := Mem(W32S).
 
 Section Janus1.
 
-  Open Scope Z_scope.
-
-  Definition Var := ZMem.var.
-  Definition Value := ZMem.value.
+  Definition Var := W32Mem.var.
+  Definition Value := W32Mem.value.
   (* This section defines the expression language of Janus0 *)
   Section Expr.
 
     (* Minimal syntax definition *)
     Inductive Exp : Set :=
-    | Exp_Const : Z -> Exp
+    | Exp_Const : w32 -> Exp
     | Exp_Var : Var -> Exp
 
     (* Arithmetic *)
@@ -39,79 +37,77 @@ Section Janus1.
     | Exp_Or    : Exp -> Exp -> Exp
     | Exp_Lt    : Exp -> Exp -> Exp.
 
-    Fixpoint denote_Exp (m : ZMem.memory) (e : Exp) {struct e} : option Z :=
+    Fixpoint denote_Exp (m : W32Mem.memory) (e : Exp) {struct e} : option w32 :=
       match e with
         | Exp_Const z => Some z
         | Exp_Var x => m x
         | Exp_Add e1 e2 =>
             match (denote_Exp m e1, denote_Exp m e2) with
-              | (Some n1, Some n2) => Some (n1 + n2)
+              | (Some n1, Some n2) => Some (Word32.add n1 n2)
               | _ => None
             end
         | Exp_Sub e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
-            | (Some n1, Some n2) => Some (n1 - n2)
+            | (Some n1, Some n2) => Some (Word32.sub n1 n2)
             | _ => None
             end
         | Exp_Mul e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
-            | (Some n1, Some n2) => Some (n1 * n2)
+            | (Some n1, Some n2) => Some (Word32.mul n1 n2)
             | _ => None
           end
         | Exp_Div e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
-            | (Some n1, Some n2) => Some (n1 / n2)
+            | (Some n1, Some n2) => Some (Word32.divu n1 n2)
             | _ => None
           end
         | Exp_Mod e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
-            | (Some n1, Some n2) => Some (Zmod n1 n2)
+            | (Some n1, Some n2) => Some (Word32.modu n1 n2)
             | _ => None
           end
         | Exp_Eq e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
             | (Some n1, Some n2) =>
-                Some (if Z_eq_dec n1 n2 then 1 else 0)
+                Some (if Word32.cmpu Ceq n1 n2 then Word32.one else Word32.zero)
             | _ => None
           end
         | Exp_Neq e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
             | (Some n1, Some n2) =>
-                Some (if Z_eq_dec n1 n2 then 0 else 1)
+                Some (if Word32.cmpu Cne n1 n2 then Word32.one else Word32.zero)
             | _ => None
           end
         | Exp_And e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
-            | (Some n1, Some n2) =>
-              Some match (n1, n2) with
-                     | (0, _) => 0
-                     | (_, 0) => 0
-                     | (_, _) => 1
-                   end
+            | (Some n, Some n') =>
+              match (Word32.unsigned n, Word32.unsigned n') with
+                | (0, _) => Some Word32.zero
+                | (_, 0) => Some Word32.zero
+                | (_, _) => Some Word32.one
+              end
             | _ => None
           end
         | Exp_Or e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
-            | (Some n1, Some n2) =>
-              Some match (n1, n2) with
-                     | (0, 0) => 0
-                     | (_, _) => 1
-                   end
+            | (Some n, Some n') =>
+              match (Word32.unsigned n, Word32.unsigned n') with
+                | (1, _) => Some Word32.one
+                | (_, 1) => Some Word32.one
+                | (_, _) => Some Word32.zero
+              end
             | _ => None
           end
         | Exp_Lt e1 e2 =>
           match (denote_Exp m e1, denote_Exp m e2) with
-            | (Some n1, Some n2) =>
-              Some (match n1 ?= n2 with
-                      | Lt => 1
-                      | _ => 0
-                    end)
+            | (Some n, Some n') =>
+              Some (if Word32.cmpu Clt n n' then Word32.one else Word32.zero)
             | _ => None
           end
       end.
 
     Definition exp_equiv (e1: Exp) (e2: Exp) :=
-      forall (v: Value) (m: ZMem.memory),
+      forall (v: Value) (m: W32Mem.memory),
         denote_Exp m e1 = Some v <-> denote_Exp m e2 = Some v.
 
     Lemma exp_equiv_refl: forall e, exp_equiv e e.
@@ -152,40 +148,40 @@ Section Janus1.
     | S_Call : Z -> Stm
     | S_Uncall : Z -> Stm.
 
-    Definition mem := ZMem.memory.
+    Definition mem := W32Mem.memory.
     Definition defs := Z -> Stm.
 
     Inductive Stm_eval : defs -> mem -> Stm -> mem -> Prop :=
     | se_skip: forall d m, Stm_eval d m S_Skip m
-    | se_assvar_incr: forall (d : defs) (m m': mem) (v: Var) (z z' r: Z) (e: Exp),
-      denote_Exp (ZMem.hide m v) e = Some z ->
+    | se_assvar_incr: forall (d : defs) (m m': mem) (v: Var) (z z' r: w32) (e: Exp),
+      denote_Exp (W32Mem.hide m v) e = Some z ->
       m v = Some z' ->
-      r = (z + z') ->
-      m' = ZMem.write m v r ->
+      r = (Word32.add z z') ->
+      m' = W32Mem.write m v r ->
       Stm_eval d m (S_Incr v e) m'
-    | se_assvar_decr: forall (d : defs) (m m': mem) (v: Var) (z z' r: Z) (e: Exp),
-      denote_Exp (ZMem.hide m v) e = Some z ->
+    | se_assvar_decr: forall (d : defs) (m m': mem) (v: Var) (z z' r: w32) (e: Exp),
+      denote_Exp (W32Mem.hide m v) e = Some z ->
       m v = Some z' ->
-      r = (z' - z) ->
-      m' = ZMem.write m v r ->
+      r = (Word32.sub z' z) ->
+      m' = W32Mem.write m v r ->
       Stm_eval d m (S_Decr v e) m'
     | se_semi: forall (d : defs) (m m' m'': mem) (s1 s2: Stm),
       Stm_eval d m s1 m' ->
       Stm_eval d m' s2 m'' ->
       Stm_eval d m (S_Semi s1 s2) m''
-    | se_if_t: forall (d : defs) (m m': mem) (e1 e2: Exp) (s1 s2: Stm) (k k': Z),
+    | se_if_t: forall (d : defs) (m m': mem) (e1 e2: Exp) (s1 s2: Stm) (k k': w32),
       denote_Exp m e1 = Some k ->
-      k <> 0 ->
+      Word32.is_true(k) ->
       Stm_eval d m s1 m' ->
       denote_Exp m' e2 = Some k' ->
-      k' <> 0 ->
+      Word32.is_true(k') ->
       Stm_eval d m (S_If e1 s1 s2 e2) m'
-    | se_if_f: forall (d : defs) (m m': mem) (e1 e2: Exp) (s1 s2: Stm) (k k': Z),
+    | se_if_f: forall (d : defs) (m m': mem) (e1 e2: Exp) (s1 s2: Stm) (k k': w32),
       denote_Exp m e1 = Some k ->
-      k = 0 ->
+      Word32.is_false(k) ->
       Stm_eval d m s2 m' ->
       denote_Exp m' e2 = Some k' ->
-      k' = 0 ->
+      Word32.is_false(k') ->
       Stm_eval d m (S_If e1 s1 s2 e2) m'
     | se_call: forall (d : defs) (v : Z) (m m' : mem) (s : Stm),
       d v = s ->
@@ -197,7 +193,7 @@ Section Janus1.
       Stm_eval d m (S_Uncall v) m'.
 
     Definition stm_equiv (s1 s2: Stm) :=
-      forall (d : defs) (m m': ZMem.memory),
+      forall (d : defs) (m m': W32Mem.memory),
         Stm_eval d m s1 m' <-> Stm_eval d m s2 m'.
 
     (* Show stm_equiv *is* an equivalence relation *)
@@ -270,21 +266,21 @@ Section Janus1.
       inversion H0. trivial.
 
       inversion H4. subst.
-      assert (ZMem.hide m v = ZMem.hide m'' v). eapply ZMem.write_hide. eauto.
-      assert (z + z' = z0 + z'0). assert (ZMem.write m v (z + z') v = ZMem.write m'' v (z0 + z'0) v).
-      apply equal_f. trivial. apply (ZMem.write_eq_2 m m'' v). trivial.
+      assert (W32Mem.hide m v = W32Mem.hide m'' v). eapply W32Mem.write_hide. eauto.
+      assert (z + z' = z0 + z'0). assert (W32Mem.write m v (z + z') v = W32Mem.write m'' v (z0 + z'0) v).
+      apply equal_f. trivial. apply (W32Mem.write_eq_2 m m'' v). trivial.
       assert (z = z0). assert (Some z = Some z0). grind. grind.
       subst.
       assert (z' = z'0). omega.
-      subst. apply (ZMem.hide_eq m m'' v z'0). trivial. trivial. trivial.
+      subst. apply (W32Mem.hide_eq m m'' v z'0). trivial. trivial. trivial.
 
       inversion H4. subst.
-      assert (ZMem.hide m v = ZMem.hide m'' v). eapply ZMem.write_hide. eauto.
-      assert (z' - z = z'0 - z0). assert (ZMem.write m v (z' - z) v = ZMem.write m'' v (z'0 - z0) v).
-      apply equal_f. trivial. apply (ZMem.write_eq_2 m m'' v). trivial.
+      assert (W32Mem.hide m v = W32Mem.hide m'' v). eapply W32Mem.write_hide. eauto.
+      assert (z' - z = z'0 - z0). assert (W32Mem.write m v (z' - z) v = W32Mem.write m'' v (z'0 - z0) v).
+      apply equal_f. trivial. apply (W32Mem.write_eq_2 m m'' v). trivial.
       assert (z = z0). assert (Some z = Some z0); grind.
       assert (z' = z'0). omega.
-      subst. apply (ZMem.hide_eq m m'' v z'0). trivial. trivial. trivial.
+      subst. apply (W32Mem.hide_eq m m'' v z'0). trivial. trivial. trivial.
 
       inversion H0. subst. assert (m' = m'0). apply IHStm_eval2. trivial.
       subst. apply IHStm_eval1. trivial.
@@ -329,22 +325,22 @@ Section Janus1.
       simpl. constructor.
       inversion H. simpl.
       apply (se_assvar_decr d m' m v z r (r - z)).
-       rewrite H2. rewrite ZMem.hide_write. assumption.
-       rewrite H2. apply ZMem.write_eq.
+       rewrite H2. rewrite W32Mem.hide_write. assumption.
+       rewrite H2. apply W32Mem.write_eq.
        trivial.
-      apply (ZMem.hide_eq m (ZMem.write m' v (r - z)) v z').
+      apply (W32Mem.hide_eq m (W32Mem.write m' v (r - z)) v z').
         assumption.
-        assert (r - z = z'). omega. rewrite H3. apply ZMem.write_eq.
-        rewrite ZMem.hide_write. rewrite H2. rewrite ZMem.hide_write.
+        assert (r - z = z'). omega. rewrite H3. apply W32Mem.write_eq.
+        rewrite W32Mem.hide_write. rewrite H2. rewrite W32Mem.hide_write.
         trivial.
       simpl.
       apply (se_assvar_incr d m' m v z r (r + z)).
-        rewrite H2. rewrite ZMem.hide_write. assumption.
-        rewrite H2. apply ZMem.write_eq. omega.
-      apply (ZMem.hide_eq m (ZMem.write m' v (r + z)) v z').
-        trivial. rewrite ZMem.write_eq. assert (r + z = z'). omega. rewrite H3.
+        rewrite H2. rewrite W32Mem.hide_write. assumption.
+        rewrite H2. apply W32Mem.write_eq. omega.
+      apply (W32Mem.hide_eq m (W32Mem.write m' v (r + z)) v z').
+        trivial. rewrite W32Mem.write_eq. assert (r + z = z'). omega. rewrite H3.
         trivial.
-        rewrite ZMem.hide_write. rewrite H2. rewrite ZMem.hide_write. trivial.
+        rewrite W32Mem.hide_write. rewrite H2. rewrite W32Mem.hide_write. trivial.
       simpl. eapply se_semi. eauto. trivial.
       simpl. eapply se_if_t; eauto.
       simpl. eapply se_if_f; eauto.
@@ -355,24 +351,24 @@ Section Janus1.
       intros.
       simpl in H. inversion H.
       apply (se_assvar_incr G m0 m'0 v z r (r + z)).
-        rewrite H8. rewrite ZMem.hide_write. assumption.
-        rewrite H8. apply ZMem.write_eq. omega.
-      apply (ZMem.hide_eq  m'0 (ZMem.write m0 v (r + z)) v z').
+        rewrite H8. rewrite W32Mem.hide_write. assumption.
+        rewrite H8. apply W32Mem.write_eq. omega.
+      apply (W32Mem.hide_eq  m'0 (W32Mem.write m0 v (r + z)) v z').
         trivial.
-        rewrite ZMem.write_eq. rewrite H6. assert (z' = z' - z + z). omega.
+        rewrite W32Mem.write_eq. rewrite H6. assert (z' = z' - z + z). omega.
           rewrite <- H9. trivial.
-          rewrite ZMem.hide_write. rewrite H8. rewrite ZMem.hide_write.
+          rewrite W32Mem.hide_write. rewrite H8. rewrite W32Mem.hide_write.
           trivial.
       intros.
       simpl in H. inversion H.
       apply (se_assvar_decr G m0 m'0 v z r (r - z)).
-        rewrite H8. rewrite ZMem.hide_write. trivial.
-        rewrite H8. apply ZMem.write_eq. trivial.
-        apply (ZMem.hide_eq m'0 (ZMem.write m0 v (r - z)) v z').
+        rewrite H8. rewrite W32Mem.hide_write. trivial.
+        rewrite H8. apply W32Mem.write_eq. trivial.
+        apply (W32Mem.hide_eq m'0 (W32Mem.write m0 v (r - z)) v z').
         trivial.
         assert (r - z = z'). rewrite H6. omega.
-        rewrite H9. apply ZMem.write_eq.
-        rewrite ZMem.hide_write. rewrite H8. rewrite ZMem.hide_write.
+        rewrite H9. apply W32Mem.write_eq.
+        rewrite W32Mem.hide_write. rewrite H8. rewrite W32Mem.hide_write.
         trivial.
       intros.
       inversion H. apply (se_semi G m0 m'1 m'0). apply IHs1. trivial.
