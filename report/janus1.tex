@@ -1,0 +1,325 @@
+\chapter{\januso{}}
+\label{cha:januso}
+
+The \januso{} language adds several extra judgements to the \janusz{}
+language to make it more in par with the full complete language
+specification. Concretely, we add:
+\begin{itemize}
+\item 32-bit unsigned integers with wrap-around
+\item Procedure calls
+\end{itemize}
+at which point we only miss arrays and loops from the full Janus
+language.
+
+To do this, we must first introduce 32-bit integers into \coq{} and
+then use the formalization of these in the development of \januso{}.
+
+\section{32-bit Integers}
+\label{sec:32-bit-integers}
+
+The integers chosen in JANUS are as usual machine words on a 32-bit
+machine. Most traditional computers the machine have an upper limit
+to what numbers it can represent. A 32-bit machine has $32$ bits at
+its disposal so it can represent $2^{32}$ different values. A 64-bit
+machine has $2^{64}$ different values and so on. For the case where
+there is no sign, it is obvious to map the representation into $0,
+\dotsc, 2^{32}-1$ and do calculation modulo $2^{32}$. Coincidentially,
+this is how most modern computers work anyway.
+
+JANUS choses this representation as well and models a 32-bit machine
+in the process. For \januso{}, we would like to model the same thing
+as full JANUS.
+
+From the perspective of mathematics, 32-bit values means we are
+working in the additive group $\mathbb{Z}/2^{32}\mathbb{Z}$. We could
+have chosen other groups as the base for our numbers in JANUS. In
+fact, any cyclic additive group will do. If we choose the number to
+mod by as a prime number, mulitplication will have an inverse as
+well\footnote{We would have a mathematical field, $\mathcal{F}_p$},
+but the idea is not idiomatic with computers: they tend to use powers
+of $2$ for their word size.
+
+Let us recap exactly what is meant by an commutative group:
+\begin{defn}
+  An commutative group is a set $G$ with a binary operator $+\colon G
+  \times G \to G$ such that it fulfills the following properties:
+  \begin{itemize}
+  \item For $x,y,z \in G$ we have $(x + y) + z = x + (y + z)$.
+  \item There exist an element $0 \in G$ such that for any element $x
+    \in G$ we have $x + 0 = 0 + x = x$.
+  \item For any element $x \in G$ there exist an \emph{inverse}
+    element, notated $-x$, such that $x + -x = -x + x = 0$
+  \item For elements $x, y \in G$ we have $x + y = y + x$
+  \end{itemize}
+  The first rule is called associativity; the second is the existence
+  of a neutral element (neutral identity) and the third is the
+  existence of an inverse element. The fourth rule defines that the
+  binary operation is commutative.
+
+  If the fourth rule is omitted, we talk about a group. This is the
+  normal definition to which one adds commutativity to get a
+  commutative group.
+\end{defn}
+
+One particular commutative group is well-known and a good candidate
+for a number base for JANUS; the usual group of integers
+$\mathbb{Z}$. Implicitly, this was the choice for \janusz{}. From a
+formal viewpoint, this group is bliss to work with. On the other hand,
+it means that the formal machine have arbitrarily sized integers,
+which may be a bit unrealistic. Hence, we chose numbers modulo
+$2^{32}$ as we can easily formalize 64-bit numbers as well if needed
+by changing a constant. We will call these integers $W^{32}$.
+
+\subsection{\coq{} Implementation}
+
+The Coq implementation of 32-bit numbers owes everything to Xavier
+Leroy et al\fixme{Citation}. The work is taken from the
+\textsc{CompCert} project, which introduces them in the course of
+formalizing a complete C to PowerPC compiler. The reason for taking
+the work rather than building it from scratch is due to the sheer
+complexity of getting it right. The formalization uses standard
+algebraic properties to systematically build the necessary knowledge
+and properties in \coq{}.
+
+We did some simplification to the full specification as we only needed
+parts of it. We also added a couple of new properties to the
+development which is needed for proving \januso{}.
+
+We can't resist the temptation to describe the implementation however. A
+32-bit number is a pair: An integer $i$ and a proof that $0 \leq i <
+2^{32}$. The main theorem is:
+\begin{lem}
+  Let $x$ be in integer. For any such $x$ we have
+  \begin{equation*}
+    0 \leq (x \;mod\; 2^{32}) < 2^{32}
+  \end{equation*}
+\end{lem}
+\begin{proof}
+  From our Coq Development:
+\begin{verbatim}
+Lemma mod_in_range:
+  forall x, 0 <= Zmod x modulus < modulus.
+  intros.
+  exact (Z_mod_lt x modulus (two_power_nat_pos word_size)).
+Qed.
+\end{verbatim}
+  Which states that it is exactly given by the common result
+  \texttt{Z\_mod\_lt} from the Coq standard library.
+\end{proof}
+The theorem allows us to take any integer and represent it as a 32-bit
+number as long as we take the integer $\mod 2^{32}$. Thus we have a
+straightforward embed/project pair of functions between normal
+integers and 32 bit integers.
+
+For example, here is the definition of addition:
+\begin{verbatim}
+Definition add (x y: w32) : w32 :=
+  repr (unsigned x + unsigned y).
+\end{verbatim}
+The function \texttt{unsigned} projects $x$ and $y$ to integers. Then
+we integer-add the numbers and re-embed them with the \texttt{repr}
+function. Note that the embedding is doing the correct thing for
+cyclic additive groups: it wraps around.
+
+Bitwise operations in the representation is implemented by creating
+indicator-functions from numbers up to a certain size in bits. Ie a
+number is converted into a function $f \colon \mathbb{Z} \to \{0,
+1\}$, where $f(n) = 1$ indicates $n$-th bit is set and $f(n) = 0$
+that it is not. Straightforward combinations and embeddings of these
+functions builds up the bitwise functions.
+
+The properties of the numbers are simply a direct (rather impressive)
+work of standard algebra. The theorems can be found in any math-book
+on algebra\fixme{Cite}. First, we have
+\begin{defn}
+  Two integers $x, y$ are in the same congruence class modulo $m$ iff
+  there exists an integer $k$ such that
+  \begin{equation*}
+    x = k \cdot m + y
+  \end{equation*}
+\end{defn}
+With this definition Xavier and co. then proceeds to build up a
+complete library of known algebraic properties for congruence classes
+like the one above. As an example we present the addition of
+congruence classes:
+\begin{verbatim}
+  Lemma eqmod_add:
+    forall a b c d, eqmod a b -> eqmod c d
+      -> eqmod (a + c) (b + d).
+  Proof.
+    intros a b c d [k1 EQ1] [k2 EQ2]; red.
+    subst a; subst c. exists (k1 + k2). ring.
+  Qed.
+\end{verbatim}
+If $a, b$ is a congruence class pair and $c, d$ also is, then the pair
+$a+c, b+d$ is an equivalence pair (for a fixed modulo). The proof proceeds by the
+well-known method that there must exist a $k_1$ by the first pair such
+that $a = k_1 \cdot m + b$. Likewise $c = k_2 \cdot m + d$. Adding
+these 2 equations and rearranging yields $a + c = (k_1 + k_2) \cdot m
+ + (b + d)$ which is the form one wants. Most of the proofs reflect
+usual mathematical methods like this.
+
+\paragraph{Additions to the CompCert integers}
+
+We added some additional properties to the \textsc{CompCert}
+implementation of 32-bit integers. All the proofs of these are written
+in \coq{} by the use of already given properties given by Leroy
+et.al. We extend their definitions by:
+\command{xor[\;xor\;]}
+\begin{lem}
+  For any $x \in W^{32}$ we have $x \<xor> x = 0$
+\end{lem}
+\begin{lem}
+  For 32-bit integers $x,y,z$, additions can be discharged on the
+  left: $x + y = x + z \implies y = z$
+\end{lem}
+\begin{lem}
+  For 32-bit integers $x, y, z$, subtracition can be discharged on the
+  right: $x - z = y - z \implies x = y$
+\end{lem}
+\begin{lem}
+  For 32-bit integers $x, y, z$, xor can be discharged on left:
+  $x \<xor> z = y \<xor> z \implies x = y$.
+\end{lem}
+\subsection{Adapting \janusz{} to \januso{}}
+
+We then alter \janusz{} to use 32-bit integers. First, we utilize the
+functor on stores to get a store for 32-bit integers. Then, we
+systematically change any mention of the type \texttt{Z} into the type
+\texttt{w32}, the latter being the base type for 32-bit integers. This
+in turn provokes changes of all arithmetic operators on \texttt{Z} to
+their 32-bit counterparts.
+
+After this, rather straightforward treatment, \januso{} now has 32-bit
+integers as the base value.
+
+\section{Augmenting expressions}
+
+To the expressions of \janusz{}, we make the following additions:
+\begin{align*}
+  e ::= & \dotsc \bor e / e \bor e \mod e \bor e = e \bor e \neq e \\
+        \bor & e \land e \bor e \lor e \bor e < e
+\end{align*}
+
+The additions to the expression language are as in \cite{glueck2008};
+we add aritmethic operators of division and modulo to 32-bit
+numbers. We add a couple of relational operators, namely equality,
+non-equality, logical and, logical or and a less-than operator.
+
+With these additions, we almost have all constructs from the full
+JANUS language. It is my belief that these can be added without any
+problems at all. Specifically, our 32-bit integer representation
+provisions for bitwise operators.
+
+The semantics are given by a denotational semantics in the spirit of
+the denotational semantics in \ref{exp:denot-semantics}. We omit them
+here for brevity and refer the interested reader to the \coq{}
+development.
+
+\section{Augmenting statements}
+
+To the statement language we add the rules of \texttt{call} and
+\texttt{uncall}:
+\begin{equation*}
+  s ::= \dotsc \bor \<call> p \bor \<uncall> p
+\end{equation*}
+where $p$ designates a procedure. We will see how we encode this
+procedure shortly.
+
+The semantical judgement forms of statements are altered to a form
+$\rho |= \angel{\sigma, s} -> \sigma'$, where $\rho$ is a map from $\ZZ \to
+Stm$. That is, we represent a procedure by an integer and its value in
+the set of procedure definitions is a statement. We note that all
+existing rules in the operational semantics just has to pass $\rho$ on
+via congruence. Hence, we do not bring these rules here. For the new
+rules, there is an interesting development. The rule of calling a
+procedure is
+\begin{equation*}
+  \inference[Call]{\rho |= \angel{\sigma, \rho(p)} -> \sigma'}
+  {\rho |= \angel{\sigma, \<call> p} -> \sigma'}
+\end{equation*}
+
+Informally, the rule states that a procedure call looks up the
+procedure in the context and then executes the procedure. Uncalling a
+procedure is defined as
+\begin{equation*}
+  \inference[Uncall]{\rho |= \angel{\sigma', \rho(p)} -> \sigma}
+  {\rho |= \angel{\sigma, \<uncall> p} -> \sigma'}
+\end{equation*}
+
+In this rule, we utilize the full power of operational-semantics given
+as a prolog-style rule. Rather than relying on the inversion operator
+we will define shortly, we alter the order procedure will run. This is
+the main reason we choose an operational semantics rather than a
+denotational one as the latter would have a harder time representing
+this specific rule.
+
+\fixme{xor operation}
+
+\section{Determinism properties of \januso{}}
+
+Converting the proofs from \janusz{} to \januso{} has one main
+complication: we went from $\ZZ$ to $W^{32}$. When \coq{} works with
+integers, and we only used Presburger arithmetic\fixme{Citation} we
+can solve such terms by the use of the ``omega'' tactic in \coq{}. For
+our 32-bit integers, no such thing is present however, so we need to
+do the proofs by hand.
+
+The detail at which one has to carry out such proofs are almost
+exruciatingly precise. We must, as an example, explicitly use the
+commutative rule when we want to rewrite $x +_{32} y$ into $y +_{32}
+x$.
+
+Irregardless, we have
+\begin{thm}
+\label{thm:j0-fwd-det}
+  \januso{} is forward deterministic, ie:
+  \begin{equation*}
+    \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon
+    \rho |= \angel{\sigma, s} -> \sigma' \implies \rho |= \angel{\sigma, s} -> \sigma'' \implies \sigma' = \sigma''
+  \end{equation*}
+\end{thm}
+\begin{proof}
+  In \coq{} \fixme{Elaborate?}
+\end{proof}
+and
+\begin{thm}
+  \januso{} is backward deterministic, ie:
+  \begin{equation*}
+    \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon
+    \rho |= \angel{\sigma', s} -> \sigma \implies \rho |= \angel{\sigma'', s} -> \sigma \implies \sigma' = \sigma''
+  \end{equation*}
+\end{thm}
+\begin{proof}
+  Formalized in \coq{}
+\end{proof}
+
+\section{Inversion and its properties}
+
+Inverting \januso{} works exactly like inverting \janusz{}. We only
+need to add a couple of new rules for $\<call>$ and $\<uncall>$ and
+the $\hat{=}$ operation. The two call types are each others inverses
+and the $\<xor>$ operation is self inverse:
+\begin{align*}
+    \mathcal{I}(x \;\hat{=}\; e)& = x \;\hat{=}\; e\\
+    \mathcal{I}(\<call> p)& = \<uncall> p\\
+    \mathcal{I}(\<uncall> p)& = \<call> p
+\end{align*}
+
+With these rules, we can again prove the inversion sound by the
+following theorem:
+\begin{thm}
+  Let $\rho$ designate an arbitrary \januso{} program, $s$ an
+  arbitrary \januso{} statement and let $\sigma$ and $\sigma'$ be
+  arbitrary stores. The following is then true:
+  \begin{equation*}
+    \rho |= \angel{\sigma, s} -> \sigma' \iff \rho |= \angel{\sigma', \mathcal{I}(s)} -> \sigma
+  \end{equation*}
+\end{thm}
+
+
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: "master"
+%%% End: 
