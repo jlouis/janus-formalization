@@ -216,6 +216,19 @@ stores:
   extensionality (see \ref{coqext:extensionality}) and then it uses
   case analysis. In the cases, it applies lemma \eqref{lem:hide_ne}.
 \end{proof}
+
+Another very important concept is that a write to the hidden variable
+does not matter. The following lemma makes this specific
+\begin{lem}
+  Let there be given an arbitrary store $\sigma$, variable $x$ and value
+  $v$. Then the following holds:
+  \begin{equation*}
+    (\sigma[x \mapsto v] \setminus x) = (\sigma \setminus x)
+  \end{equation*}
+\end{lem}
+\begin{proof}
+  
+\end{proof}
 \fixme{Add hide-write here}
 
 \subsection{History}
@@ -321,7 +334,6 @@ By the use of \coq{} and the \texttt{grind}-tactic from
   by default!}
 \section{Statements in \janusz{}}
 
-\fixme{Skip is not described yet}
 The statement syntax of \janusz{} defines a small, purely linear
 subset of the full JANUS language. There are 4 constructs given via
 the following notation in BNF:
@@ -329,7 +341,7 @@ the following notation in BNF:
 \command{if[\;if\;],then[\;then\;],else[\;else\;],fi[\;fi\;],skip[\;skip\;],
  +=[\;+\!\!=\;],-=[\;-\!\!\!=\;],call[\;call\;],uncall[\;uncall\;]}
 \begin{gather*}
-  s ::= \quad x \<+=> e \bor x \<-=> \bor s; s
+  s ::= \quad \<skip> \bor x \<+=> e \bor x \<-=> \bor s; s
   \bor \<if> e \<then> s \<else> s \<fi> e
 \end{gather*}
 \newcommand{\angel}[1]{\langle #1 \rangle}
@@ -340,7 +352,14 @@ execution of statements is $\angel{\sigma, s} -> \sigma'$ which
 designates that under the assumption of a store $\sigma$, execution of
 statement $s$ will yield the altered store $\sigma'$.
 
-The first operation is the increment operation of an element in the
+The very first operation is a simple one. The \textbf{skip} operation
+is a no-operation command that simply skips. It has the following
+rule:
+\begin{equation*}
+  \inference[Skip]{}{\angel{\sigma, s} -> \sigma}
+\end{equation*}
+
+The second operation is the increment operation of an element in the
 store. This operation, written as $x +\!\!= e$ will evaluate the
 expression $e$ to a number $k$ and then add this amount to the
 location in the store to which $x$ points:
