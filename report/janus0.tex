@@ -83,7 +83,8 @@ Module Type STORE.
 
   (* locations have equality *)
   Parameter eq : location -> location -> Prop.
-  Parameter location_eq_dec : forall (n m : location), {n = m} + {n <> m}.
+  Parameter location_eq_dec :
+      forall (n m : location), {n = m} + {n <> m}.
 
 End STORE.
 \end{verbatim}
@@ -162,11 +163,11 @@ will be used later on:
 \begin{lem}
 \label{lem:write-eq2}
   We have:
-  \begin{equation*}
+  \begin{multline*}
     \forall \sigma, \sigma' \in \Sigma, x \in Loc, v_1, v_2 \in Value
-    \colon \sigma[x \mapsto v_1](x) = \sigma[x \mapsto v_2](x)
-    \implies v_1 = v_2
-  \end{equation*}
+    \colon \\
+    \sigma[x \mapsto v_1](x) = \sigma[x \mapsto v_2](x) \implies v_1 = v_2
+  \end{multline*}
 \end{lem}
 \begin{proof}
   By \coq{}
@@ -326,7 +327,7 @@ subset of the full JANUS language. There are 4 constructs given via
 the following notation in BNF:
 \reservestyle{\command}{\mathbf}
 \command{if[\;if\;],then[\;then\;],else[\;else\;],fi[\;fi\;],skip[\;skip\;],
- +=[+\!\!=],-=[-\!\!=],call[\;call\;],uncall[\;uncall\;]}
+ +=[\;+\!\!=\;],-=[\;-\!\!\!=\;],call[\;call\;],uncall[\;uncall\;]}
 \begin{gather*}
   s ::= \quad x \<+=> e \bor x \<-=> \bor s; s
   \bor \<if> e \<then> s \<else> s \<fi> e
@@ -531,7 +532,7 @@ each compound statement can be inductively inverted:
 \begin{align*}
   \mathcal{I}(\<skip>)& = \<skip>\\
   \mathcal{I}(x \<+=> e)& = x \<-=> e\\
-  \mathcal{I}(x -= e)& = x += e\\
+  \mathcal{I}(x \<-=> e)& = x \<+=> e\\
   \mathcal{I}(s1; s2)& = \mathcal{I}(s2); \mathcal{I}(s1)\\
   \mathcal{I}(\<if> e_1 \<then> s_1 \<else> s_2 \<fi> e_2)& = \<if> e_2 \<then> \mathcal{I}(s_1) \<else> \mathcal{I}(s_2) \<fi> e_1
 \end{align*}

@@ -73,7 +73,7 @@ by changing a constant. We will call these integers $W^{32}$.
 \subsection{\coq{} Implementation}
 
 The Coq implementation of 32-bit numbers owes everything to Xavier
-Leroy et al\fixme{Citation}. The work is taken from the
+Leroy et al\cite{Leroy-Compcert-Coq}. The work is taken from the
 \textsc{CompCert} project, which introduces them in the course of
 formalizing a complete C to PowerPC compiler. The reason for taking
 the work rather than building it from scratch is due to the sheer
@@ -122,7 +122,7 @@ function. Note that the embedding is doing the correct thing for
 cyclic additive groups: it wraps around.
 
 Bitwise operations in the representation is implemented by creating
-indicator-functions from numbers up to a certain size in bits. Ie a
+indicator functions from numbers up to a certain size in bits. Ie a
 number is converted into a function $f \colon \mathbb{Z} \to \{0,
 1\}$, where $f(n) = 1$ indicates $n$-th bit is set and $f(n) = 0$
 that it is not. Straightforward combinations and embeddings of these
@@ -130,7 +130,7 @@ functions builds up the bitwise functions.
 
 The properties of the numbers are simply a direct (rather impressive)
 work of standard algebra. The theorems can be found in any math-book
-on algebra\fixme{Cite}. First, we have
+on algebra, for instance \cite{thorup:algebra}. First, we have
 \begin{defn}
   Two integers $x, y$ are in the same congruence class modulo $m$ iff
   there exists an integer $k$ such that
@@ -218,10 +218,10 @@ development.
 
 \section{Augmenting statements}
 
-To the statement language we add the rules of \texttt{call} and
-\texttt{uncall}:
+To the statement language we add the rules of \texttt{call},
+\texttt{uncall} and xor ($\hat{=}$). 
 \begin{equation*}
-  s ::= \dotsc \bor \<call> p \bor \<uncall> p
+  s ::= \dotsc \bor \<call> p \bor \<uncall> p \bor x \; \hat{=} \; e
 \end{equation*}
 where $p$ designates a procedure. We will see how we encode this
 procedure shortly.
@@ -238,7 +238,6 @@ procedure is
   \inference[Call]{\rho |= \angel{\sigma, \rho(p)} -> \sigma'}
   {\rho |= \angel{\sigma, \<call> p} -> \sigma'}
 \end{equation*}
-
 Informally, the rule states that a procedure call looks up the
 procedure in the context and then executes the procedure. Uncalling a
 procedure is defined as
@@ -246,7 +245,6 @@ procedure is defined as
   \inference[Uncall]{\rho |= \angel{\sigma', \rho(p)} -> \sigma}
   {\rho |= \angel{\sigma, \<uncall> p} -> \sigma'}
 \end{equation*}
-
 In this rule, we utilize the full power of operational-semantics given
 as a prolog-style rule. Rather than relying on the inversion operator
 we will define shortly, we alter the order procedure will run. This is
@@ -254,23 +252,32 @@ the main reason we choose an operational semantics rather than a
 denotational one as the latter would have a harder time representing
 this specific rule.
 
-\fixme{xor operation}
+For the xor-operation, we use a rule which reflects the increment and
+decrement operator:
+\begin{equation*}
+  \inference[Xor]{(\sigma \setminus x) |- e => k \quad \sigma(x) =
+    \lift{k'} \quad k \oplus_{32} k' = n}{\angel{\sigma, x \;\hat{=}\; e} -> \sigma[x \mapsto n]}
+\end{equation*}
+where $\oplus_{32}$ is the xor-operation.
 
 \section{Determinism properties of \januso{}}
 
 Converting the proofs from \janusz{} to \januso{} has one main
 complication: we went from $\ZZ$ to $W^{32}$. When \coq{} works with
-integers, and we only used Presburger arithmetic\fixme{Citation} we
-can solve such terms by the use of the ``omega'' tactic in \coq{}. For
-our 32-bit integers, no such thing is present however, so we need to
-do the proofs by hand.
+integers, and we only used Presburger
+arithmetic\cite{cooper+1972+theorem+prooving} we can solve such terms
+by the use of the ``omega'' tactic in \coq{}. For our 32-bit integers,
+no such thing is present however, so we need to do the proofs by hand.
 
 The detail at which one has to carry out such proofs are almost
 exruciatingly precise. We must, as an example, explicitly use the
 commutative rule when we want to rewrite $x +_{32} y$ into $y +_{32}
 x$.
 
-Irregardless, we have
+Irregardless, we have forward and backward determinism. However, the
+formalization in \coq{} is slightly different to work around a problem
+with mutually defined theorems. This means we cannot utilize the
+theorem in further development as it is given in the development.
 \begin{thm}
 \label{thm:j0-fwd-det}
   \januso{} is forward deterministic, ie:
@@ -280,7 +287,7 @@ Irregardless, we have
   \end{equation*}
 \end{thm}
 \begin{proof}
-  In \coq{} \fixme{Elaborate?}
+  In \coq{}
 \end{proof}
 and
 \begin{thm}
@@ -319,7 +326,7 @@ following theorem:
 
 
 
-%%% Local Variables: 
+%%% Local Variables:
 %%% mode: latex
 %%% TeX-master: "master"
-%%% End: 
+%%% End:
