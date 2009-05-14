@@ -216,6 +216,8 @@ the denotational semantics in \ref{exp:denot-semantics}. We omit them
 here for brevity and refer the interested reader to the \coq{}
 development.
 
+\fixme{Describe encoding in \coq{}}
+
 \section{Augmenting statements}
 
 To the statement language we add the rules of \texttt{call},
@@ -259,6 +261,8 @@ decrement operator:
     \lift{k'} \quad k \oplus_{32} k' = n}{\angel{\sigma, x \;\hat{=}\; e} -> \sigma[x \mapsto n]}
 \end{equation*}
 where $\oplus_{32}$ is the xor-operation.
+
+\fixme{Describe encoding in \coq{}}
 
 \section{Determinism properties of \januso{}}
 
