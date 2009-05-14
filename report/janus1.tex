@@ -279,7 +279,7 @@ formalization in \coq{} is slightly different to work around a problem
 with mutually defined theorems. This means we cannot utilize the
 theorem in further development as it is given in the development.
 \begin{thm}
-\label{thm:j0-fwd-det}
+\label{thm:j1-fwd-det}
   \januso{} is forward deterministic, ie:
   \begin{equation*}
     \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon
@@ -291,6 +291,7 @@ theorem in further development as it is given in the development.
 \end{proof}
 and
 \begin{thm}
+\label{thm:j1-bwd-det}
   \januso{} is backward deterministic, ie:
   \begin{equation*}
     \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon

@@ -220,6 +220,7 @@ stores:
 Another very important concept is that a write to the hidden variable
 does not matter. The following lemma makes this specific
 \begin{lem}
+\label{lem:hide-write}
   Let there be given an arbitrary store $\sigma$, variable $x$ and value
   $v$. Then the following holds:
   \begin{equation*}
@@ -227,18 +228,24 @@ does not matter. The following lemma makes this specific
   \end{equation*}
 \end{lem}
 \begin{proof}
-  
+  The proof utilizes extensionality to discern each possible element
+  in the maps. Then it discriminates on wether we are working with $x$
+  or not. For each case, a simple computation discharges the subproblem.
 \end{proof}
-\fixme{Add hide-write here}
 
 \subsection{History}
 
-To be written. In this section we will describe some of the failed
-attempts at formalizing the store we tried in the process. These are
-interesting because they hint at the need for coming up with the
-simple solutions rather than the complex or naive ones.
+In the course of construction the right store, we tried several
+experiments which all proved to be less useful than the development
+given here. At the beginning, we envisioned the store to be a map from
+$Loc \to S$. The empty store were then defined as mapping everything
+to the value $0$. The problem with this solution is that we cannot
+differentiate between the value $0$ and no value at all. This
+eliminates our knowledge of a location being invalid.
 
-\fixme{write this!}
+We ultimately changed to the store representation given, when it
+became apparent we needed the ability to \emph{hide} certain store
+locations. An ``option''-type was then the only right implementation.
 
 \section{Expressions in \janusz{}}
 
@@ -330,8 +337,12 @@ By the use of \coq{} and the \texttt{grind}-tactic from
     Qed.
 \end{verbatim}
 \end{proof}
-\fixme{Note that a functional denotational definition if deterministic
-  by default!}
+The proof of determinism shows the benefit of using a denotational
+semantics for expressions. Since we are essentially defining our
+function to be total in the language of the CoIC used by Coq, we gain
+forward determinism for free by borrowing it from the underlying
+language.
+
 \section{Statements in \janusz{}}
 
 The statement syntax of \janusz{} defines a small, purely linear
