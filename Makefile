@@ -23,4 +23,4 @@ clean: Makefile.coq
 	rm -f Makefile.coq .depend
 
 doc:
-	coqdoc -d ../doc/html/coqdoc --glob-from $(GLOBALS) $(VS)
+	coqdoc --latex --glob-from $(GLOBALS) $(VS)

@@ -17,5 +17,16 @@ Makefile.coq
 *.dvi
 *.snm
 *.toc
+Memory.tex
+Word32.tex
+Janus0.tex
+Janus1.tex
+BaseLib.tex
+MemMonad.tex
+Janus.tex
+ZStore.tex
+W32Store.tex
+coqdoc.sty
+
 */auto/
 
