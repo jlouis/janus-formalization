@@ -1,7 +1,7 @@
 \chapter{\janusz{}}
 
 The \janusz{} programming language is a subset of the full JANUS
-language from \cite{glueck2007}. It not a Turing Complete language and
+language from \cite{glueck+2007}. It not a Turing Complete language and
 contains only simple linear constructs. However, it contains enough to
 provide a vehicle for explaining the basics of a formalization. We aim
 to provide a big step operational semantics for the language, suitable
@@ -79,8 +79,8 @@ functional programmer is accustomed to. For \coq{} version 8.2 you
 will find most of the advanved type concepts either directly in the
 type system, or derivable. \coq{} supports dependent types, the
 polymorphic lambda calculus, higher order types, Haskell-style type
-classes, ML style module system with functors, GADTs etc.\fixme{cite,
-  cite, cite}
+classes, ML style module system with functors, GADTs
+etc \cite{pierce:attapl, pierce:tapl, wadler+1996:type-classes, milner+1997:ml-definition}.
 
 In \coq{} there are already integers built-in, ready for use in our
 formaliztion. This means we can focus entirely on providing an
@@ -507,7 +507,7 @@ Encoding the inference rule system for \janusz{} is more
 interesting. To do this, we also use an inductive type, but make it a
 member of the ``Prop'' world of propositions. Furthermore, we use a
 \emph{dependent} type to build a family of types for inference
-rules.\fixme{cite, cite, cite! (ATTAPL}
+rules \cite{pierce:attapl}.
 
 We make \texttt{Stm\_eval} inductive with the type signature $mem \to
 Stm \to mem \to \mathbf{Prop}$ which makes it dependent on the input
@@ -684,7 +684,7 @@ original:
   By induction over $s$ in \coq{}.
 \end{proof}
 
-In the paper \cite{glueck2007} an equivalence relation, $e_1 \sim e_2$,
+In the paper \cite{glueck+2007} an equivalence relation, $e_1 \sim e_2$,
 is created between expressions $e_1$ and $e_2$ by
 \begin{equation*}
   e_1 \sim e_2 \equiv \forall v \in Value, \sigma \in \Sigma \colon

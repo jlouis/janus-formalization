@@ -201,7 +201,7 @@ To the expressions of \janusz{}, we make the following additions:
         \bor & e \land e \bor e \lor e \bor e < e
 \end{align*}
 
-The additions to the expression language are as in \cite{glueck2008};
+The additions to the expression language are as in \cite{glueck+2008};
 we add aritmethic operators of division and modulo to 32-bit
 numbers. We add a couple of relational operators, namely equality,
 non-equality, logical and, logical or and a less-than operator.
@@ -269,7 +269,7 @@ where $\oplus_{32}$ is the xor-operation.
 Converting the proofs from \janusz{} to \januso{} has one main
 complication: we went from $\ZZ$ to $W^{32}$. When \coq{} works with
 integers, and we only used Presburger
-arithmetic\cite{cooper+1972+theorem+prooving} we can solve such terms
+arithmetic\cite{cooper+1972:theorem-prooving} we can solve such terms
 by the use of the ``omega'' tactic in \coq{}. For our 32-bit integers,
 no such thing is present however, so we need to do the proofs by hand.
 
