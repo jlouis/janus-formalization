@@ -67,6 +67,21 @@ is:
 
 \subsection{Coq encoding}
 
+One encodes the semantics of object languages in the language of
+Gallina, the specification language of \coq{}. This language is
+inherently functional and is furthermore \emph{total} for its
+inductive part\footnote{We are not using the CoInductive features of
+  \coq{}}. Functional programmers should feel at ease when working
+with the language as it works like a normal programming language. But
+since the language is based on the Calculus of (Co-)Inductive
+constructions, the type system is far more advanced than one a
+functional programmer is accustomed to. For \coq{} version 8.2 you
+will find most of the advanved type concepts either directly in the
+type system, or derivable. \coq{} supports dependent types, the
+polymorphic lambda calculus, higher order types, Haskell-style type
+classes, ML style module system with functors, GADTs etc.\fixme{cite,
+  cite, cite}
+
 In \coq{} there are already integers built-in, ready for use in our
 formaliztion. This means we can focus entirely on providing an
 implementation of stores.
@@ -315,10 +330,50 @@ and also $(a, c) \in R$ then we must have $b = c$. In other words, a
 function is deterministic in its output based on its output.
 
 \subsection{Encoding expressions in \coq{}}
-\fixme{TODO}
+
+The syntax of \janusz{}-expressions is encodable as a normal datatype
+known from e.g. ML og Haskell. These are called inductive types in
+\coq{} and happens to be much more powerful than their ML
+counterparts. Here, we will only use the ML-subset though.
+\begin{verbatim}
+    Inductive Exp : Set :=
+    | Exp_Const : Z -> Exp
+    | Exp_Var : Var -> Exp
+    | Exp_Add : Exp -> Exp -> Exp
+    | Exp_Sub : Exp -> Exp -> Exp
+    | Exp_Mul : Exp -> Exp -> Exp.
+\end{verbatim}
+
+The denotational expression evaluation of \janusz{} can be encoded as a
+\texttt{Fixpoint}. We have to show that the fixpoint is total, but
+this is rather simple as we always decrease the size of the expression
+when we evaluate it. Here we give the start of the definition and
+explain it:
+\begin{verbatim}
+    Fixpoint denote_Exp (m : ZMem.memory) (e : Exp) {struct e}
+        : option Z :=
+      match e with
+        | Exp_Const z => Some z
+        | Exp_Var x => m x
+        | Exp_Add e1 e2 =>
+            match (denote_Exp m e1, denote_Exp m e2) with
+              | (Some n1, Some n2) => Some (n1 + n2)
+              | _ => None
+            end
+        ...
+\end{verbatim}
+This describes expression annotations as a fixpoint (recursive
+function) taking a memory, and an expression as inputs. It produces a
+value of type $\ZZ_{\perp}$ as output. The
+\texttt{struct}-designation defines the input that gets gradually
+smaller on recursion, which \coq{} will utilize for obtaining a
+termination proof.
+
+The function itself is a simple case match on the different
+constructors of the inductive type. Certain constructors have been
+omitted in the above fragment.
 
 \subsection{Properties of \janusz{} expressions}
-\fixme{TODO}
 
 We will only need the forward determinism for expressions and hence
 there is no need for the generality of the relation. We therefore
@@ -443,7 +498,48 @@ requirements on what the expressions evaluates to:
 The need for assertions has to do with reversibility, as we shall see
 later on.
 \subsection{Encoding statements in Coq}
-\fixme{TODO}
+
+Encoding of the statement syntax is rather straightforward. We use an
+inductive type to capture the valid syntax rules. We omit it here for
+brevity as it is pretty simple and uninteresting.
+
+Encoding the inference rule system for \janusz{} is more
+interesting. To do this, we also use an inductive type, but make it a
+member of the ``Prop'' world of propositions. Furthermore, we use a
+\emph{dependent} type to build a family of types for inference
+rules.\fixme{cite, cite, cite! (ATTAPL}
+
+We make \texttt{Stm\_eval} inductive with the type signature $mem \to
+Stm \to mem \to \mathbf{Prop}$ which makes it dependent on the input
+memory, the statement executing and the resulting memory. This is done
+in \coq{} by:
+\begin{verbatim}
+Inductive Stm_eval : mem -> Stm -> mem -> Prop :=
+...
+\end{verbatim}
+
+Next, we encode each inference rule as a constructor of this inductive
+type. For instance, we encode the skip rule as:
+\begin{verbatim}
+| se_skip: forall m, Stm_eval m S_Skip m
+\end{verbatim}
+This states that for all memories $m$, we have that skip yields $m$ as
+the resulting memory. Think about it as a prolog-style relation on
+statement evaluation.
+
+Increment uses some premises:
+\begin{verbatim}
+| se_assvar_incr: forall (m m': mem) (v: Var)
+   (z z' r: Z) (e: Exp),
+  denote_Exp (ZMem.hide m v) e = Some z ->
+  m v = Some z' ->
+  r = (z + z') ->
+  m' = ZMem.write m v r ->
+    Stm_eval m (S_Incr v e) m'
+\end{verbatim}
+Note how each premise is encoded as an assumption of the
+constructor. If all premises are fulfilled, then we have a relation on
+$m$, $\text{S\_Incr}\; v\; e$ and $m'$. The other rules are similar.
 
 \subsection{Proving determinism of \janusz{}}
 
