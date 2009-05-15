@@ -26,7 +26,8 @@ Section Janus0.
     | Exp_Sub : Exp -> Exp -> Exp
     | Exp_Mul : Exp -> Exp -> Exp.
 
-    Fixpoint denote_Exp (m : ZMem.memory) (e : Exp) {struct e} : option Z :=
+    Fixpoint denote_Exp (m : ZMem.memory) (e : Exp) {struct e}
+        : option Z :=
       match e with
         | Exp_Const z => Some z
         | Exp_Var x => m x
@@ -51,23 +52,35 @@ Section Janus0.
       forall (v: Value) (m: ZMem.memory),
         denote_Exp m e1 = Some v <-> denote_Exp m e2 = Some v.
 
-    Lemma exp_equiv_refl: forall e, exp_equiv e e.
-    Proof. unfold exp_equiv. grind. Qed.
-
-    Lemma exp_equiv_sym: forall e1 e2, exp_equiv e1 e2 <-> exp_equiv e2 e1.
+    Lemma exp_equiv_refl: forall e,
+      exp_equiv e e.
     Proof.
-      unfold exp_equiv. intros. split. intros. symmetry. eapply H.
-                                       intros. symmetry. eapply H.
+      unfold exp_equiv.
+      grind.
+    Qed.
+
+    Lemma exp_equiv_sym: forall e1 e2,
+      exp_equiv e1 e2 <-> exp_equiv e2 e1.
+    Proof.
+      unfold exp_equiv. intros.
+      split.
+        intros. symmetry. eapply H.
+        intros. symmetry. eapply H.
     Qed.
 
     Lemma exp_equiv_tr: forall e1 e2 e3,
       exp_equiv e1 e2 -> exp_equiv e2 e3 -> exp_equiv e1 e3.
     Proof.
       unfold exp_equiv. intros.
-      split. intro. assert (denote_Exp m e2 = Some v). eapply H. eauto.
-                    eapply H0. eauto.
-             intro. assert (denote_Exp m e2 = Some v). eapply H0. eauto.
-                    eapply H. eauto.
+      split.
+      intro.
+        assert (denote_Exp m e2 = Some v).
+          eapply H. eauto.
+          eapply H0. eauto.
+      intro.
+        assert (denote_Exp m e2 = Some v).
+        eapply H0. eauto.
+        eapply H. eauto.
     Qed.
 
     Theorem exp_determ : forall m e v1 v2,
@@ -132,108 +145,184 @@ Section Janus0.
     Qed.
 
     Lemma stm_equiv_sym: forall s t, stm_equiv s t -> stm_equiv t s.
-    Proof. unfold stm_equiv.
-      intros. symmetry. apply H.
+    Proof.
+      unfold stm_equiv.
+      intros.
+      symmetry.
+      apply H.
     Qed.
 
     Lemma stm_equiv_tr: forall s t u,
       stm_equiv s t -> stm_equiv t u -> stm_equiv s u.
     Proof.
-      intros. unfold stm_equiv. intros. unfold stm_equiv in H.
+      intros. unfold stm_equiv.
+      intros. unfold stm_equiv in H.
       unfold stm_equiv in H0.
-      grind. eapply H0. eauto. eapply H. eauto.
-             eapply H. eauto. eapply H0. eauto.
+      grind.
+      eapply H0. eauto.
+      eapply H. eauto.
+      eapply H. eauto.
+      eapply H0. eauto.
     Qed.
 
     Lemma semi_assoc: forall s1 s2 s3,
-      stm_equiv (S_Semi (S_Semi s1 s2) s3) (S_Semi s1 (S_Semi s2 s3)).
+      stm_equiv
+        (S_Semi (S_Semi s1 s2) s3)
+        (S_Semi s1 (S_Semi s2 s3)).
     Proof.
-      intros. unfold stm_equiv. grind.
-      inversion H. subst. inversion H3. subst.
-        assert (Stm_eval m'1 (S_Semi s2 s3) m'). constructor 4 with (m' := m'0);
-          assumption. constructor 4 with (m' := m'1); assumption.
-      inversion H. subst. inversion H5. subst.
-        assert (Stm_eval m (S_Semi s1 s2) m'1). constructor 4 with (m' := m'0);
+      intros.
+      unfold stm_equiv. grind.
+      inversion H.
+      subst.
+      inversion H3.
+      subst.
+      assert (Stm_eval m'1 (S_Semi s2 s3) m').
+        constructor 4 with (m' := m'0);
           assumption.
-        constructor 4 with (m' := m'1); assumption.
+        constructor 4 with (m' := m'1);
+          assumption.
+      inversion H.
+      subst.
+      inversion H5.
+      subst.
+        assert (Stm_eval m (S_Semi s1 s2) m'1).
+          constructor 4 with (m' := m'0);
+            assumption.
+          constructor 4 with (m' := m'1);
+            assumption.
     Qed.
-(*
-    Lemma ref_transp: forall s s' s1 s2,
-      stm_equiv s s' ->
-        stm_equiv (S_Semi (S_Semi s1 s) s2) (S_Semi (S_Semi s1 s') s2).
-    Proof. Admitted.
 
-    Lemma inverse_p: forall s1 s2,
-      stm_equiv (S_Semi s1 s2) S_Skip <-> stm_equiv (S_Semi s2 s1) S_Skip.
-    Proof. Admitted.
-*)
     Theorem fwd_det': forall (m m': mem) (s : Stm),
-      Stm_eval m s m' -> (forall m'', Stm_eval m s m'' -> m' = m'').
+      Stm_eval m s m' ->
+        (forall m'', Stm_eval m s m'' -> m' = m'').
     Proof.
       induction 1; intros.
       inversion H. trivial.
 
       inversion H3. subst.
-      assert (z' = z'0). assert (Some z' = Some z'0). rewrite <- H0. rewrite <- H7. trivial.
-      injection H1. trivial.
-      assert (z = z0). assert (Some z = Some z0). rewrite <- H. rewrite <- H6. trivial.
-      injection H2. trivial. subst. trivial.
+      assert (z' = z'0).
+      assert (Some z' = Some z'0).
+      rewrite <- H0.
+      rewrite <- H7.
+      trivial.
+      injection H1.
+      trivial.
+      assert (z = z0).
+      assert (Some z = Some z0).
+      rewrite <- H.
+      rewrite <- H6.
+      trivial.
+      injection H2.
+      trivial.
+      subst.
+      trivial.
 
-      inversion H3. subst.
-      assert (z' = z'0). assert (Some z' = Some z'0). rewrite <- H0. rewrite <- H7. trivial.
-      injection H1. trivial.
-      assert (z = z0). assert (Some z = Some z0). rewrite <- H. rewrite <- H6. trivial.
-      injection H2. trivial. subst. trivial.
+      inversion H3.
+      subst.
+      assert (z' = z'0).
+      assert (Some z' = Some z'0).
+      rewrite <- H0.
+      rewrite <- H7.
+      trivial.
+      injection H1.
+      trivial.
+      assert (z = z0).
+      assert (Some z = Some z0).
+      rewrite <- H.
+      rewrite <- H6.
+      trivial.
+      injection H2.
+      trivial.
+      subst.
+      trivial.
 
-      inversion H1. subst. apply IHStm_eval2. assert (m' = m'0). apply (IHStm_eval1 m'0). trivial.
-      subst. trivial.
+      inversion H1.
+      subst.
+      apply IHStm_eval2.
+      assert (m' = m'0).
+        apply (IHStm_eval1 m'0). trivial.
+      subst.
+      trivial.
 
-      inversion H4. subst. apply (IHStm_eval m''). trivial. congruence.
-      inversion H4. subst. congruence. subst. apply (IHStm_eval m''). trivial.
+      inversion H4. subst.
+      apply (IHStm_eval m''). trivial. congruence.
+      inversion H4. subst.
+      congruence. subst. apply (IHStm_eval m''). trivial.
     Qed.
 
     Theorem fwd_det : forall m m' m'' s,
       Stm_eval m s m' -> Stm_eval m s m'' -> m' = m''.
     Proof.
-      intros. generalize m'' H0. eapply fwd_det'. eauto.
+      intros. generalize m'' H0.
+      eapply fwd_det'. eauto.
     Qed.
 
     Theorem bwd_det': forall m m' s,
-      Stm_eval m' s m -> (forall m'', Stm_eval m'' s m -> m' = m'').
+      Stm_eval m' s m ->
+        (forall m'', Stm_eval m'' s m -> m' = m'').
     Proof.
       induction 1; intros.
       inversion H. trivial.
 
       inversion H3. subst.
-      assert (ZMem.hide m v = ZMem.hide m'' v). eapply ZMem.write_hide. eauto.
-      assert (z + z' = z0 + z'0). assert (ZMem.write m v (z + z') v = ZMem.write m'' v (z0 + z'0) v).
-      apply equal_f. trivial. apply (ZMem.write_eq_2 m m'' v). trivial.
-      assert (z = z0). assert (Some z = Some z0). grind. injection H4.
+      assert (ZMem.hide m v = ZMem.hide m'' v).
+        eapply ZMem.write_hide. eauto.
+      assert (z + z' = z0 + z'0).
+      assert (ZMem.write m v (z + z') v =
+              ZMem.write m'' v (z0 + z'0) v).
+      apply equal_f. trivial.
+      apply (ZMem.write_eq_2 m m'' v). trivial.
+      assert (z = z0).
+      assert (Some z = Some z0).
+      grind. injection H4.
       trivial.
       subst.
       assert (z' = z'0). omega.
-      subst. apply (ZMem.hide_eq m m'' v z'0). trivial. trivial. trivial.
+      subst.
+      apply (ZMem.hide_eq m m'' v z'0).
+      trivial.
+      trivial.
+      trivial.
 
       inversion H3. subst.
-      assert (ZMem.hide m v = ZMem.hide m'' v). eapply ZMem.write_hide. eauto.
-      assert (z' - z = z'0 - z0). assert (ZMem.write m v (z' - z) v = ZMem.write m'' v (z'0 - z0) v).
-      apply equal_f. trivial. apply (ZMem.write_eq_2 m m'' v). trivial.
-      assert (z = z0). assert (Some z = Some z0). grind. injection H4.
+      assert (ZMem.hide m v = ZMem.hide m'' v).
+        eapply ZMem.write_hide. eauto.
+      assert (z' - z = z'0 - z0).
+      assert (ZMem.write m v (z' - z) v =
+              ZMem.write m'' v (z'0 - z0) v).
+      apply equal_f. trivial.
+      apply (ZMem.write_eq_2 m m'' v). trivial.
+      assert (z = z0).
+      assert (Some z = Some z0).
+        grind.
+        injection H4.
       trivial.
       assert (z' = z'0). omega.
-      subst. apply (ZMem.hide_eq m m'' v z'0). trivial. trivial. trivial.
+      subst.
+      apply (ZMem.hide_eq m m'' v z'0).
+      trivial.
+      trivial.
+      trivial.
 
-      inversion H1. subst. assert (m' = m'0). apply IHStm_eval2. trivial.
-      subst. apply IHStm_eval1. trivial.
+      inversion H1. subst.
+      assert (m' = m'0).
+      apply IHStm_eval2.
+      trivial.
+      subst.
+      apply IHStm_eval1.
+      trivial.
 
-      inversion H4. subst. apply IHStm_eval. trivial. congruence.
-      inversion H4. subst. congruence. apply IHStm_eval. trivial.
+      inversion H4.
+      subst. apply IHStm_eval. trivial. congruence.
+      inversion H4.
+      subst. congruence. apply IHStm_eval. trivial.
     Qed.
 
     Theorem bwd_det: forall m m' m'' s,
       Stm_eval m' s m -> Stm_eval m'' s m -> m' = m''.
     Proof.
-      intros. generalize m'' H0. apply bwd_det'. trivial.
+      intros. generalize m'' H0.
+      apply bwd_det'. trivial.
     Qed.
 
   End Stmt.
@@ -274,9 +363,10 @@ Section Janus0.
         rewrite H2. rewrite ZMem.hide_write. assumption.
         rewrite H2. apply ZMem.write_eq. omega.
       apply (ZMem.hide_eq m (ZMem.write m' v (r + z)) v z').
-        trivial. rewrite ZMem.write_eq. assert (r + z = z'). omega. rewrite H3.
+        trivial. rewrite ZMem.write_eq. assert (r + z = z'). omega.
+        rewrite H3. trivial.
+        rewrite ZMem.hide_write. rewrite H2. rewrite ZMem.hide_write.
         trivial.
-        rewrite ZMem.hide_write. rewrite H2. rewrite ZMem.hide_write. trivial.
       simpl. eapply se_semi. eauto. trivial.
       simpl. eapply se_if_t; eauto.
       simpl. eapply se_if_f; eauto.
@@ -289,9 +379,13 @@ Section Janus0.
         rewrite H7. apply ZMem.write_eq. omega.
       apply (ZMem.hide_eq m'0 (ZMem.write m0 v (r + z)) v z').
         trivial.
-        rewrite ZMem.write_eq. rewrite H5. assert (z' = z' - z + z). omega.
+        rewrite ZMem.write_eq.
+        rewrite H5.
+        assert (z' = z' - z + z). omega.
           rewrite <- H8. trivial.
-          rewrite ZMem.hide_write. rewrite H7. rewrite ZMem.hide_write.
+          rewrite ZMem.hide_write.
+          rewrite H7.
+          rewrite ZMem.hide_write.
           trivial.
       intros.
       simpl in H. inversion H.

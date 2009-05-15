@@ -532,7 +532,10 @@ Qed.
 Theorem add_permut:
   forall x y z, add x (add y z) = add y (add x z).
 Proof.
-  intros. rewrite (add_commut y z). rewrite <- add_assoc. apply add_commut.
+  intros.
+  rewrite (add_commut y z).
+  rewrite <- add_assoc.
+  apply add_commut.
 Qed.
 
 Theorem add_neg_zero:
@@ -753,7 +756,10 @@ Proof.
   rewrite two_power_nat_O. simpl. exists (-x). omega.
   rewrite two_power_nat_S. simpl.
   caseEq (Z_bin_decomp x). intros b y ZBD. simpl.
-  replace (Z_of_bits n (fun i => if zeq (i + 1) 0 then b else bits_of_Z n y (i + 1 - 1)))
+  replace (Z_of_bits n
+      (fun i => if zeq (i + 1) 0
+                then b
+                else bits_of_Z n y (i + 1 - 1)))
      with (Z_of_bits n (bits_of_Z n y)).
   elim (IHn y). intros k1 EQ1. rewrite EQ1.
   rewrite <- (Z_shift_add_bin_decomp x).
@@ -872,14 +878,19 @@ Proof.
   induction n.
   intros; reflexivity.
   intros. simpl. rewrite inj_S in H. rewrite inj_S in H0.
-  rewrite <- (IHn (fun i => f(i+1)) (fun i => g(i+1)) (fun i => h(i+1))).
+  rewrite <- (IHn (fun i => f(i+1))
+                  (fun i => g(i+1))
+                  (fun i => h(i+1))).
   assert (0 <= 0 < Zsucc(Z_of_nat n)). omega.
   unfold Z_shift_add.
   rewrite <- H0; auto.
   set (F := Z_of_bits n (fun i => f(i + 1))).
   set (G := Z_of_bits n (fun i => g(i + 1))).
   caseEq (f 0); intros; caseEq (g 0); intros; simpl.
-  generalize (H 0 H1). rewrite H2; rewrite H3. simpl. intros; discriminate.
+  generalize (H 0 H1).
+  rewrite H2; rewrite H3.
+  simpl.
+  intros; discriminate.
   omega. omega. omega.
   intros; apply H. omega.
   intros; apply H0. omega.
@@ -916,22 +927,31 @@ Lemma bitwise_binop_idem:
   bitwise_binop f x x = x.
 Proof.
   unfold bitwise_binop; intros.
-  transitivity (repr (Z_of_bits word_size (bits_of_Z word_size (unsigned x)))).
+  transitivity (repr (Z_of_bits
+    word_size (bits_of_Z word_size (unsigned x)))).
   decEq. apply Z_of_bits_exten; intros. auto.
   transitivity (repr (unsigned x)).
-  apply eqm_samerepr. apply Z_of_bits_of_Z. apply repr_unsigned.
+  apply eqm_samerepr.
+  apply Z_of_bits_of_Z.
+  apply repr_unsigned.
 Qed.
 
-Theorem and_commut: forall x y, and x y = and y x.
-Proof (bitwise_binop_commut andb andb_comm).
+Theorem and_commut: forall x y,
+  and x y = and y x.
+Proof
+  (bitwise_binop_commut andb andb_comm).
 
-Theorem and_assoc: forall x y z, and (and x y) z = and x (and y z).
-Proof (bitwise_binop_assoc andb andb_assoc).
+Theorem and_assoc: forall x y z,
+  and (and x y) z = and x (and y z).
+Proof
+  (bitwise_binop_assoc andb andb_assoc).
 
-Theorem and_zero: forall x, and x zero = zero.
+Theorem and_zero: forall x,
+  and x zero = zero.
 Proof.
   unfold and, bitwise_binop, zero; intros.
-  transitivity (repr (Z_of_bits word_size (bits_of_Z word_size 0))).
+  transitivity (repr
+    (Z_of_bits word_size (bits_of_Z word_size 0))).
   decEq. apply Z_of_bits_exten. intros.
   change (unsigned (repr 0)) with 0.
   rewrite bits_of_Z_zero. apply andb_b_false.
@@ -949,7 +969,8 @@ Theorem and_mone: forall x, and x mone = x.
 Proof.
   unfold and, bitwise_binop; intros.
   rewrite mone_max_unsigned. unfold max_unsigned, modulus.
-  transitivity (repr (Z_of_bits word_size (bits_of_Z word_size (unsigned x)))).
+  transitivity (repr
+    (Z_of_bits word_size (bits_of_Z word_size (unsigned x)))).
   decEq. apply Z_of_bits_exten. intros.
   rewrite unsigned_repr. rewrite bits_of_Z_mone.
   apply andb_b_true. omega. compute. intuition congruence.
@@ -965,16 +986,19 @@ Proof.
   exact (bitwise_binop_idem andb H).
 Qed.
 
-Theorem or_commut: forall x y, or x y = or y x.
+Theorem or_commut: forall x y,
+  or x y = or y x.
 Proof (bitwise_binop_commut orb orb_comm).
 
-Theorem or_assoc: forall x y z, or (or x y) z = or x (or y z).
+Theorem or_assoc: forall x y z,
+  or (or x y) z = or x (or y z).
 Proof (bitwise_binop_assoc orb orb_assoc).
 
 Theorem or_zero: forall x, or x zero = x.
 Proof.
   unfold or, bitwise_binop, zero; intros.
-  transitivity (repr (Z_of_bits word_size (bits_of_Z word_size (unsigned x)))).
+  transitivity (repr
+    (Z_of_bits word_size (bits_of_Z word_size (unsigned x)))).
   decEq. apply Z_of_bits_exten. intros.
   change (unsigned (repr 0)) with 0.
   rewrite bits_of_Z_zero. apply orb_b_false.
@@ -1019,9 +1043,11 @@ Qed.
 Theorem xor_commut: forall x y, xor x y = xor y x.
 Proof (bitwise_binop_commut xorb xorb_comm).
 
-Theorem xor_assoc: forall x y z, xor (xor x y) z = xor x (xor y z).
+Theorem xor_assoc: forall x y z,
+  xor (xor x y) z = xor x (xor y z).
 Proof.
-  assert (forall a b c, xorb a (xorb b c) = xorb (xorb a b) c).
+  assert (forall a b c, xorb a (xorb b c) =
+                        xorb (xorb a b) c).
   symmetry. apply xorb_assoc.
   exact (bitwise_binop_assoc xorb H).
 Qed.
@@ -1029,7 +1055,8 @@ Qed.
 Theorem xor_zero: forall x, xor x zero = x.
 Proof.
   unfold xor, bitwise_binop, zero; intros.
-  transitivity (repr (Z_of_bits word_size (bits_of_Z word_size (unsigned x)))).
+  transitivity (repr
+    (Z_of_bits word_size (bits_of_Z word_size (unsigned x)))).
   decEq. apply Z_of_bits_exten. intros.
   change (unsigned (repr 0)) with 0.
   rewrite bits_of_Z_zero. apply xorb_false.
@@ -1052,7 +1079,8 @@ Proof.
   decEq. repeat rewrite unsigned_repr; auto with ints.
   apply Z_of_bits_exten; intros.
   repeat rewrite bits_of_Z_of_bits; auto.
-  assert (forall a b c, a && (xorb b c) = xorb (a && b) (a && c)).
+  assert (forall a b c, a && (xorb b c) =
+                        xorb (a && b) (a && c)).
     destruct a; destruct b; destruct c; reflexivity.
   auto.
 Qed.
@@ -1063,7 +1091,8 @@ Theorem xor_x_x_zero:
     xor x x = zero.
 Proof.
   unfold xor, bitwise_binop, zero; intros.
-  transitivity (repr (Z_of_bits word_size (bits_of_Z word_size 0))).
+  transitivity (repr
+    (Z_of_bits word_size (bits_of_Z word_size 0))).
   decEq. apply Z_of_bits_exten. intros.
   rewrite bits_of_Z_zero. apply xorb_nilpotent.
   auto with mortar.
@@ -1126,9 +1155,4 @@ Proof.
   trivial.
 Qed.
 
-(** ** Properties of shifts and rotates *)
-(** ** Properties of sign extensions *)
-(** ** Properties of comparisens ... *)
-
-(* Left out by jlouis@, we don't need this *)
 End Word32.
