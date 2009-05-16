@@ -181,17 +181,6 @@ et.al. We extend their definitions by:
   For 32-bit integers $x, y, z$, xor can be discharged on left:
   $x \<xor> z = y \<xor> z \implies x = y$.
 \end{lem}
-\subsection{Adapting \janusz{} to \januso{}}
-
-We then alter \janusz{} to use 32-bit integers. First, we utilize the
-functor on stores to get a store for 32-bit integers. Then, we
-systematically change any mention of the type \texttt{Z} into the type
-\texttt{w32}, the latter being the base type for 32-bit integers. This
-in turn provokes changes of all arithmetic operators on \texttt{Z} to
-their 32-bit counterparts.
-
-After this, rather straightforward treatment, \januso{} now has 32-bit
-integers as the base value.
 
 \section{Augmenting expressions}
 
@@ -215,8 +204,6 @@ The semantics are given by a denotational semantics in the spirit of
 the denotational semantics in \ref{exp:denot-semantics}. We omit them
 here for brevity and refer the interested reader to the \coq{}
 development.
-
-\fixme{Describe encoding in \coq{}}
 
 \section{Augmenting statements}
 
@@ -262,7 +249,20 @@ decrement operator:
 \end{equation*}
 where $\oplus_{32}$ is the xor-operation.
 
-\fixme{Describe encoding in \coq{}}
+\section{Encoding expressions and statements}
+
+The encoding of expressions and statements follows the same style as
+we earlier used. The expressions evaluation is extended with the new
+constructors and utilizes our encoding of 32-bit words. We take the
+existing encoding and gradually adapt it towards \januso{}.
+
+Statements are implemented by first introducing a mapping $\ZZ \to
+Stm$ which we then use for the $\rho$ in the above judgement
+forms. Then the Inductive definition of statements is altered to take
+this $\rho$ as and additional dependent type.
+
+With these encodings, we can capture all of \januso{} and we can turn
+our focus unto the properties of the language.
 
 \section{Determinism properties of \januso{}}
 
