@@ -30,46 +30,47 @@ JANUS choses this representation as well and models a 32-bit machine
 in the process. For \januso{}, we would like to model the same thing
 as full JANUS.
 
-\fixme{This is a ring, goddammit!}
 From the perspective of mathematics, 32-bit values means we are
-working in the additive group $\mathbb{Z}/2^{32}\mathbb{Z}$. We could
-have chosen other groups as the base for our numbers in JANUS. In
-fact, any cyclic additive group will do. If we choose the number to
-mod by as a prime number, mulitplication will have an inverse as
-well\footnote{We would have a mathematical field, $\mathcal{F}_p$},
-but the idea is not idiomatic with computers: they tend to use powers
-of $2$ for their word size.
+working in the ring $\mathbb{Z}/2^{32}\mathbb{Z}$. We could have
+chosen other rings as the base for our numbers in JANUS.
 
-Let us recap exactly what is meant by an commutative group:
+Let us recap exactly what is meant by a ring
 \begin{defn}
-  An commutative group is a set $G$ with a binary operator $+\colon G
-  \times G \to G$ such that it fulfills the following properties:
-  \begin{itemize}
-  \item For $x,y,z \in G$ we have $(x + y) + z = x + (y + z)$.
-  \item There exist an element $0 \in G$ such that for any element $x
-    \in G$ we have $x + 0 = 0 + x = x$.
-  \item For any element $x \in G$ there exist an \emph{inverse}
-    element, notated $-x$, such that $x + -x = -x + x = 0$
-  \item For elements $x, y \in G$ we have $x + y = y + x$
-  \end{itemize}
-  The first rule is called associativity; the second is the existence
-  of a neutral element (neutral identity) and the third is the
-  existence of an inverse element. The fourth rule defines that the
-  binary operation is commutative.
-
-  If the fourth rule is omitted, we talk about a group. This is the
-  normal definition to which one adds commutativity to get a
-  commutative group.
+  A ring is a set $R$ equipped with two binary compositions $+\colon R
+  \times R \to R$ and $\cdot \colon R \times R \to R$. The $+$
+  composition forms an abelian group and the $\cdot$ composition forms
+  a monoid. Furthermore, the ``multiplication'' distributes over the
+  addition by the following rules:
+  \begin{align*}
+    a \cdot (b + c) & = (a \cdot b) + (a \cdot c)\\
+    (a + b) \cdot c & = (a \cdot c) + (b \cdot c)
+  \end{align*}
 \end{defn}
 
-One particular commutative group is well-known and a good candidate
-for a number base for JANUS; the usual group of integers
-$\mathbb{Z}$. Implicitly, this was the choice for \janusz{}. From a
-formal viewpoint, this group is bliss to work with. On the other hand,
-it means that the formal machine have arbitrarily sized integers,
-which may be a bit unrealistic. Hence, we chose numbers modulo
-$2^{32}$ as we can easily formalize 64-bit numbers as well if needed
-by changing a constant. We will call these integers $W^{32}$.
+One particular ring is well-known and a good candidate for a number
+base for JANUS; the usual group of integers $\mathbb{Z}$. Implicitly,
+this was the choice for \janusz{}. From a formal viewpoint, this group
+is bliss to work with. On the other hand, it means that the formal
+machine have arbitrarily sized integers, which may be a bit
+unrealistic. Hence, we chose numbers modulo $2^{32}$ as we can easily
+formalize 64-bit numbers as well if needed by changing a constant. We
+will call these integers $W^{32}$.
+
+\begin{rem}
+  Note that the ``multiplication'' need only form a monoid and not a
+  group in general. We are thus not sure of a mulitiplicative inverse,
+  which is somewhat bad. Remedying this could be to use finite
+  Galois-fields, of order $p^n$ where $p$ is a prime and
+  $n$ is an integer. For the case $p = p^1$ it is simple since it is
+  defined by the groups $\ZZ / p\ZZ$ (for addition) and $(\ZZ /
+  p\ZZ)^*$ (for mulitplication). For the case $p^n$ for $n > 1$ you
+  need to use splitting fields and more heavyweight algebra to define
+  them. This is turn makes them rather bad candidates as a number base
+  for JANUS. Perhaps except for the base $2^n$ which can be defined as
+  polynomials of bits.
+
+  We choose not the persue this idea further.
+\end{rem}
 
 \subsection{\coq{} Implementation}
 
