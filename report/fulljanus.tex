@@ -1,11 +1,68 @@
 \chapter{Full JANUS}
 
-\fixme{To be written}
+The full JANUS language adds 2 things to \januso{}: arrays and
+loops. Taking loops first, we augment the syntax of statements with
+\command{loop[\;loop\;],from[\;from\;],do[\;do\;],until[\;until\;]}
+\begin{equation*}
+  s ::= \dotsc \bor \<from> e \<do> s \<loop> s \<until> e
+\end{equation*}
+The idea of the loop is probably best described by its formal
+semantics. To make this work, a new judgement relation for loops is
+introduced with notation $\rho |=_{loop} \angel{\sigma, (e_1, s_1,
+  s_2, e_2)} -> \sigma'$. This states the evaluation of the loop
+identified by the quadruple $(e_1, s_1, s_2, e_2)$ under the function
+definition $\rho$ and the store $\sigma$ will yield an updated store
+$\sigma'$.
 
-Describe the semantics of full JANUS. Describe how one can do arrays
-in the full language and how loops are encoded. Start with loops and
-then think about arrays. Describe the problem with the backwards
-determinism property. Describe and analyze why it is so.
+We then alter the judgement rules of statements by the following
+looping rule:
+\begin{equation*}
+  \inference[Loop]{\sigma |- e_1 => k \quad k \neq 0 \\
+    \rho |= \angel{\sigma, s_1} -> \sigma'' \quad \rho
+    |=_{loop} \angel{\sigma'', (e_1, s_1, s_2, e_2)} -> \sigma'}
+  {\rho |= \angel{\sigma, \<from> e \<do> s \<loop> s \<until> e} -> \sigma'}
+\end{equation*}
+This rule will only be valid if $e_1$ evaluates to a true value. Then
+it runs $s_1$ and enters the loop proper.
+
+Simultaneously with the definition of statements, we have the 2 rules
+on the $|=_{loop}$ judgement form, taken from \cite{glueck+2008}. The
+first one exits the loop then the ``until'' part evaluates to true:
+\begin{equation*}
+  \inference[LpT]{\sigma |- e_2 => k \quad k \neq 0}
+  {\rho |=_{loop} \angel{\sigma, (e_1, s_1, s_2, e_2)} -> \sigma}
+\end{equation*}
+Finally, if the ``until'' part evaluates to false, we take another
+turn round the loop. The following rule captures this:
+\begin{equation*}
+  \inference[LpF]{\sigma |- e_2 => 0 \\
+                  \rho |= \angel{\sigma, s_2} -> \sigma''\\
+                  \sigma |- e_1 => 0 \\
+                  \rho |= \angel{\sigma'', s_1} -> \sigma'''\\
+                  \rho |=_{loop} \angel{\sigma''', (e_1, s_1, s_2,
+                    e_2)} -> \sigma'}
+  {\rho |=_{loop} \angel{\sigma, (e_1, s_1, s_2, e_2)} -> \sigma}
+\end{equation*}
+
+\paragraph{Arrays}
+
+Adding arrays to \januso{} is not something I've carried out in
+\coq{}. It is left as further work. The hypothesis is that they would
+be straightforward to add. An array is a map from $W^{32}$ to
+$W^{32}_{\perp}$. We could then construct a representation as a
+(higher order) function $\ZZ \to W^{32}_{\perp} \to W^{32}_{\perp}$ in
+\coq{}. The proof would then reflect the methodology we used for
+variables.
+
+If course, we could need to alter expressions to be able to do
+reference cells in arrays. We would also need to formalize the
+semantics in the case we go out-of-bounds on the array. All this is
+not hard, but would impact a rather wide of the formalization already
+done.
+
+\fixme{Describe the problem with the backwards
+determinism property.}
+\fixme{Describe and analyze why it is so.}
 
 ...
 
