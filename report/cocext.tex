@@ -2,8 +2,8 @@
 
 The \coq{} system uses the Calculus of (co-)inductive
 constructions as its underlying programming language and thus (by
-Curry-Howard) as its logic. This system is immensively powerful and
-can encode large parts of traditional matematics. However, there are
+Curry-Howard) as its logic. This system is immensely powerful and
+can encode large parts of traditional mathematics. However, there are
 certain properties which are unprovable in the C(co-)iC.
 
 An unprovable property should not let an aspiring \coq{} user down. We
@@ -19,7 +19,7 @@ introducing any inconsistencies.
 
 The Irrelevance of proofs state that if we have two ways of proving
 the same thing, it is irrelevant which one we look at. They are
-decided as being equal. Formally:
+equal. Formally:
 \begin{axm}
   Suppose $P$ is any proposition. Let $p_1$ and $p_2$ be proofs of
   proposition $P$. In \coq{} this means $p_1$ and $p_2$ are terms of
@@ -35,10 +35,11 @@ values, then they are equal. Formally:
   Suppose we have $f, g \colon A \to B$. Then if $\forall x \in A,
   f(x) = g(x)$ we have $f = g$.
 \end{axm}
-Our development uses extensionality the most. It is used to determine
-equality of (matematical) functions by discrimination of each element
-in the function. Without this extension, we would have to resort to
-another encoding of the JANUS store, as we shall see later on.
+Our development uses extensionality in many places. It is used to
+determine equality of (mathematical) functions by discrimination of
+each element in the function. Without this extension, we would have
+needed another encoding of the JANUS store, as we shall see later
+on.
 
 %%% Local Variables: 
 %%% mode: latex
