@@ -1,8 +1,10 @@
+
+
 @unpublished{pottier-remy!emlti-preversion,
   AUTHOR = {François Pottier and Didier Rémy},
   TITLE = {The Essence of {ML} Type Inference},
   YEAR = {2003},
-  NOTE = {Extended preliminary version of 
+  NOTE = {Extended preliminary version of
                   \CITE{pottier-remy/emlti}},
   html = {http://cristal.inria.fr/attapl/},
   psgz = {http://cristal.inria.fr/attapl/preversion.ps.gz}
@@ -49,7 +51,8 @@
 	publisher = {MIT Press},
 	title = {Advanced Topics In Types And Programming Languages},
 	url = {http://www.amazon.ca/exec/obidos/redirect?tag=citeulike09-20\&amp;path=ASIN/0262162288},
-	year = {2004}
+	year = {2004},
+        annote = {I have not read this one yet, but should!}
 }
 
 @book{pierce:tapl,
@@ -92,7 +95,10 @@
 	publisher = {MIT Press},
 	title = {Types and Programming Languages},
 	url = {http://www.amazon.ca/exec/obidos/redirect?tag=citeulike09-20\&amp;path=ASIN/0262162091},
-	year = {2002}
+	year = {2002},
+        annote = {Really good book. A bit simple perhaps, but it
+                  describes the issues of type systems really well. I
+                  enjoyed reading it.}
 }
 
 @Book{thorup:algebra,
@@ -108,8 +114,31 @@
   OPTedition = 	 {},
   OPTmonth = 	 {},
   isbn = {87-91180-28-7},
-  annote = 	 {This book was the one I used when I first learned algebra. Written in Danish, it is one of the best books I've read as an introductory book to the subject}
+  annote = 	 {This book was the one I used when I first learned
+                  algebra. Written in Danish, it is one of the best
+                  books I've read as an introductory book to the
+                  subject}
+}
 
+@Book{c-u-jensen+2003:klassisk-algebra,
+  author = 	 {Christian U. Jensen},
+  title = 	 {Klassisk Algebra},
+  publisher = 	 {Universitetsbogladen},
+  year = 	 {2003},
+  OPTkey = 	 {},
+  OPTvolume = 	 {},
+  OPTnumber = 	 {},
+  OPTseries = 	 {},
+  OPTaddress = 	 {},
+  OPTedition = 	 {},
+  OPTmonth = 	 {},
+  isbn = {},
+  annote = 	 {This book was the one I used when I first learned
+                  algebra. Written in Danish, it is simply *the* book
+                  for more advanced studies in Algebra. It is not an
+                  easy read, but it utterly smites the competition
+                  when it comes to providing a precise accout. It also
+                  covers Galois-tunnels}
 }
 
 @Article{cooper+1972:theorem-prooving,
@@ -140,18 +169,47 @@
   doi = {http://doi.acm.org/10.1145/1366230.1366239},
   publisher = {ACM},
   annotate = {Robert and Holgers work on the reversible language JANUS
-                  with Tetsou Yokoyama.}
+                  with Tetsou Yokoyama. The paper is going ahead
+                  faster than glueck+2007, and has a more
+                  overview-feel to it. On the other hand it provides
+                  changes to the semantics which alters the language
+                  in important ways.}
 }
 
 
 @book{milner+1997:ml-definition,
-	abstract = {Standard ML is a general-purpose programming language designed for large projects. This book provides a formal definition of Standard ML for the benefit of all concerned with the language, including users and implementers. Because computer programs are increasingly required to withstand rigorous analysis, it is all the more important that the language in which they are written be defined with full rigor.
-
-One purpose of a language definition is to establish a theory of meanings upon which the understanding of particular programs may rest. To properly define a programming language, it is necessary to use some form of notation other than a programming language. Given a concern for rigor, mathematical notation is an obvious choice. The authors have defined their semantic objects in mathematical notation that is completely independent of Standard ML.
-
-In defining a language one must also define the rules of evaluation precisely--that is, define what meaning results from evaluating any phrase of the language. The definition thus constitutes a formal specification for an implementation. The authors have developed enough of their theory to give sense to their rules of evaluation.
-
-The Definition of Standard ML is the essential point of reference for Standard ML. Since its publication in 1990, the implementation technology of the language has advanced enormously and the number of users has grown. The revised edition includes a number of new features, omits little-used features, and corrects mistakes of definition.},
+	abstract = {Standard ML is a general-purpose programming
+                  language designed for large projects. This book
+                  provides a formal definition of Standard ML for the
+                  benefit of all concerned with the language,
+                  including users and implementers. Because computer
+                  programs are increasingly required to withstand
+                  rigorous analysis, it is all the more important that
+                  the language in which they are written be defined
+                  with full rigor.  One purpose of a language
+                  definition is to establish a theory of meanings upon
+                  which the understanding of particular programs may
+                  rest. To properly define a programming language, it
+                  is necessary to use some form of notation other than
+                  a programming language. Given a concern for rigor,
+                  mathematical notation is an obvious choice. The
+                  authors have defined their semantic objects in
+                  mathematical notation that is completely independent
+                  of Standard ML.  In defining a language one must
+                  also define the rules of evaluation precisely--that
+                  is, define what meaning results from evaluating any
+                  phrase of the language. The definition thus
+                  constitutes a formal specification for an
+                  implementation. The authors have developed enough of
+                  their theory to give sense to their rules of
+                  evaluation.  The Definition of Standard ML is the
+                  essential point of reference for Standard ML. Since
+                  its publication in 1990, the implementation
+                  technology of the language has advanced enormously
+                  and the number of users has grown. The revised
+                  edition includes a number of new features, omits
+                  little-used features, and corrects mistakes of
+                  definition.},
 	author = {Milner, Robin   and Tofte, Mads   and Harper, Robert   and Macqueen, David  },
 	citeulike-article-id = {113339},
 	howpublished = {Paperback},
@@ -163,20 +221,21 @@ The Definition of Standard ML is the essential point of reference for Standard M
 	publisher = {The MIT Press},
 	title = {The Definition of Standard ML - Revised},
 	url = {http://www.amazon.ca/exec/obidos/redirect?tag=citeulike09-20\&amp;path=ASIN/0262631814},
-	year = {1997}
+	year = {1997},
+        annote = {I do not own this, but I should}
 }
 
 @article{wadler+1996:type-classes,
-	abstract = {This paper defines a set of type inference rules for resolving
-overloading introduced by type classes. Programs including
-type classes are transformed into ones which may be typed
-by the Hindley-Milner inference rules. In contrast to other
-work on type classes, the rules presented here relate directly
-to user programs. An innovative aspect of this work is the
-use of second-order lambda calculus to record type information
-in the program.
-1 Introduction
-A funny thing happened on the way to...},
+	abstract = {This paper defines a set of type inference rules
+                  for resolving overloading introduced by type
+                  classes. Programs including type classes are
+                  transformed into ones which may be typed by the
+                  Hindley-Milner inference rules. In contrast to other
+                  work on type classes, the rules presented here
+                  relate directly to user programs. An innovative
+                  aspect of this work is the use of second-order
+                  lambda calculus to record type information in the
+                  program.},
 	author = {Hall, Cordelia  V.  and Hammond, Kevin   and Simon, S. L. P.  and Wadler, Philip  L. },
 	citeulike-article-id = {4956},
 	journal = {ACM Transactions on Programming Languages and Systems},
@@ -264,7 +323,7 @@ A funny thing happened on the way to...},
 
 @MISC{Leroy-Compcert-Coq,
   AUTHOR = {Xavier Leroy},
-  TITLE = {The {Compcert} verified compiler, 
+  TITLE = {The {Compcert} verified compiler,
                  commented {Coq} development},
   MONTH = MAR,
   YEAR = 2008,
