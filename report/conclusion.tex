@@ -4,18 +4,25 @@ In this project we have:
 \begin{itemize}
 \item Formalized most of JANUS and its main properties, if we
   disregard loops. The formalization is carried out in the \coq{}
-  proof assistant.
-\item We have uncovered a problem in the formalization of loops.
-\item We have shown that the ability to do \emph{hiding} in stores
+  proof assistant, amounts to 1500 lines of vernacular code. This must
+  be considered an intermediate-size formalization.
+\item Fncovered a problem in the formalization of loops with
+  the existing semantics for JANUS.
+\item Shown that the ability to do \emph{hiding} in stores
   yields a pretty solution to the problem ``$x$ must not occur in the
-  expression on the right-hand side''.
+  expression on the right-hand side''. Thus, we have contributed more
+  formality to the process of writing formalizations of reversible
+  languages. Many reversible languages with stores will gain benefit
+  from the idea of store hiding.
 \end{itemize}
 
 Furthermore we gained important insight in the use of the \coq{}
-framework for formalization of computer programs. This insight will
-benefit further work with logical frameworks or proof assistants as
-many concepts are interchangeable between them.
-
+framework for formalization of computer programs in general. This
+insight will benefit further work with logical frameworks or proof
+assistants as many concepts are interchangeable between them. We also
+provide a foundation to build on for further formalization of a
+JANUS-like language as it is far easier to change a formalization than
+it is to provide a new one from scratch.
 
 %%% Local Variables: 
 %%% mode: latex
