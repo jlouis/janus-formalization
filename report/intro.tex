@@ -65,7 +65,36 @@ The report also describes the toolbox needed for formalization in
 Finally, this report is honest to the state-of-the-art: any result is
 mechanically formalized and verified in \coq{}.
 
-\section{Why \coq{}}
+\subsection{Related work}
+
+There are several examples of reversible programming languages. There
+are reversible Turing machines \fixme{cite} and other reversible
+functional languages \fixme{cite}. There are also many examples of
+programming language formalizations: functional languages
+\fixme{cite}, \fixme{cite}, lambda calculus \fixme{cite} and
+imperative languages \fixme{cite}.
+
+To our knowledge, nobody has tried to formalize reversible programming
+languages using mechanical verification tools before this project. As
+such, this project combines two otherwise unrelated fields: namely the
+field of mechanical verification of programming language properties
+and the field of reversible language theory. We hope this will benefit
+both fields.
+
+\subsection{Expectations}
+
+We expect the reader to be well versed in the concepts of programming
+language semantics and proofs of programming language meta-theory. We
+further expect the reader to know the general idea of logical
+frameworks, proof assistants and theorem provers. We won't describe
+the concepts of \coq{} in much detail. We will just point to the
+literature \fixme{cite}.
+
+We also expect the reader to be somewhat familiar with the concept of
+reversible languages. In particular we expect the reader to know what
+it means for a language to be reversible in the informal sense.
+
+\section{Choice of formalization framework}
 
 One might want to know what decided the formal verification framework
 to use. The author has used two frameworks in the past, \coq{} and \twelf{}
