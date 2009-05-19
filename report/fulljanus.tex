@@ -41,7 +41,7 @@ turn round the loop. The following rule captures this:
                   \rho |= \angel{\sigma'', s_1} -> \sigma'''\\
                   \rho |=_{loop} \angel{\sigma''', (e_1, s_1, s_2,
                     e_2)} -> \sigma'}
-  {\rho |=_{loop} \angel{\sigma, (e_1, s_1, s_2, e_2)} -> \sigma}
+  {\rho |=_{loop} \angel{\sigma, (e_1, s_1, s_2, e_2)} -> \sigma'}
 \end{equation*}
 
 \paragraph{Arrays}
@@ -60,9 +60,100 @@ semantics in the case we go out-of-bounds on the array. All this is
 not hard, but would impact a rather wide of the formalization already
 done.
 
-\fixme{Describe the problem with the backwards
-determinism property.}
-\fixme{Describe and analyze why it is so.}
+\section{Properties of full JANUS}
+\label{sec:prop-full-janus}
+
+I initially set out with the prospect of proving forwards and
+backwards determinism for the full JANUS language given in
+\cite{glueck+2007} which has a different semantics for
+loops. Unfortunately, the proof relies on a property of there only be
+one specific way a given tree can be constructed. This property is
+rather hard to formalize. Hence, I changed to the semantics given
+above from \cite{glueck+2008}.
+
+The language can be proven to be forwards deterministic (under the
+assumption that it is backwards deterministic). But I failed to find a
+machine-verifiable proof that it is backwards deterministic. In the
+following sections I will attempt to describe what the problem is.
+
+We are trying to prove the following statement:
+\begin{multline*}
+  \forall \rho, \sigma, \sigma', \sigma'', s . \\
+  \rho |= \angel{\sigma', s} -> \sigma \implies \rho |=
+  \angel{\sigma'', s} -> \sigma \implies \sigma' = \sigma''
+\end{multline*}
+
+The proof proceeds by induction on the first dependent hypothesis,
+that is $\rho |= \angel{\sigma', s} -> \sigma$. This splits up into
+cases for $|=$ and simultaneously for $|=_{loop}$. To get \coq{} to
+understand this simultaneous induction principle, the \texttt{Scheme}
+command must be used.
+
+All cases for the $|=$ judgement are easily discharged. The only new
+rule we have added is the one of the form:
+\begin{equation*}
+  \inference[Loop]{\sigma |- e_1 => k \quad k \neq 0 \\
+    \rho |= \angel{\sigma, s_1} -> \sigma'' \quad \rho
+    |=_{loop} \angel{\sigma'', (e_1, s_1, s_2, e_2)} -> \sigma'}
+  {\rho |= \angel{\sigma, \<from> e \<do> s \<loop> s \<until> e} -> \sigma'}
+\end{equation*}
+Now looking at the second dependent hypothesis, namely $\rho |=
+\angel{\sigma', s} -> \sigma$. By inversion, it can only be an
+instance of the rule $Loop$ so we can use the induction hypothesis
+generated on $\rho |=_{loop} \angel{\sigma'', (e_1, s_1, s_2, e_2)} ->
+\sigma$ to conclude $\sigma' = \sigma''$. Case done.
+
+But the cases for $|=_{loop}$ are not easily discharged. Suppose we
+have the case $\rho |=_{loop} \angel{\sigma',
+  (e_1, s_1, s_2, e_2)} -> \sigma$. By inversion, we generate two
+possible rules that could match. One is:
+\begin{equation*}
+  \inference[LpT]{\sigma |- e_2 => k \quad k \neq 0}
+  {\rho |=_{loop} \angel{\sigma, (e_1, s_1, s_2, e_2)} -> \sigma}
+\end{equation*}
+
+But by inversion, the 2nd inductive hypothesis $\rho |=_{loop} \angel{\sigma'',
+  (e_1, s_1, s_2, e_2)} -> \sigma$ could have generated the $LpF$
+case:
+\begin{equation*}
+  \inference[LpF]{\sigma'' |- e_2 => 0 \\
+                  \rho |= \angel{\sigma'', s_2} -> \sigma''''\\
+                  \sigma'''' |- e_1 => 0 \\
+                  \rho |= \angel{\sigma'''', s_1} -> \sigma'''\\
+                  \rho |=_{loop} \angel{\sigma''', (e_1, s_1, s_2,
+                    e_2)} -> \sigma}
+  {\rho |=_{loop} \angel{\sigma'', (e_1, s_1, s_2, e_2)} -> \sigma}
+\end{equation*}
+
+Normally when this happens in if-then-else or in the forward direction
+of loops, we \emph{discriminate} the cases. We find something which is
+true in one case and false in the other. This makes the combination
+absurd so we can dismiss the possibility of the case. In the forward
+direction we would have $\sigma |- e_2 => 0$ and at the same time
+$\sigma |- e_2 => k \land k \neq 0$. But in the backwards direction
+the discrimination utterly fails.
+
+I then tried to look at using an argument on the height of the two
+cases, but it will not work as expected: the 1st and 2nd dependent
+hypotheses are different at their ``base''. In any case, there is no
+``easy'' proof possible and there is need for some ingeinuity to
+complete the proof.
+
+One should \emph{not} be let down but this result however. It might be
+there is another proof or it might be that we need to change the
+semantics of loops to something equivalent that is easier to
+prove. The loop currently defined relies on the fact that an
+expression evaluation will be true only on the first and the last
+iteration of loop. $e_1$ will be true upon entering the loop and $e_2$
+will be true upon leaving the loop. Running the program backwards
+reverses the role of $e_1$ and $e_2$. Interestingly, we define the
+semantics in a way such that the evaluation of $e_1$ (in the forwards
+direction) occurs in the $|=$ judgement whereas the evaluation of
+$e_2$ occurs in the $|=_{loop}$ judgement. The problem with this split
+is that we do not know when the loop began executing. This information
+is lost on us when we process inductive cases for $|=_{loop}$. An
+alternative semantics ought to correct this problem, perhaps by
+adjusting the loop semantics from \cite{glueck+2007}
 
 ...
 
