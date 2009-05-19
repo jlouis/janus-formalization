@@ -27,9 +27,6 @@
 \hyphenation{in-di-ca-tor func-tions}
 
 \begin{document}
-\titleM
-\listoffixmes
-\tableofcontents
 \newcommand{\janusz}{$\mathrm{JANUS}_0$}
 \newcommand{\januso}{$\mathrm{JANUS}_1$}
 \newcommand{\lift}[1]{\lfloor #1 \rfloor}
@@ -37,8 +34,20 @@
 \newcommand{\twelf}{{\scshape Twelf}}
 \newcommand{\NN}{\mathbb{N}}
 \newcommand{\ZZ}{\mathbb{Z}}
-
-\fixme{Write an abstract.}
+\titleM
+\begin{abstract}
+  In this project, we provide a state-of-the-art formalization on the
+  reversible language JANUS. We formalize the syntax, the semantics
+  and we provide verification of main reversibility proofs in the
+  proof assistant \coq{} amounting to over 1500 lines of vernacular
+  definitions. The formalization covers large parts of JANUS and
+  points to places that are impossible to prove with the currently
+  given semantics. Furthermore we provide improvements on the existing
+  semantics by formalizing properties that were stated informally in
+  the existing litterature.
+\end{abstract}
+\listoffixmes
+\tableofcontents
 \fixme{Motivating introduction}
 \fixme{Overview where censor can view all of the report}
 \fixme{Expectations}
@@ -47,15 +56,15 @@
 \fixme{Ispell from here once everything is finished}
 \input{intro}
 \input{cocext}
-\fixme{Ispell from here once we have it all}
-\fixme{Read through J0, correcting}
+\fixme{Ispell from here once we have it all.}
+\fixme{Read through J0, correcting.}
 \input{janus0}
-\fixme{Read through J1, correcting}
+\fixme{Read through J1, correcting.}
 \input{janus1}
-\fixme{Read through J, correcting}
+\fixme{Read through J, correcting.}
 \input{fulljanus}
-\fixme{Read through FW, correcting}
-\fixme{Change further work to related work}
+\fixme{Read through FW, correcting.}
+\fixme{Change further work to related work.}
 \input{furtherwork}
 \fixme{Read through Conc., correcting}
 \fixme{Write about stacks and recursive languages as a solution}
