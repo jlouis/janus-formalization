@@ -1,69 +1,73 @@
 \chapter{Introduction}
 
+Reversibility is, informally, the research area of computability where
+programs can be inverted and run backwards. The most important
+side-effect of reversibility is that no information can be lost when
+the program executes. This makes reversible programming a venue for
+programming CPUs which are fully adiabatic. Such CPUs CMOS technology
+will, at least in theory, generate less heat when executing
+\fixme{cite}. In this project we study one such reversible programming
+language called JANUS. This has been done before, but we add the twist
+of formalizing the language in a machine-verifiable form. We thus
+construct a bridge between reversibility research and mechanical
+theorem proving.
+
 The JANUS programming language were conceived as a student project in
 1982 at Caltech by Chris Lutz and Howard Derby. It was first later
-however, with the work in \cite{glueck+2007, glueck+2008} that
-the language was given a modern formal treatment. In these papers, variants
-of the language are established with operational semantics. The
-results improves on earlier informal descriptions.
+however, with the work in \cite{glueck+2007, glueck+2008} that the
+language was given a modern formal treatment. In these papers,
+variants of the language are established with operational
+semantics. This improves the earlier informal description and provides
+a vehicle for laying bare the meta-theory of the language. However,
+the meta-theory established in these articles are paper-only.
 
-We study the JANUS programming language because it is an example of a
-small reversible imperative language. These languages have the
-interesting property that programs can be run backwards to obtain the
-original input from the output of a computation. This study form the
-base of programming languages for reversible CMOS technology and
-quantum computing.
+Our motivation for formalizing JANUS inside the machine is that of
+reassurance and knowledge. We will be assured that the language has a
+working formalization and that key theorems are true. A mechanical
+correctness check by a machine is much less amenable to oversigts or a
+wrong proof. In fact, if you trust the computation kernel in the
+theorem prover of choice, no logical error is possible.
 
-Usually when we add formality to a process, there is a need for
-changing the original informal description. Formality enforces us to
-optimize and make precise the definitions and results, which in turn
-sharpens and refines our knowledge of a field. A better understanding
-through formality makes it easier to gather new knowlegde in a field.
+Secondly, it is often the case that a mechanical formalization will
+yield new interesting insights in the formalization and proofs. Since
+``the devil is in the details'' and we are forced to write down proofs
+in great detail, we will often uncover some devils in the
+formalization process. Working around the problems with these devils
+commonly yields better understanding of the formalization than what we
+had before. Formality enforces us to optimize and make precise the
+definitions and results, which in turn sharpens and refines our
+knowledge of a field. A better understanding through formality makes
+it easier to gather new knowlegde in a field.
 
-The current state-of-the-art with respect to formality is
-machine-verifiable formalizations -- encoding our formal work in a way
-the machine can understand. We then proceed to encode the meta-theory
-of our formalization as well. Finally, we ask the machine to
-systematically verify the correctness of our proofs.
-
-The goal of this process is not to prove human beings wrong. It is
-rarely the case that the checking process of ``the human grid
-computer'' fails to notice errors in meta-theory. Rather, the goals
-are those of simplicity, detailed understanding and domain knowledge:
-
-When we explain a theorem to a computer, it is easiest to use simple
-methods. It is more expensive to formalize a complex principle and use
-it rather than taking more time and coming up with a simpler
-proof. This forces us to use humility and simplicity in our work.
-
-A proof explained to the computer can only draw on knowledge we
-already told the computer. For any proof, we must be able to
-explain any detail, as otherwise it will be impossible to
-machine-verify.
-
-Finally, we may hope to gain additional knowledge about the domain in
-the formalization process. The precision required yield no place for
-imprecision and cannot lure our intuition down the wrong path. Hence,
-we often learn from the formalization process.
-
-This DIKU graduate project establishes a full formalized semantics for
+This DIKU graduate project establishes a formalized semantics for
 a variant of the JANUS language in the proof assistant \coq{}. The
 main academic contribution of the paper is the use of syntax-driven
 semantics for JANUS: Invalid programs are ruled out by having no possible
 inference tree. The secondary contribution establishes the machine
-verification of the main theorems of the JANUS variant.
+verification of the main theorems of JANUS variants.
 
 To make the work digestible, it has been split in several subsets of
-the JANUS language. First, we introduce some simplified versions,
-\janusz{}, \januso{} -- before processing the complete language. It is
-our hope that these subsets make it easier to understand the full
-development.
+the JANUS language. First, we introduce some simplified versions
+before processing the complete language. It is our hope that these
+subsets make it easier to understand the full development.
 
-The report also describes the toolbox needed for formalization in
-\coq{} with the concepts introduced as they are needed.
+The report also describes the toolbox needed for formalization with
+the concepts introduced as they are needed.
 
 Finally, this report is honest to the state-of-the-art: any result is
 mechanically formalized and verified in \coq{}.
+
+\fixme{We should probably expand this thing for the censor, so he can
+  read all of the report here}
+The rest of the paper is structured as follows. First, in section
+\ref{sec:thm-prover-choice} we choose a theorem proving
+framework. Then we proceed with formalizing a small subset of the
+JANUS language, \janusz{} in chapter \ref{chap:janus0} -- at the same
+time providing the \coq{}-foundational work needed. In chapter
+\ref{chap:janus1}, we formalize a larger variant of the JANUS
+language, \januso{}, including 32-bit unsigned integers. Then we
+tackle full JANUS in chapter \ref{chap:fulljanus}. Finally, we wrap up
+the report with further work and a conclusion.
 
 \subsection{Related work}
 
@@ -71,10 +75,10 @@ There are several examples of reversible programming languages. There
 are reversible Turing machines \cite{morita+2007:reversible-tm} and
 other reversible functional languages
 \cite{glueck+2005:program-inverter}. There are also many examples of
-programming language formalizations: Some examples of the diversity
-are functional languages \cite{leroy+2009:coinductive-big-step},
-substructural languages \cite{fluett+2007:phd-thesis} and foundational
-languages \cite{jlouis+2007:bachelor}
+programming language formalizations with a large diversity: functional
+languages \cite{leroy+2009:coinductive-big-step}, substructural
+languages \cite{fluett+2007:phd-thesis} and foundational languages
+\cite{jlouis+2007:bachelor}
 
 To our knowledge, nobody has tried to formalize reversible programming
 languages using mechanical verification tools before this project. As
@@ -97,6 +101,7 @@ reversible languages. In particular we expect the reader to know what
 it means for a language to be reversible in the informal sense.
 
 \section{Choice of formalization framework}
+\label{sec:thm-prover-choice}
 
 One might want to know what decided the formal verification framework
 to use. The author has used two frameworks in the past, \coq{} and \twelf{}
