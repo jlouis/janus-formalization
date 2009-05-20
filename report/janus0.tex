@@ -51,7 +51,7 @@ is:
 
 The empty store $\epsilon$ maps everything to $\perp$, ie. for all
 locations $l \in \ZZ$ we have $\epsilon(l) = \perp$. We will use the
-empty store as the inital store.
+empty store as the initial store.
 
 It will be beneficial to provide \emph{hiding} of values in the store. A
 hiding of a variable $x$ is a new store in which $x$ does not
@@ -71,24 +71,24 @@ is:
 One encodes the semantics of object languages in the language of
 Gallina, the specification language of \coq{}. This language is
 inherently functional and is furthermore \emph{total} for its
-inductive part\footnote{We are not using the CoInductive features of
+inductive part\footnote{We are not using the Co-Inductive features of
   \coq{}}. Functional programmers should feel at ease when working
 with the language as it works like a normal programming language. But
 since the language is based on the Calculus of (Co-)Inductive
 constructions, the type system is far more advanced than one a
 functional programmer is accustomed to. For \coq{} version 8.2 you
-will find most of the advanved type concepts either directly in the
+will find most of the advanced type concepts either directly in the
 type system, or derivable. \coq{} supports dependent types, the
 polymorphic lambda calculus, higher order types, Haskell-style type
 classes, ML style module system with functors, GADTs
 etc \cite{pierce:attapl, pierce:tapl, wadler+1996:type-classes, milner+1997:ml-definition}.
 
 In \coq{} there are already integers built-in, ready for use in our
-formaliztion. This means we can focus entirely on providing an
+formalization. This means we can focus entirely on providing an
 implementation of stores.
 
 In the stores given above in, we operate with a domain of $\NN$ and a
-codomain of $\ZZ$ used as the locations and values respectively. For
+co-domain of $\ZZ$ used as the locations and values respectively. For
 encoding this in \coq{}, we define a \texttt{Module Type}. For ML
 people this is a type signature. The implementation is:
 \begin{verbatim}
@@ -119,7 +119,7 @@ $n, m$.
 Memories are defined as a \emph{module functor} expecting a
 \texttt{STORE} fulfilling module as input and producing a
 \texttt{Memory} as output. By using a functor we hoist the specifics
-of the domain and codomain of the memory, so we can change the
+of the domain and co-domain of the memory, so we can change the
 definition later on.
 
 The memory is a function from locations to values $S_{\perp}$, encoded
@@ -140,7 +140,7 @@ according the update function given above:
       then Some v
       else m x'.
 \end{verbatim}
-Hiding is also carried out according to the matematical definition.
+Hiding is also carried out according to the mathematical definition.
 
 \subsection{Properties of stores}
 
@@ -245,8 +245,8 @@ does not matter. The following lemma makes this specific
 \end{lem}
 \begin{proof}
   The proof utilizes extensionality to discern each possible element
-  in the maps. Then it discriminates on wether we are working with $x$
-  or not. For each case, a simple computation discharges the subproblem.
+  in the maps. Then it discriminates on whether we are working with $x$
+  or not. For each case, a simple computation discharges the sub-problem.
 \end{proof}
 
 \subsection{History}
@@ -321,19 +321,19 @@ The advantage of the latter, denotational, definition is that is
 allows for simpler proofs in Coq. Basically a standard Case analysis
 will do over the structure. Operational semantics uses a Prolog-style
 where a relation between the premises and conclusion is defined. The
-advantage of this prolog style is of course its generality. The
+advantage of this Prolog style is of course its generality. The
 denotational style above is a function definition based on case
 analysis which is a special case of a relation.
 
 If $R \subseteq X \times Y$ is a relation on $X$ and $Y$, then the
-relation would be a function in the folowing case: if $(a, b) \in R$
+relation would be a function in the following case: if $(a, b) \in R$
 and also $(a, c) \in R$ then we must have $b = c$. In other words, a
 function is deterministic in its output based on its output.
 
 \subsection{Encoding expressions in \coq{}}
 
 The syntax of \janusz{}-expressions is encodable as a normal datatype
-known from e.g. ML og Haskell. These are called inductive types in
+known from e.g. ML or Haskell. These are called inductive types in
 \coq{} and happens to be much more powerful than their ML
 counterparts. Here, we will only use the ML-subset though.
 \begin{verbatim}
@@ -441,7 +441,7 @@ location in the store to which $x$ points:
     k' = n}{\angel{\sigma, x +\!\!= e} -> \sigma[x \mapsto n]}
 \end{equation*}
 In JANUS it is a requirement that the variable $x$ must not occur in
-the expression $e$. The same requiremnt is present in \janusz{} and
+the expression $e$. The same requirement is present in \janusz{} and
 has to do with the invertibility of such statements. There is,
 however, an alternative semantics not present in the current
 literature which directly encodes the requirement in the inference
@@ -461,7 +461,7 @@ correctness by construction, simplifies proof formalization: had we
 chosen a predicate judgement for an non-occurring variable $x$, then
 we would have to provide a proof with this added structure.
 
-For decrementation, the definition is similar:
+For decrementing, the definition is similar:
 \begin{equation*}
   \inference[Dec]{(\sigma \setminus x) |- e => k \quad \sigma(x) =
     \lift{k'} \quad k - k' = n}{\angel{\sigma, x -\!\!= e} -> \sigma[x \mapsto n]}
@@ -525,7 +525,7 @@ type. For instance, we encode the skip rule as:
 | se_skip: forall m, Stm_eval m S_Skip m
 \end{verbatim}
 This states that for all memories $m$, we have that skip yields $m$ as
-the resulting memory. Think about it as a prolog-style relation on
+the resulting memory. Think about it as a Prolog-style relation on
 statement evaluation.
 
 Increment uses some premises:
@@ -587,14 +587,17 @@ proven.
 The if-case is done by inversion of $\angel{\sigma, \<if> e1 \<then> s1
 \<else> s2 \<fi> e2} -> \sigma''$. One of these are solvable by the
 induction hypothesis. The other is solvable because it is an
-impossible case (false-inversion occuring while proving the if-true
+impossible case (false-inversion occurring while proving the if-true
 subgoal -- or true-inversion when proving the if-false subgoal).
 
 \begin{thm}
 \label{thm:j0-fwd-det}
   \janusz{} is forward deterministic, ie:
   \begin{equation*}
-    \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon \angel{\sigma, s} -> \sigma' \implies \angel{\sigma, s} -> \sigma'' \implies \sigma' = \sigma''
+    \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon
+    \angel{\sigma, s} ->
+    \sigma' \implies \angel{\sigma, s} -> \sigma''
+    \implies \sigma' = \sigma''
   \end{equation*}
 \end{thm}
 \begin{proof}
@@ -609,7 +612,7 @@ In the forward determinism-proof nothing special has been applied to
 carry out the proof. Either one can calculate (in the integer ring
 $\ZZ$) and conclude the result by identification or one can apply the
 induction hypothesis to obtain the result after inversion. As we shall
-see, the backwards determistic proof is not as simple, though it
+see, the backwards deterministic proof is not as simple, though it
 holds:
 
 \begin{lem}
@@ -628,6 +631,7 @@ holds:
   Via \coq{}
 \end{proof}
 
+\fixme{Supply an example of how to use \coq{} tactics here}
 Completing this proof requires considerably more ingenuity than the
 forward proof. Again, we run induction on the 1st dependent
 hypothesis. For the increment case, we first run inversion, and

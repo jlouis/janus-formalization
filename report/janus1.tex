@@ -23,10 +23,10 @@ to what numbers it can represent. A 32-bit machine has $32$ bits at
 its disposal so it can represent $2^{32}$ different values. A 64-bit
 machine has $2^{64}$ different values and so on. For the case where
 there is no sign, it is obvious to map the representation into $0,
-\dotsc, 2^{32}-1$ and do calculation modulo $2^{32}$. Coincidentially,
+\dotsc, 2^{32}-1$ and do calculation modulo $2^{32}$. Coincidentally,
 this is how most modern computers work anyway.
 
-JANUS choses this representation as well and models a 32-bit machine
+JANUS chooses this representation as well and models a 32-bit machine
 in the process. For \januso{}, we would like to model the same thing
 as full JANUS.
 
@@ -59,24 +59,24 @@ will call these integers $W^{32}$.
 
 \begin{rem}
   Note that the ``multiplication'' need only form a monoid and not a
-  group in general. We are thus not sure of a mulitiplicative inverse,
+  group in general. We are thus not sure of a multiplicative inverse,
   which is somewhat bad. Remedying this could be to use finite
   Galois-fields, of order $p^n$ where $p$ is a prime and
   $n$ is an integer. For the case $p = p^1$ it is simple since it is
   defined by the groups $\ZZ / p\ZZ$ (for addition) and $(\ZZ /
-  p\ZZ)^{*}$ (for mulitplication). For the case $p^n$ for $n > 1$ you
+  p\ZZ)^{*}$ (for multiplication). For the case $p^n$ for $n > 1$ you
   need to use splitting fields and more heavyweight algebra to define
   them. This is turn makes them rather bad candidates as a number base
   for JANUS. Perhaps except for the base $2^n$ which can be defined as
   polynomials of bits.
 
-  We choose not the persue this idea further.
+  We choose not the pursue this idea further.
 \end{rem}
 
 \subsection{\coq{} Implementation}
 
 The Coq implementation of 32-bit numbers owes everything to Xavier
-Leroy et al\cite{Leroy-Compcert-Coq}. The work is taken from the
+Leroy et. al\cite{Leroy-Compcert-Coq}. The work is taken from the
 \textsc{CompCert} project, which introduces them in the course of
 formalizing a complete C to PowerPC compiler. The reason for taking
 the work rather than building it from scratch is due to the sheer
@@ -124,12 +124,12 @@ we integer-add the numbers and re-embed them with the \texttt{repr}
 function. Note that the embedding is doing the correct thing for
 cyclic additive groups: it wraps around.
 
-Bitwise operations in the representation is implemented by creating
-indicator functions from numbers up to a certain size in bits. Ie a
+Bit-wise operations in the representation is implemented by creating
+indicator functions from numbers up to a certain size in bits. Ie. a
 number is converted into a function $f \colon \mathbb{Z} \to \{0,
 1\}$, where $f(n) = 1$ indicates $n$-th bit is set and $f(n) = 0$
 that it is not. Straightforward combinations and embeddings of these
-functions builds up the bitwise functions.
+functions builds up the bit-wise functions.
 
 The properties of the numbers are simply a direct (rather impressive)
 work of standard algebra. The theorems can be found in any math-book
@@ -177,7 +177,7 @@ et.al. We extend their definitions by:
   left: $x + y = x + z \implies y = z$
 \end{lem}
 \begin{lem}
-  For 32-bit integers $x, y, z$, subtracition can be discharged on the
+  For 32-bit integers $x, y, z$, subtraction can be discharged on the
   right: $x - z = y - z \implies x = y$
 \end{lem}
 \begin{lem}
@@ -194,14 +194,14 @@ To the expressions of \janusz{}, we make the following additions:
 \end{align*}
 
 The additions to the expression language are as in \cite{glueck+2008};
-we add aritmethic operators of division and modulo to 32-bit
+we add arithmetic operators of division and modulo to 32-bit
 numbers. We add a couple of relational operators, namely equality,
 non-equality, logical and, logical or and a less-than operator.
 
 With these additions, we almost have all constructs from the full
 JANUS language. It is my belief that these can be added without any
 problems at all. Specifically, our 32-bit integer representation
-provisions for bitwise operators.
+provisions for bit-wise operators.
 
 The semantics are given by a denotational semantics in the spirit of
 the denotational semantics in \ref{exp:denot-semantics}. We omit them
@@ -238,7 +238,7 @@ procedure is defined as
   {\rho |= \angel{\sigma, \<uncall> p} -> \sigma'}
 \end{equation*}
 In this rule, we utilize the full power of operational-semantics given
-as a prolog-style rule. Rather than relying on the inversion operator
+as a Prolog-style rule. Rather than relying on the inversion operator
 we will define shortly, we alter the order procedure will run. This is
 the main reason we choose an operational semantics rather than a
 denotational one as the latter would have a harder time representing
@@ -277,7 +277,7 @@ by the use of the ``omega'' tactic in \coq{}. For our 32-bit integers,
 no such thing is present however, so we need to do the proofs by hand.
 
 The detail at which one has to carry out such proofs are almost
-exruciatingly precise. We must, as an example, explicitly use the
+excruciatingly precise. We must, as an example, explicitly use the
 commutative rule when we want to rewrite $x +_{32} y$ into $y +_{32}
 x$.
 
