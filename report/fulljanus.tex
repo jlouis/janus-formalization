@@ -2,7 +2,7 @@
 \label{chap:fulljanus}
 
 In this chapter, we will describe a full variant of JANUS that is akin
-to the language given in \cite{glueck+2007}. The full JANUS language
+to the language given in \cite{yokoyama.gluck:reversible}. The full JANUS language
 adds 2 things to \januso{}: arrays and loops. Taking loops first, we
 augment the syntax of statements with
 \command{loop[\;loop\;],from[\;from\;],do[\;do\;],until[\;until\;]}
@@ -29,8 +29,9 @@ This rule will only be valid if $e_1$ evaluates to a true value. Then
 it runs $s_1$ and enters the loop proper.
 
 Simultaneously with the definition of statements, we have the 2 rules
-on the $|=_{loop}$ judgement form, taken from \cite{glueck+2008}. The
-first one exits the loop then the ``until'' part evaluates to true:
+on the $|=_{loop}$ judgement form, taken from
+\cite{yokoyama.axelsen.ea:principles}. The first one exits the loop
+then the ``until'' part evaluates to true:
 \begin{equation*}
   \inference[LpT]{\sigma |- e_2 => k \quad k \neq 0}
   {\rho |=_{loop} \angel{\sigma, (e_1, s_1, s_2, e_2)} -> \sigma}
@@ -68,11 +69,11 @@ done.
 
 I initially set out with the prospect of proving forwards and
 backwards determinism for the full JANUS language given in
-\cite{glueck+2007} which has a different semantics for
+\cite{yokoyama.gluck:reversible} which has a different semantics for
 loops. Unfortunately, the proof relies on a property of there only be
 one specific way a given tree can be constructed. This property is
 rather hard to formalize. Hence, I changed to the semantics given
-above from \cite{glueck+2008}.
+above from \cite{yokoyama.axelsen.ea:principles}.
 
 The language can be proven to be forwards deterministic (under the
 assumption that it is backwards deterministic). But I failed to find a
@@ -156,7 +157,7 @@ $e_2$ occurs in the $|=_{loop}$ judgement. The problem with this split
 is that we do not know when the loop began executing. This information
 is lost on us when we process inductive cases for $|=_{loop}$. An
 alternative semantics ought to correct this problem, perhaps by
-adjusting the loop semantics from \cite{glueck+2007}
+adjusting the loop semantics from \cite{yokoyama.gluck:reversible}
 
 ...
 

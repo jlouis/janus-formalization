@@ -23,8 +23,8 @@ trust is then this low-level type checker.
 certain canonical forms. This calculus is called LF. The syntax,
 semantics, and proofs are then all encoded in this LF-language. For
 proof validity, separate checker then verifies certain properties on
-the correctness of the proof, see \cite{harper+05:how-to-believe,
-  harper+07:mechanizing}.
+the correctness of the proof, see \cite{harper.crary:how,
+  harper.licata:mechanizing, harper.honsell.ea:framework}.
 
 \coq{} supports proof automation where parts of proofs are done
 automatically by the computer. However, most of the time spent are not
@@ -76,7 +76,7 @@ An unprovable property should not let an aspiring \coq{} user down. We
 can just add that property as an axiom to the system and take it for
 granted. We must be very careful not to add a property to the system
 which makes the system inconsistent though. It is known,
-\cite{coq-add} section 5.2, that one can add the properties of \emph{Proof
+\cite{team:coq} section 5.2, that one can add the properties of \emph{Proof
   irrelevance} and \emph{Extensionality} simultaneously without
 introducing any inconsistencies.
 

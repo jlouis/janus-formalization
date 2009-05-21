@@ -14,12 +14,13 @@ theorem proving.
 
 The JANUS programming language were conceived as a student project in
 1982 at Caltech by Chris Lutz and Howard Derby. It was first later
-however, with the work in \cite{glueck+2007, glueck+2008} that the
-language was given a modern formal treatment. In these papers,
-variants of the language are established with operational
-semantics. This improves the earlier informal description and provides
-a vehicle for laying bare the meta-theory of the language. However,
-the meta-theory established in these articles are paper-only.
+however, with the work in \cite{yokoyama.gluck:reversible,
+  yokoyama.axelsen.ea:principles} that the language was given a modern
+formal treatment. In these papers, variants of the language are
+established with operational semantics. This improves the earlier
+informal description and provides a vehicle for laying bare the
+meta-theory of the language. However, the meta-theory established in
+these articles are paper-only.
 
 Our motivation for formalizing JANUS inside the machine is that of
 reassurance and knowledge. We will be assured that the language has a
@@ -88,13 +89,13 @@ The rest of the paper is structured as follows.
 \subsection{Related work}
 
 There are several examples of reversible programming languages:
-reversible Turing machines \cite{bennett+1973:LRC},
-functional languages \cite{glueck+2005:program-inverter} etc.. There
+reversible Turing machines \cite{bennett:logical},
+functional languages \cite{gluck.kawabe:method} etc.. There
 are also many examples of programming language formalizations with a
 large diversity: functional languages
-\cite{leroy+2009:coinductive-big-step}, substructural languages
-\cite{fluett+2007:phd-thesis} and foundational languages
-\cite{jlouis+2007:bachelor}
+\cite{leroy.grall:coinductive}, substructural languages
+\cite{fluet:monadic} and foundational languages
+\cite{andersen:beregnelighed}
 
 To our knowledge, nobody has tried to formalize reversible programming
 languages using mechanical verification tools before this project. As
@@ -109,7 +110,7 @@ language semantics and proofs of programming language meta-theory. We
 further expect the reader to know the general idea of logical
 frameworks, proof assistants and theorem provers. We won't describe
 the concepts of \coq{} in much detail and just point to the literature
-\cite{bertot+2004:coq-art}.
+\cite{bertot.casteran:interactive}.
 
 We also expect the reader to be somewhat familiar with the concept of
 reversible languages. In particular we expect the reader to know what

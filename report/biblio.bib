@@ -1,458 +1,503 @@
-@Book{bertot+2004:coq-art,
-  author       = {Bertot, Yves and Cast\'eran, Pierre},
-  title        = {Interactive Theorem Proving and Program Development. Coq'Art: The Calculus of Inductive Constructions},
-  series       = {Texts in Theoretical Computer Science},
-  year         = {2004},
-  publisher    = {Springer Verlag}
+@String{j-IBM-JRD               = "IBM Journal of Research and Development"}
+
+
+@TechReport{	  andersen:beregnelighed,
+  author	= {Jesper Louis Andersen},
+  title		= {Beregnelighed, bachelors thesis},
+  institution	= {DIKU},
+  year		= {2007},
+  month		= {June},
+  note		= {Contains a semantics for the language BrainF*ck},
+  annote	= {My bachelors thesis}
 }
 
-@inproceedings{morita+2007:reversible-tm,
-  author    = {Kenichi Morita and
-               Yoshikazu Yamaguchi},
-  title     = {A Universal Reversible Turing Machine},
-  booktitle = {MCU},
-  year      = {2007},
-  pages     = {90-98},
-  ee        = {http://dx.doi.org/10.1007/978-3-540-74593-8_8},
-  crossref  = {DBLP:conf/mcu/2007},
-  bibsource = {DBLP, http://dblp.uni-trier.de}
+@Article{	  bennett:logical,
+  author	= "C. H. Bennett",
+  title		= "Logical Reversibility of Computation",
+  journal	= j-ibm-jrd,
+  volume	= "17",
+  number	= "6",
+  pages		= "525--532",
+  month		= nov,
+  year		= "1973",
+  coden		= "IBMJAE",
+  issn		= "0018-8646",
+  mrclass	= "68A25",
+  mrnumber	= "56 \#7325",
+  bibdate	= "Tue Mar 25 14:26:59 MST 1997",
+  bibsource	= "Compendex database",
+  abstract	= "The usual general-purpose computing automation (e.g., a
+		  Turing machine) is logically irreversible --- its function
+		  lacks a single-valued inverse. Here it is shown that such
+		  machines may be made logically reversible at every step,
+		  while retaining their simplicity and their ability to do
+		  general computations. This result is of great physical
+		  interest because it makes plausible the existence of
+		  thermodynamically reversible computers which could perform
+		  useful computations at useful speed while dissipating
+		  considerably less than kT of energy per logical step. In
+		  the first stage of its computation the logically reversible
+		  automaton parallels the corresponding irreversible
+		  automaton, except that it saves all intermediate results,
+		  thereby avoiding the irreversible operation of erasure. The
+		  second stage consists of printing out the desired output.
+		  The third stage then reversibly disposes of all the
+		  undesired intermediate results by retracing the steps of
+		  the first stage in backward order (a process which is only
+		  possible because the first stage has been carried out
+		  reversibly), thereby restoring the machine (except for the
+		  now-written output tape) to its original condition. The
+		  final machine configuration thus contains the desired
+		  output and a reconstructed copy of the input, but no other
+		  undesired data. The foregoing results are demonstrated
+		  explicitly using a type of three-tape Turing machine. The
+		  biosynthesis of messenger RNA is discussed as a physical
+		  example of reversible computation.",
+  acknowledgement=ack-nhfb,
+  classcodes	= "C4220 (Automata theory)",
+  classification= "723",
+  corpsource	= "IBM, Yorktown Heights, NY, USA",
+  journalabr	= "IBM J Res Dev",
+  keywords	= "automata theory; computation; computer metatheory;
+		  computing automaton; logical reversibility; Turing machine",
+  treatment	= "T Theoretical or Mathematical"
 }
 
-@proceedings{DBLP:conf/mcu/2007,
-  editor    = {J{\'e}r{\^o}me Olivier Durand-Lose and
-               Maurice Margenstern},
-  title     = {Machines, Computations, and Universality, 5th International
-               Conference, MCU 2007, Orl{\'e}ans, France, September
-               10-13, 2007, Proceedings},
-  booktitle = {MCU},
-  publisher = {Springer},
-  series    = {Lecture Notes in Computer Science},
-  volume    = {4664},
-  year      = {2007},
-  isbn      = {978-3-540-74592-1},
-  bibsource = {DBLP, http://dblp.uni-trier.de}
+@Book{		  bertot.casteran:interactive,
+  author	= {Bertot, Yves and Cast\'eran, Pierre},
+  title		= {Interactive Theorem Proving and Program Development.
+		  Coq'Art: The Calculus of Inductive Constructions},
+  series	= {Texts in Theoretical Computer Science},
+  year		= {2004},
+  publisher	= {Springer Verlag}
 }
 
-
-@article{glueck+2005:program-inverter,
- author = {Gl\"{u}ck,, Robert and Kawabe,, Masahiko},
- title = {A Method for Automatic Program Inversion Based on LR(0) Parsing},
- journal = {Fundam. Inf.},
- volume = {66},
- number = {4},
- year = {2005},
- issn = {0169-2968},
- pages = {367--395},
- publisher = {IOS Press},
- address = {Amsterdam, The Netherlands, The Netherlands},
- }
-
-@PhdThesis{fluett+2007:phd-thesis,
-  author =       {Matthew Fluet},
-  title =        {Monadic and Substructural Type Systems for Region-Based Memory Management},
-  school =       {Cornell University},
-  year =         2007,
-  month =        {January},
-  abs =          {../research/thesis/index.html#MonadicAndSubstructRegionsThesis07},
-  pdfsingle =    {../research/thesis/fluet-thesis.double.pdf},
-  pdfdouble =    {../research/thesis/fluet-thesis.single.pdf}
+@Misc{		  chlipala:certified,
+  author	= {Adam Chlipala},
+  title		= {Certified Programming with Dependent Types},
+  year		= {2008},
+  howpublished	= {Available at \url{http://adam.chlipala.net/cpdt/}}
 }
 
-
-@TechReport{jlouis+2007:bachelor,
-  author = 	 {Jesper Louis Andersen},
-  title = 	 {Beregnelighed, bachelors thesis},
-  institution =  {DIKU},
-  year = 	 {2007},
-  month = 	 {June},
-  note = 	 {Contains a semantics for the language BrainF*ck},
-  annote = 	 {My bachelors thesis}
+@Article{	  cooper:theorem,
+  author	= {D. C. Cooper},
+  title		= {Theorem Proving in Arithmetic without Multiplication},
+  optjournal	= {},
+  year		= {1972},
+  optkey	= {},
+  optvolume	= {},
+  optnumber	= {},
+  pages		= {91-100},
+  optmonth	= {},
+  optnote	= {},
+  annote	= {I have not read this, but it looks like the right paper to
+		  cite for presburger arithmetic}
 }
 
-@ARTICLE{leroy+2009:coinductive-big-step,
-  AUTHOR = {Xavier Leroy and Hervé Grall },
-  TITLE = {Coinductive big-step operational semantics},
-  JOURNAL = {Information and Computation},
-  VOLUME = 207,
-  NUMBER = 2,
-  PAGES = {284--304},
-  YEAR = 2009,
-  URLLOCAL = {http://gallium.inria.fr/~xleroy/publi/coindsem-journal.pdf},
-  URLPUBLISHER = {http://dx.doi.org/10.1016/j.ic.2007.12.004},
-  ABSTRACT = {Using a call-by-value functional language as an example,
-                  this article illustrates the use of coinductive
-                  definitions and proofs in big-step operational
-                  semantics, enabling it to describe diverging
-                  evaluations in addition to terminating evaluations.
-                  We formalize the connections between the coinductive
-                  big-step semantics and the standard small-step
-                  semantics, proving that both semantics are
-                  equivalent.  We then study the use of coinductive
-                  big-step semantics in proofs of type soundness and
-                  proofs of semantic preservation for compilers.  A
-                  methodological originality of this paper is that all
-                  results have been proved using the Coq proof
-                  assistant.  We explain the proof-theoretic
-                  presentation of coinductive definitions and proofs
-                  offered by Coq, and show that it facilitates the
-                  discovery and the presentation of the results. (See
-                  \verb|http://gallium.inria.fr/~xleroy/coindsem/| for
-                  the Coq on-machine formalization of these results.)},
-  XTOPIC = {mechsem},
-  annote = {This little gem was one I used in the draft version in my Bachelors thesis}
+@Proceedings{	  durand-lose.margenstern:machines,
+  editor	= {J{\'e}r{\^o}me Olivier Durand-Lose and Maurice Margenstern},
+  title		= {Machines, Computations, and Universality, 5th
+		  International Conference, MCU 2007, Orl{\'e}ans, France,
+		  September 10-13, 2007, Proceedings},
+  booktitle	= {MCU},
+  publisher	= {Springer},
+  series	= {Lecture Notes in Computer Science},
+  volume	= {4664},
+  year		= {2007},
+  isbn		= {978-3-540-74592-1},
+  bibsource	= {DBLP, http://dblp.uni-trier.de}
 }
 
-
-@unpublished{pottier-remy!emlti-preversion,
-  AUTHOR = {François Pottier and Didier Rémy},
-  TITLE = {The Essence of {ML} Type Inference},
-  YEAR = {2003},
-  NOTE = {Extended preliminary version of
-                  \CITE{pottier-remy/emlti}},
-  html = {http://cristal.inria.fr/attapl/},
-  psgz = {http://cristal.inria.fr/attapl/preversion.ps.gz}
+@PhDThesis{	  fluet:monadic,
+  author	= {Matthew Fluet},
+  title		= {Monadic and Substructural Type Systems for Region-Based
+		  Memory Management},
+  school	= {Cornell University},
+  year		= 2007,
+  month		= {January},
+  abs		= {../research/thesis/index.html#MonadicAndSubstructRegionsThesis07}
+		  ,
+  pdfsingle	= {../research/thesis/fluet-thesis.double.pdf},
+  pdfdouble	= {../research/thesis/fluet-thesis.single.pdf}
 }
 
-@book{pierce:attapl,
-	abstract = {The study of type systems for programming
-                  languages now touches many areas of computer
-                  science, from language design and implementation to
-                  software engineering, network security, databases,
-                  and analysis of concurrent and distributed
-                  systems. This book offers accessible introductions
-                  to key ideas in the field, with contributions by
-                  experts on each topic.<br /> <br /> The topics
-                  covered include precise type analyses, which extend
-                  simple type systems to give them a better grip on
-                  the run time behavior of systems; type systems for
-                  low-level languages; applications of types to
-                  reasoning about computer programs; type theory as a
-                  framework for the design of sophisticated module
-                  systems; and advanced techniques in ML-style type
-                  inference.<br /> <br /> <i>Advanced Topics in Types
-                  and Programming Languages</i> builds on Benjamin
-                  Pierce's <i>Types and Programming Languages</i> (MIT
-                  Press, 2002); most of the chapters should be
-                  accessible to readers familiar with basic notations
-                  and techniques of operational semantics and type
-                  systems -- the material covered in the first half of
-                  the earlier book.<br /> <br /> <i>Advanced Topics in
-                  Types and Programming Languages</i> can be used in
-                  the classroom and as a resource for
-                  professionals. Most chapters include exercises,
-                  ranging in difficulty from quick comprehension
-                  checks to challenging extensions, many with
-                  solutions.},
-	author = {Pierce, Benjamin  C. },
-	citeulike-article-id = {105559},
-	howpublished = {Hardcover},
-	isbn = {0262162288},
-	keywords = {dependent-types, functional-programming, type-theory},
-	month = {November},
-	posted-at = {2008-02-26 14:24:06},
-	priority = {3},
-	publisher = {MIT Press},
-	title = {Advanced Topics In Types And Programming Languages},
-	url = {http://www.amazon.ca/exec/obidos/redirect?tag=citeulike09-20\&amp;path=ASIN/0262162288},
-	year = {2004},
-        annote = {I have not read this one yet, but should!}
+@Article{	  gluck.kawabe:method,
+  author	= {Gl\"{u}ck,, Robert and Kawabe,, Masahiko},
+  title		= {A Method for Automatic Program Inversion Based on LR(0)
+		  Parsing},
+  journal	= {Fundam. Inf.},
+  volume	= {66},
+  number	= {4},
+  year		= {2005},
+  issn		= {0169-2968},
+  pages		= {367--395},
+  publisher	= {IOS Press},
+  address	= {Amsterdam, The Netherlands, The Netherlands}
 }
 
-@book{pierce:tapl,
-	abstract = {A type system is a syntactic method for
-                  automatically checking the absence of certain
-                  erroneous behaviors by classifying program phrases
-                  according to the kinds of values they compute. The
-                  study of type systems--and of programming languages
-                  from a type-theoretic perspective-has important
-                  applications in software engineering, language
-                  design, high-performance compilers, and security.<br
-                  /> <br /> This text provides a comprehensive
-                  introduction both to type systems in computer
-                  science and to the basic theory of programming
-                  languages. The approach is pragmatic and
-                  operational; each new concept is motivated by
-                  programming examples and the more theoretical
-                  sections are driven by the needs of
-                  implementations. Each chapter is accompanied by
-                  numerous exercises and solutions, as well as a
-                  running implementation, available via the
-                  Web. Dependencies between chapters are explicitly
-                  identified, allowing readers to choose a variety of
-                  paths through the material.<br /> <br /> The core
-                  topics include the untyped lambda-calculus, simple
-                  type systems, type reconstruction, universal and
-                  existential polymorphism, subtyping, bounded
-                  quantification, recursive types, kinds, and type
-                  operators. Extended case studies develop a variety
-                  of approaches to modeling the features of
-                  object-oriented languages.},
-	author = {Pierce, Benjamin  C. },
-	citeulike-article-id = {105547},
-	howpublished = {Hardcover},
-	isbn = {0262162091},
-	keywords = {type-theory},
-	month = {March},
-	posted-at = {2008-02-26 14:24:32},
-	priority = {0},
-	publisher = {MIT Press},
-	title = {Types and Programming Languages},
-	url = {http://www.amazon.ca/exec/obidos/redirect?tag=citeulike09-20\&amp;path=ASIN/0262162091},
-	year = {2002},
-        annote = {Really good book. A bit simple perhaps, but it
-                  describes the issues of type systems really well. I
-                  enjoyed reading it.}
+@Article{	  hall.hammond.ea:type,
+  abstract	= {This paper defines a set of type inference rules for
+		  resolving overloading introduced by type classes. Programs
+		  including type classes are transformed into ones which may
+		  be typed by the Hindley-Milner inference rules. In contrast
+		  to other work on type classes, the rules presented here
+		  relate directly to user programs. An innovative aspect of
+		  this work is the use of second-order lambda calculus to
+		  record type information in the program.},
+  author	= {Hall, Cordelia V. and Hammond, Kevin and Simon, S. L. P.
+		  and Wadler, Philip L. },
+  citeulike-article-id={4956},
+  journal	= {ACM Transactions on Programming Languages and Systems},
+  keywords	= {class, haskell, type},
+  month		= {March},
+  number	= {2},
+  pages		= {109--138},
+  posted-at	= {2007-03-19 16:31:07},
+  priority	= {2},
+  publisher	= {ACM Press},
+  title		= {Type Classes in Haskell},
+  url		= {http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.48.5615}
+		  ,
+  volume	= {18},
+  year		= {1996}
 }
 
-@Book{thorup:algebra,
-  author = 	 {Anders Thorup},
-  title = 	 {Algebra},
-  publisher = 	 {Universitetsbogladen},
-  year = 	 {2007},
-  OPTkey = 	 {},
-  OPTvolume = 	 {},
-  OPTnumber = 	 {},
-  OPTseries = 	 {},
-  OPTaddress = 	 {},
-  OPTedition = 	 {},
-  OPTmonth = 	 {},
-  isbn = {87-91180-28-7},
-  annote = 	 {This book was the one I used when I first learned
-                  algebra. Written in Danish, it is one of the best
-                  books I've read as an introductory book to the
-                  subject}
+@Article{	  harper.crary:how,
+  author	= {Robert Harper and Karl Crary},
+  title		= {How to Believe a Twelf Proof},
+  year		= {2005}
 }
 
-@Book{c-u-jensen+2003:klassisk-algebra,
-  author = 	 {Christian U. Jensen},
-  title = 	 {Klassisk Algebra},
-  publisher = 	 {Universitetsbogladen},
-  year = 	 {2003},
-  OPTkey = 	 {},
-  OPTvolume = 	 {},
-  OPTnumber = 	 {},
-  OPTseries = 	 {},
-  OPTaddress = 	 {},
-  OPTedition = 	 {},
-  OPTmonth = 	 {},
-  isbn = {},
-  annote = 	 {This book was the one I used when I first learned
-                  algebra. Written in Danish, it is simply *the* book
-                  for more advanced studies in Algebra. It is not an
-                  easy read, but it utterly smites the competition
-                  when it comes to providing a precise accout. It also
-                  covers Galois-tunnels}
+@Article{	  harper.honsell.ea:framework,
+  author	= {Robert Harper and Furio Honsell and Gordon Plotkin},
+  title		= {A framework for defining logics},
+  journal	= {J. ACM},
+  volume	= {40},
+  number	= {1},
+  year		= {1993},
+  issn		= {0004-5411},
+  pages		= {143--184},
+  doi		= {http://doi.acm.org/10.1145/138027.138060},
+  publisher	= {ACM Press}
 }
 
-@Article{cooper+1972:theorem-prooving,
-  author =	 {D. C. Cooper},
-  title =	 {Theorem Proving in Arithmetic without
-                  Multiplication},
-  OPTjournal =	 {},
-  year =	 {1972},
-  OPTkey =	 {},
-  OPTvolume =	 {},
-  OPTnumber =	 {},
-  pages =	 {91-100},
-  OPTmonth =	 {},
-  OPTnote =	 {},
-  annote =	 {I have not read this, but it looks like the right paper to cite for presburger arithmetic}
+@Article{	  harper.licata:mechanizing,
+  author	= {Robert Harper and Daniel R. Licata},
+  title		= {Mechanizing Metatheory in a Logical Framework},
+  journal	= {Journal of Functional Programming},
+  year		= 2007,
+  volume	= {?},
+  number	= {?},
+  pages		= {?--?},
+  month		= {?},
+  note		= {(To appear.)}
 }
 
-@inproceedings{glueck+2008,
-  author = {Yokoyama,, Tetsuo and Axelsen,, Holger Bock and
-                  Gl\"{u}ck,, Robert},
-  title = {Principles of a reversible programming language},
-  booktitle = {CF '08: Proceedings of the 2008 Conference on Computing
-                  Frontiers},
-  year = {2008},
-  isbn = {978-1-60558-077-7},
-  pages = {43--54},
-  location = {Ischia, Italy},
-  doi = {http://doi.acm.org/10.1145/1366230.1366239},
-  publisher = {ACM},
-  annotate = {Robert and Holgers work on the reversible language JANUS
-                  with Tetsou Yokoyama. The paper is going ahead
-                  faster than glueck+2007, and has a more
-                  overview-feel to it. On the other hand it provides
-                  changes to the semantics which alters the language
-                  in important ways.}
+@Book{		  jensen:klassisk,
+  author	= {Christian U. Jensen},
+  title		= {Klassisk Algebra},
+  publisher	= {Universitetsbogladen},
+  year		= {2003},
+  optkey	= {},
+  optvolume	= {},
+  optnumber	= {},
+  optseries	= {},
+  optaddress	= {},
+  optedition	= {},
+  optmonth	= {},
+  isbn		= {},
+  annote	= {This book was the one I used when I first learned algebra.
+		  Written in Danish, it is simply *the* book for more
+		  advanced studies in Algebra. It is not an easy read, but it
+		  utterly smites the competition when it comes to providing a
+		  precise accout. It also covers Galois-tunnels}
 }
 
-
-@book{milner+1997:ml-definition,
-	abstract = {Standard ML is a general-purpose programming
-                  language designed for large projects. This book
-                  provides a formal definition of Standard ML for the
-                  benefit of all concerned with the language,
-                  including users and implementers. Because computer
-                  programs are increasingly required to withstand
-                  rigorous analysis, it is all the more important that
-                  the language in which they are written be defined
-                  with full rigor.  One purpose of a language
-                  definition is to establish a theory of meanings upon
-                  which the understanding of particular programs may
-                  rest. To properly define a programming language, it
-                  is necessary to use some form of notation other than
-                  a programming language. Given a concern for rigor,
-                  mathematical notation is an obvious choice. The
-                  authors have defined their semantic objects in
-                  mathematical notation that is completely independent
-                  of Standard ML.  In defining a language one must
-                  also define the rules of evaluation precisely--that
-                  is, define what meaning results from evaluating any
-                  phrase of the language. The definition thus
-                  constitutes a formal specification for an
-                  implementation. The authors have developed enough of
-                  their theory to give sense to their rules of
-                  evaluation.  The Definition of Standard ML is the
-                  essential point of reference for Standard ML. Since
-                  its publication in 1990, the implementation
-                  technology of the language has advanced enormously
-                  and the number of users has grown. The revised
-                  edition includes a number of new features, omits
-                  little-used features, and corrects mistakes of
-                  definition.},
-	author = {Milner, Robin   and Tofte, Mads   and Harper, Robert   and Macqueen, David  },
-	citeulike-article-id = {113339},
-	howpublished = {Paperback},
-	isbn = {0262631814},
-	keywords = {ml, programming},
-	month = {May},
-	posted-at = {2007-04-19 12:49:22},
-	priority = {2},
-	publisher = {The MIT Press},
-	title = {The Definition of Standard ML - Revised},
-	url = {http://www.amazon.ca/exec/obidos/redirect?tag=citeulike09-20\&amp;path=ASIN/0262631814},
-	year = {1997},
-        annote = {I do not own this, but I should}
+@Article{	  leroy.blazy:formal,
+  author	= {Xavier Leroy and Sandrine Blazy},
+  title		= {Formal verification of a {C}-like memory model and its
+		  uses for verifying program transformations},
+  journal	= {Journal of Automated Reasoning},
+  year		= {2008},
+  volume	= 41,
+  number	= 1,
+  pages		= {1--31},
+  xtopic	= {compcert},
+  url		= {http://gallium.inria.fr/~xleroy/publi/memory-model-journal.pdf}
+		  ,
+  urlpublisher	= {http://dx.doi.org/10.1007/s10817-008-9099-0},
+  abstract	= { This article presents the formal verification, using the
+		  Coq proof assistant, of a memory model for low-level
+		  imperative languages such as C and compiler intermediate
+		  languages. Beyond giving semantics to pointer-based
+		  programs, this model supports reasoning over
+		  transformations of such programs. We show how the
+		  properties of the memory model are used to prove semantic
+		  preservation for three passes of the Compcert verified
+		  compiler.}
 }
 
-@article{wadler+1996:type-classes,
-	abstract = {This paper defines a set of type inference rules
-                  for resolving overloading introduced by type
-                  classes. Programs including type classes are
-                  transformed into ones which may be typed by the
-                  Hindley-Milner inference rules. In contrast to other
-                  work on type classes, the rules presented here
-                  relate directly to user programs. An innovative
-                  aspect of this work is the use of second-order
-                  lambda calculus to record type information in the
-                  program.},
-	author = {Hall, Cordelia  V.  and Hammond, Kevin   and Simon, S. L. P.  and Wadler, Philip  L. },
-	citeulike-article-id = {4956},
-	journal = {ACM Transactions on Programming Languages and Systems},
-	keywords = {class, haskell, type},
-	month = {March},
-	number = {2},
-	pages = {109--138},
-	posted-at = {2007-03-19 16:31:07},
-	priority = {2},
-	publisher = {ACM Press},
-	title = {Type Classes in Haskell},
-	url = {http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.48.5615},
-	volume = {18},
-	year = {1996}
-}
-@inproceedings{glueck+2007,
- author = {Yokoyama,, Tetsuo and Gl\"{u}ck,, Robert},
- title = {A reversible programming language and its invertible self-interpreter},
- booktitle = {PEPM '07: Proceedings of the 2007 ACM SIGPLAN Symposium on Partial Evaluation and Semantics-based Program Manipulation},
- year = 2007,
- isbn = {978-1-59593-620-2},
- pages = {144--153},
- location = {Nice, France},
- doi = {http://doi.acm.org/10.1145/1244381.1244404},
- publisher = {ACM},
- }
-
-@Misc{coq-add,
-  title = 	 {The Coq Faq},
-  howpublished = {\url{http://coq.inria.fr/V8.1/faq.html}},
-  author = {Coq development team}
+@Article{	  leroy.grall:coinductive,
+  author	= {Xavier Leroy and Hervé Grall },
+  title		= {Coinductive big-step operational semantics},
+  journal	= {Information and Computation},
+  volume	= 207,
+  number	= 2,
+  pages		= {284--304},
+  year		= 2009,
+  urllocal	= {http://gallium.inria.fr/~xleroy/publi/coindsem-journal.pdf}
+		  ,
+  urlpublisher	= {http://dx.doi.org/10.1016/j.ic.2007.12.004},
+  abstract	= {Using a call-by-value functional language as an example,
+		  this article illustrates the use of coinductive definitions
+		  and proofs in big-step operational semantics, enabling it
+		  to describe diverging evaluations in addition to
+		  terminating evaluations. We formalize the connections
+		  between the coinductive big-step semantics and the standard
+		  small-step semantics, proving that both semantics are
+		  equivalent. We then study the use of coinductive big-step
+		  semantics in proofs of type soundness and proofs of
+		  semantic preservation for compilers. A methodological
+		  originality of this paper is that all results have been
+		  proved using the Coq proof assistant. We explain the
+		  proof-theoretic presentation of coinductive definitions and
+		  proofs offered by Coq, and show that it facilitates the
+		  discovery and the presentation of the results. (See
+		  \verb|http://gallium.inria.fr/~xleroy/coindsem/| for the
+		  Coq on-machine formalization of these results.)},
+  xtopic	= {mechsem},
+  annote	= {This little gem was one I used in the draft version in my
+		  Bachelors thesis}
 }
 
-@Misc{twelf,
-  author =       {Carsten Sch\"urmann and Frank Pfenning},
-  title  =       {The Twelf logical framework},
-  howpublished = {available at \url{http://twelf.plparty.org}},
-  year = {1999-2009},
+@Misc{		  leroy:compcert,
+  author	= {Xavier Leroy},
+  title		= {The {Compcert} verified compiler, commented {Coq}
+		  development},
+  month		= mar,
+  year		= 2008,
+  xtopic	= {compcert},
+  howpublished	= {Available at \url{http://compcert.inria.fr/doc/}}
 }
 
-@Misc{coqdev,
-  author = 	 {Coq development team},
-  title = 	 {Coq Proof Assistant},
-  howpublished = {available at \url{http://coq.inria.fr/}},
-  year = 	 {1989-2009},
+@Book{		  milner.tofte.ea:definition,
+  abstract	= {Standard ML is a general-purpose programming language
+		  designed for large projects. This book provides a formal
+		  definition of Standard ML for the benefit of all concerned
+		  with the language, including users and implementers.
+		  Because computer programs are increasingly required to
+		  withstand rigorous analysis, it is all the more important
+		  that the language in which they are written be defined with
+		  full rigor. One purpose of a language definition is to
+		  establish a theory of meanings upon which the understanding
+		  of particular programs may rest. To properly define a
+		  programming language, it is necessary to use some form of
+		  notation other than a programming language. Given a concern
+		  for rigor, mathematical notation is an obvious choice. The
+		  authors have defined their semantic objects in mathematical
+		  notation that is completely independent of Standard ML. In
+		  defining a language one must also define the rules of
+		  evaluation precisely--that is, define what meaning results
+		  from evaluating any phrase of the language. The definition
+		  thus constitutes a formal specification for an
+		  implementation. The authors have developed enough of their
+		  theory to give sense to their rules of evaluation. The
+		  Definition of Standard ML is the essential point of
+		  reference for Standard ML. Since its publication in 1990,
+		  the implementation technology of the language has advanced
+		  enormously and the number of users has grown. The revised
+		  edition includes a number of new features, omits
+		  little-used features, and corrects mistakes of
+		  definition.},
+  author	= {Milner, Robin and Tofte, Mads and Harper, Robert and
+		  Macqueen, David },
+  citeulike-article-id={113339},
+  howpublished	= {Paperback},
+  isbn		= {0262631814},
+  keywords	= {ml, programming},
+  month		= {May},
+  posted-at	= {2007-04-19 12:49:22},
+  priority	= {2},
+  publisher	= {The MIT Press},
+  title		= {The Definition of Standard ML - Revised},
+  url		= {http://www.amazon.ca/exec/obidos/redirect?tag=citeulike09-20\&amp;path=ASIN/0262631814}
+		  ,
+  year		= {1997},
+  annote	= {I do not own this, but I should}
 }
 
-@MISC{chlipala+08:cpdt,
-  author = 	 {Adam Chlipala},
-  title = 	 {Certified Programming with Dependent Types},
-  year = 	 {2008},
-  howpublished = {Available at
-                    \url{http://adam.chlipala.net/cpdt/}}
+@InProceedings{	  morita.yamaguchi:universal,
+  author	= {Kenichi Morita and Yoshikazu Yamaguchi},
+  title		= {A Universal Reversible Turing Machine},
+  booktitle	= {MCU},
+  year		= {2007},
+  pages		= {90-98},
+  ee		= {http://dx.doi.org/10.1007/978-3-540-74593-8_8},
+  crossref	= {durand-lose.margenstern:machines},
+  bibsource	= {DBLP, http://dblp.uni-trier.de}
 }
 
-@article{hhp93lf,
- author = {Robert Harper and Furio Honsell and Gordon Plotkin},
- title = {A framework for defining logics},
- journal = {J. ACM},
- volume = {40},
- number = {1},
- year = {1993},
- issn = {0004-5411},
- pages = {143--184},
- doi = {http://doi.acm.org/10.1145/138027.138060},
- publisher = {ACM Press},
- }
-
-@article{harper+05:how-to-believe,
-  author = {Robert Harper and Karl Crary},
-  title = {How to Believe a Twelf Proof},
-  year = {2005}
+@Book{		  pierce:advanced,
+  abstract	= {The study of type systems for programming languages now
+		  touches many areas of computer science, from language
+		  design and implementation to software engineering, network
+		  security, databases, and analysis of concurrent and
+		  distributed systems. This book offers accessible
+		  introductions to key ideas in the field, with contributions
+		  by experts on each topic.<br /> <br /> The topics covered
+		  include precise type analyses, which extend simple type
+		  systems to give them a better grip on the run time behavior
+		  of systems; type systems for low-level languages;
+		  applications of types to reasoning about computer programs;
+		  type theory as a framework for the design of sophisticated
+		  module systems; and advanced techniques in ML-style type
+		  inference.<br /> <br /> <i>Advanced Topics in Types and
+		  Programming Languages</i> builds on Benjamin Pierce's
+		  <i>Types and Programming Languages</i> (MIT Press, 2002);
+		  most of the chapters should be accessible to readers
+		  familiar with basic notations and techniques of operational
+		  semantics and type systems -- the material covered in the
+		  first half of the earlier book.<br /> <br /> <i>Advanced
+		  Topics in Types and Programming Languages</i> can be used
+		  in the classroom and as a resource for professionals. Most
+		  chapters include exercises, ranging in difficulty from
+		  quick comprehension checks to challenging extensions, many
+		  with solutions.},
+  author	= {Pierce, Benjamin C. },
+  citeulike-article-id={105559},
+  howpublished	= {Hardcover},
+  isbn		= {0262162288},
+  keywords	= {dependent-types, functional-programming, type-theory},
+  month		= {November},
+  posted-at	= {2008-02-26 14:24:06},
+  priority	= {3},
+  publisher	= {MIT Press},
+  title		= {Advanced Topics In Types And Programming Languages},
+  url		= {http://www.amazon.ca/exec/obidos/redirect?tag=citeulike09-20\&amp;path=ASIN/0262162288}
+		  ,
+  year		= {2004},
+  annote	= {I have not read this one yet, but should!}
 }
 
-@Article{harper+07:mechanizing,
-  author = 	 {Robert Harper and Daniel R. Licata},
-  title = 	 {Mechanizing Metatheory in a Logical Framework},
-  journal = 	 {Journal of Functional Programming},
-  year = 	 2007,
-  volume = 	 {?},
-  number = 	 {?},
-  pages = 	 {?--?},
-  month = 	 {?},
-  note = 	 {(To appear.)}}
-
-@MISC{Leroy-Compcert-Coq,
-  AUTHOR = {Xavier Leroy},
-  TITLE = {The {Compcert} verified compiler,
-                 commented {Coq} development},
-  MONTH = MAR,
-  YEAR = 2008,
-  XTOPIC = {compcert},
-  HOWPUBLISHED = {Available at
-                        \url{http://compcert.inria.fr/doc/}}
+@Book{		  pierce:types,
+  abstract	= {A type system is a syntactic method for automatically
+		  checking the absence of certain erroneous behaviors by
+		  classifying program phrases according to the kinds of
+		  values they compute. The study of type systems--and of
+		  programming languages from a type-theoretic perspective-has
+		  important applications in software engineering, language
+		  design, high-performance compilers, and security.<br /> <br
+		  /> This text provides a comprehensive introduction both to
+		  type systems in computer science and to the basic theory of
+		  programming languages. The approach is pragmatic and
+		  operational; each new concept is motivated by programming
+		  examples and the more theoretical sections are driven by
+		  the needs of implementations. Each chapter is accompanied
+		  by numerous exercises and solutions, as well as a running
+		  implementation, available via the Web. Dependencies between
+		  chapters are explicitly identified, allowing readers to
+		  choose a variety of paths through the material.<br /> <br
+		  /> The core topics include the untyped lambda-calculus,
+		  simple type systems, type reconstruction, universal and
+		  existential polymorphism, subtyping, bounded
+		  quantification, recursive types, kinds, and type operators.
+		  Extended case studies develop a variety of approaches to
+		  modeling the features of object-oriented languages.},
+  author	= {Pierce, Benjamin C. },
+  citeulike-article-id={105547},
+  howpublished	= {Hardcover},
+  isbn		= {0262162091},
+  keywords	= {type-theory},
+  month		= {March},
+  posted-at	= {2008-02-26 14:24:32},
+  priority	= {0},
+  publisher	= {MIT Press},
+  title		= {Types and Programming Languages},
+  url		= {http://www.amazon.ca/exec/obidos/redirect?tag=citeulike09-20\&amp;path=ASIN/0262162091}
+		  ,
+  year		= {2002},
+  annote	= {Really good book. A bit simple perhaps, but it describes
+		  the issues of type systems really well. I enjoyed reading
+		  it.}
 }
 
-@ARTICLE{Leroy-Blazy-memory-model,
-  AUTHOR = {Xavier Leroy and Sandrine Blazy},
-  TITLE = {Formal verification of a {C}-like memory model
-                         and its uses for verifying program transformations},
-  JOURNAL = {Journal of Automated Reasoning},
-  YEAR = {2008},
-  VOLUME = 41,
-  NUMBER = 1,
-  PAGES = {1--31},
-  XTOPIC = {compcert},
-  URL = {http://gallium.inria.fr/~xleroy/publi/memory-model-journal.pdf},
-  URLPUBLISHER = {http://dx.doi.org/10.1007/s10817-008-9099-0},
-  ABSTRACT = {
-This article presents the formal verification, using the Coq proof
-assistant, of a memory model for low-level imperative languages such
-as C and compiler intermediate languages.  Beyond giving semantics
-to pointer-based programs, this model supports reasoning over
-transformations of such programs.  We show how the properties of the
-memory model are used to prove semantic preservation for three passes
-of the Compcert verified compiler.}
+@Unpublished{	  pottier.rémy:essence,
+  author	= {François Pottier and Didier Rémy},
+  title		= {The Essence of {ML} Type Inference},
+  year		= {2003},
+  note		= {Extended preliminary version of \CITE{pottier-remy/emlti}},
+  html		= {http://cristal.inria.fr/attapl/},
+  psgz		= {http://cristal.inria.fr/attapl/preversion.ps.gz}
+}
+
+@Misc{		  schurmann.pfenning:twelf,
+  author	= {Carsten Sch\"urmann and Frank Pfenning},
+  title		= {The Twelf logical framework},
+  howpublished	= {available at \url{http://twelf.plparty.org}},
+  year		= {1999-2009}
+}
+
+@Misc{		  team:coq,
+  title		= {The Coq Faq},
+  howpublished	= {\url{http://coq.inria.fr/V8.1/faq.html}},
+  author	= {Coq development team}
+}
+
+@Misc{		  team:coq*1,
+  author	= {Coq development team},
+  title		= {Coq Proof Assistant},
+  howpublished	= {available at \url{http://coq.inria.fr/}},
+  year		= {1989-2009}
+}
+
+@Book{		  thorup:algebra,
+  author	= {Anders Thorup},
+  title		= {Algebra},
+  publisher	= {Universitetsbogladen},
+  year		= {2007},
+  optkey	= {},
+  optvolume	= {},
+  optnumber	= {},
+  optseries	= {},
+  optaddress	= {},
+  optedition	= {},
+  optmonth	= {},
+  isbn		= {87-91180-28-7},
+  annote	= {This book was the one I used when I first learned algebra.
+		  Written in Danish, it is one of the best books I've read as
+		  an introductory book to the subject}
+}
+
+@InProceedings{	  yokoyama.axelsen.ea:principles,
+  author	= {Yokoyama,, Tetsuo and Axelsen,, Holger Bock and
+		  Gl\"{u}ck,, Robert},
+  title		= {Principles of a reversible programming language},
+  booktitle	= {CF '08: Proceedings of the 2008 Conference on Computing
+		  Frontiers},
+  year		= {2008},
+  isbn		= {978-1-60558-077-7},
+  pages		= {43--54},
+  location	= {Ischia, Italy},
+  doi		= {http://doi.acm.org/10.1145/1366230.1366239},
+  publisher	= {ACM},
+  annotate	= {Robert and Holgers work on the reversible language JANUS
+		  with Tetsou Yokoyama. The paper is going ahead faster than
+		  glueck+2007, and has a more overview-feel to it. On the
+		  other hand it provides changes to the semantics which
+		  alters the language in important ways.}
+}
+
+@InProceedings{	  yokoyama.gluck:reversible,
+  author	= {Yokoyama,, Tetsuo and Gl\"{u}ck,, Robert},
+  title		= {A reversible programming language and its invertible
+		  self-interpreter},
+  booktitle	= {PEPM '07: Proceedings of the 2007 ACM SIGPLAN Symposium on
+		  Partial Evaluation and Semantics-based Program
+		  Manipulation},
+  year		= 2007,
+  isbn		= {978-1-59593-620-2},
+  pages		= {144--153},
+  location	= {Nice, France},
+  doi		= {http://doi.acm.org/10.1145/1244381.1244404},
+  publisher	= {ACM}
 }

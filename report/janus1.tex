@@ -33,7 +33,7 @@ as full JANUS.
 
 From the perspective of mathematics, 32-bit values means we are
 working in the ring $\mathbb{Z}/2^{32}\mathbb{Z}$
-\cite{c-u-jensen+2003:klassisk-algebra}.  We could have chosen other
+\cite{jensen:klassisk}.  We could have chosen other
 rings as the base for our numbers in JANUS.
 
 Let us recap exactly what is meant by a ring
@@ -77,7 +77,7 @@ will call these integers $W^{32}$.
 \subsection{\coq{} Implementation}
 
 The Coq implementation of 32-bit numbers owes everything to Xavier
-Leroy et. al\cite{Leroy-Compcert-Coq}. The work is taken from the
+Leroy et. al\cite{leroy:compcert}. The work is taken from the
 \textsc{CompCert} project, which introduces them in the course of
 formalizing a complete C to PowerPC compiler. The reason for taking
 the work rather than building it from scratch is due to the sheer
@@ -194,7 +194,7 @@ To the expressions of \janusz{}, we make the following additions:
         \bor & e \land e \bor e \lor e \bor e < e
 \end{align*}
 
-The additions to the expression language are as in \cite{glueck+2008};
+The additions to the expression language are as in \cite{yokoyama.axelsen.ea:principles};
 we add arithmetic operators of division and modulo to 32-bit
 numbers. We add a couple of relational operators, namely equality,
 non-equality, logical and, logical or and a less-than operator.
@@ -212,7 +212,7 @@ development.
 \section{Augmenting statements}
 
 To the statement language we add the rules of \texttt{call},
-\texttt{uncall} and xor ($\hat{=}$). 
+\texttt{uncall} and xor ($\hat{=}$).
 \begin{equation*}
   s ::= \dotsc \bor \<call> p \bor \<uncall> p \bor x \; \hat{=} \; e
 \end{equation*}
@@ -273,7 +273,7 @@ our focus unto the properties of the language.
 Converting the proofs from \janusz{} to \januso{} has one main
 complication: we went from $\ZZ$ to $W^{32}$. When \coq{} works with
 integers, and we only used Presburger
-arithmetic\cite{cooper+1972:theorem-prooving} we can solve such terms
+arithmetic\cite{cooper:theorem} we can solve such terms
 by the use of the ``omega'' tactic in \coq{}. For our 32-bit integers,
 no such thing is present however, so we need to do the proofs by hand.
 
