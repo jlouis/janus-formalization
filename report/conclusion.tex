@@ -9,30 +9,34 @@
 %     another researcher to use your simulator or avoid pitfalls]
 % * Future work. Reinforce the importance of work, but avoid giving out your ideas].
 
-\fixme{This conclusion needs some updating!}
-In this project we have:
+In this project we have studied the machine verifiable formalization
+of the JANUS programming language. We gradually built up the language
+in several steps towards the full JANUS language. Our accomplishments are:
 \begin{itemize}
-\item Formalized most of JANUS and its main properties, if we
-  disregard loops. The formalization is carried out in the \coq{}
-  proof assistant, amounts to 1500 lines of vernacular code. This must
-  be considered an intermediate-size formalization.
-\item Fncovered a problem in the formalization of loops with
-  the existing semantics for JANUS.
-\item Shown that the ability to do \emph{hiding} in stores
-  yields a pretty solution to the problem ``$x$ must not occur in the
-  expression on the right-hand side''. Thus, we have contributed more
-  formality to the process of writing formalizations of reversible
-  languages. Many reversible languages with stores will gain benefit
-  from the idea of store hiding.
+\item Formalization of large parts of the JANUS language. The
+  formalization is machine-verified in the \coq{} proof assistant, and
+  amounts to 1500 lines of vernacular code (of own production).
+\item Uncovering of a problem with the backwards determinism proof of
+  JANUS. What is clear that a simple proof is not possible. One needs
+  a more complex proof or an altered semantics. For the latter, it
+  must still encapsulate the ideology of the JANUS language.
+\item Contribution of the \emph{hiding}-concept in stores for encoding
+  of the informal notion ``$x$ must not occur in expression $e$''. Many
+  reversible languages with stores will benefit from this idea as it
+  is directly applicable.
+\item Foundations for formalization of reversible languages. It is far
+  easier to amend an almost-full JANUS formalization than it is to
+  begin from scratch. As such the work can be used for further studies.
 \end{itemize}
 
-Furthermore we gained important insight in the use of the \coq{}
-framework for formalization of computer programs in general. This
-insight will benefit further work with logical frameworks or proof
-assistants as many concepts are interchangeable between them. We also
-provide a foundation to build on for further formalization of a
-JANUS-like language as it is far easier to change a formalization than
-it is to provide a new one from scratch.
+In addition, we learned important lessons on using proof frameworks,
+in particular the framework of \coq{}. And we learned a lot about
+encoding syntax, semantics and proofs. This knowledge is useful with
+other proof frameworks. Like programming it is a skill that can be
+trained. In fact, carrying out proofs feels like programming the
+proof. The 1500 lines of vernacular constitutes an intermediate-sized
+proof script, which is bigger than what the author has ever tried to
+formalize.
 
 %%% Local Variables: 
 %%% mode: latex
