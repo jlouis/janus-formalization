@@ -1,8 +1,10 @@
 \chapter{Full JANUS}
 \label{chap:fulljanus}
 
-The full JANUS language adds 2 things to \januso{}: arrays and
-loops. Taking loops first, we augment the syntax of statements with
+In this chapter, we will describe a full variant of JANUS that is akin
+to the language given in \cite{glueck+2007}. The full JANUS language
+adds 2 things to \januso{}: arrays and loops. Taking loops first, we
+augment the syntax of statements with
 \command{loop[\;loop\;],from[\;from\;],do[\;do\;],until[\;until\;]}
 \begin{equation*}
   s ::= \dotsc \bor \<from> e \<do> s \<loop> s \<until> e
