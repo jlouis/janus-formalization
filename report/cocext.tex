@@ -4,14 +4,11 @@
 In this chapter, we survey two formalization frameworks and chooses
 one of them for the JANUS development.
 
-\fixme{rewrite from here}
-One might want to know what decided the formal verification framework
-to use. The author has used two frameworks in the past, \coq{} and \twelf{}
-and it felt logical to use one of those in the formal verification.
-
-One has to make the choice of framework early on and then stick to
-it. It is exactly like choosing a programming language for a given
-task.
+The author has used two frameworks in the past; \coq{} and
+\twelf{}. It felt logical to use one of those in the formal
+verification in order not to begin from scratch.  One has to make the
+choice of framework early on and then stick to it. It is exactly like
+choosing a programming language for a given task.
 
 \coq{} is a proof assistant using an (co-)inductive variant of the
 Calculus of Constructions (CoC). It relies on the Curry-Howard
@@ -19,7 +16,8 @@ correspondence to get a link between program/proof and
 types/theorems. Proof are carried out by giving tactics; hints about
 what to do next. These tactics then build up a term which constitutes
 the proof via the Curry-Howard isomorphism. Finally, a low level type
-checker makes sure the proof is correct.
+checker makes sure the proof is correct. The only thing you have to
+trust is then this low-level type checker.
 
 \twelf{} uses a dependently typed lambda calculus constrained to
 certain canonical forms. This calculus is called LF. The syntax,
@@ -29,15 +27,9 @@ the correctness of the proof, see \cite{harper+05:how-to-believe,
   harper+07:mechanizing}.
 
 \coq{} supports proof automation where parts of proofs are done
-automatically by the computer. However, most of the time carrying out
-proofs are spent on things other than the proof structure: a
-considerable amount of time is spent on figuring out how to conduct
-the proof. Another time consumer is feeding the necessary prior
-knowledge to the proof system for the development. You can only carry
-out 32-bit addition if the system knows what a 32-bit
-number is, and what addition means. Properties of JANUS relies on
-properties of 32-bit addition, so this must be fed to the framework as
-well.
+automatically by the computer. However, most of the time spent are not
+on writing the proof down: a considerable amount of time is used on
+figuring out how to conduct the proof.
 
 \twelf{} does not currently support automation of proof. On the other
 hand, it provides proof \emph{adequacy}: there is an isomorphism
@@ -46,6 +38,9 @@ proof can be transcribed to a standard paper proof. If one is
 interested in how the proof is carried out, \twelf{} has a more direct
 approach. \coq{} does not provide a proof term that is easily
 digestible by a human reader.
+
+The main difference is thus that \coq{} uses a procedural style for
+its proof language, whereas \twelf{} employs a declarative style.
 
 The JANUS development needs 32-bit numbers. These were available for
 \coq{}, but not for \twelf{}. One could have used classic integers of
@@ -61,21 +56,21 @@ available in \coq{}, but are considerably harder to use. From \coq{}
 version 8.2, some syntactic sugar has been added to make its
 use easier, but it has not seen much testing yet.
 
+\paragraph{Conclusion}
 It was deemed that it would be best to have easy access to 32-bit
 numbers and hence \coq{} were chosen. In hindsight certain mutual
 induction proofs would probably have been easier to carry out in
 \twelf{} and to rely on arbitrary sized integers would not have been
-detrimental to the demonstration of the findings in this report. The
-author would probably have used \twelf{} should he do the task again.
+detrimental to the demonstration of the findings in this report.
 
 \section{Extensions to C(co-)iC}
 
-We now extend \coq{} with two useful axioms: the \coq{} system uses
-the Calculus of (co-)inductive constructions as its underlying
-programming language and thus (by Curry-Howard) as its logic. This
-system is immensely powerful and can encode large parts of traditional
-mathematics. However, there are certain properties which are
-unprovable in the C(co-)iC.
+Having chosen \coq{} We now extend it with two useful axioms. The
+system uses the Calculus of (co-)inductive constructions as its
+underlying programming language and thus (by Curry-Howard) as its
+logic. This system is immensely powerful and can encode large parts of
+traditional mathematics. However, there are certain properties which
+are unprovable in the C(co-)iC.
 
 An unprovable property should not let an aspiring \coq{} user down. We
 can just add that property as an axiom to the system and take it for
@@ -89,7 +84,7 @@ introducing any inconsistencies.
 \label{sec:proof-irrelevance}
 
 The Irrelevance of proofs state that if we have two ways of proving
-the same thing, it is irrelevant which one we look at. They are
+the same thing, it is irrelevant which one we look at -- They are
 equal. Formally:
 \begin{axm}
   Suppose $P$ is any proposition. Let $p_1$ and $p_2$ be proofs of
