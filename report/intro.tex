@@ -39,6 +39,10 @@ definitions and results, which in turn sharpens and refines our
 knowledge of a field. A better understanding through formality makes
 it easier to gather new knowlegde in a field.
 
+Finally, the meta-theoretic properties of reversible languages are
+rather unique to the field. Hence, the community of mechanical
+verification gains a new set of properties to work with.
+
 This DIKU graduate project establishes a formalized semantics for
 a variant of the JANUS language in the proof assistant \coq{}. The
 main academic contribution of the paper is the use of syntax-driven
@@ -57,35 +61,46 @@ the concepts introduced as they are needed.
 Finally, this report is honest to the state-of-the-art: any result is
 mechanically formalized and verified in \coq{}.
 
-\fixme{We should probably expand this thing for the censor, so he can
-  read all of the report here}
-The rest of the paper is structured as follows. First, in section
-\ref{sec:thm-prover-choice} we choose a theorem proving
-framework. Then we proceed with formalizing a small subset of the
-JANUS language, \janusz{} in chapter \ref{chap:janus0} -- at the same
-time providing the \coq{}-foundational work needed. In chapter
-\ref{chap:janus1}, we formalize a larger variant of the JANUS
-language, \januso{}, including 32-bit unsigned integers. Then we
-tackle full JANUS in chapter \ref{chap:fulljanus}. Finally, we wrap up
-the report with further work and a conclusion.
+The rest of the paper is structured as follows.
+\begin{itemize}
+\item In section \ref{sec:revers-comp}, we give a short introduction
+  to the concept of reversible computation. We present the general
+  ideas and provides formal notions of reversibility.
+\item In chapter \ref{chap:thm-prover-choice} we choose a theorem proving
+  framework. There are many frameworks one can use for formalization,
+  each with their advantages and disadvantages; hence one must be chosen.
+\item Then, in chapter \ref{chap:janus0}, we proceed to formalize a
+  small subset of JANUS we call \janusz{}. This acts as a driver for
+  introducing the foundations of the formalizations while keeping the
+  language simple and lean.
+\item Chapter \ref{chap:janus1} layers new concepts on top of
+  \janusz{}. 32-bit unsigned integers are introduced in the
+  formalization, procedure calls are added. The resulting language,
+  called \januso{} is presented formally.
+\item Then, in chapter \ref{chap:fulljanus} we tackle the remaining
+  parts of the JANUS-language variant we have decided to work with. We
+  point to various problems with the formalization of full JANUS and
+  we give ideas for solving these.
+\item The report wraps up and closes with a discussion of further work
+  and a conclusion.
+\end{itemize}
 
 \subsection{Related work}
 
-There are several examples of reversible programming languages. There
-are reversible Turing machines \cite{morita+2007:reversible-tm} and
-other reversible functional languages
-\cite{glueck+2005:program-inverter}. There are also many examples of
-programming language formalizations with a large diversity: functional
-languages \cite{leroy+2009:coinductive-big-step}, substructural
-languages \cite{fluett+2007:phd-thesis} and foundational languages
+There are several examples of reversible programming languages:
+reversible Turing machines \cite{morita+2007:reversible-tm},
+functional languages \cite{glueck+2005:program-inverter} etc.. There
+are also many examples of programming language formalizations with a
+large diversity: functional languages
+\cite{leroy+2009:coinductive-big-step}, substructural languages
+\cite{fluett+2007:phd-thesis} and foundational languages
 \cite{jlouis+2007:bachelor}
 
 To our knowledge, nobody has tried to formalize reversible programming
 languages using mechanical verification tools before this project. As
 such, this project combines two otherwise unrelated fields: namely the
 field of mechanical verification of programming language properties
-and the field of reversible language theory. We hope this will benefit
-both fields.
+and the field of reversible language theory.
 
 \subsection{Expectations}
 
@@ -93,84 +108,20 @@ We expect the reader to be well versed in the concepts of programming
 language semantics and proofs of programming language meta-theory. We
 further expect the reader to know the general idea of logical
 frameworks, proof assistants and theorem provers. We won't describe
-the concepts of \coq{} in much detail. We will just point to the
-literature \fixme{cite}.
+the concepts of \coq{} in much detail and just point to the literature
+\fixme{cite}.
 
 We also expect the reader to be somewhat familiar with the concept of
 reversible languages. In particular we expect the reader to know what
-it means for a language to be reversible in the informal sense.
-
-\section{Choice of formalization framework}
-\label{sec:thm-prover-choice}
-
-One might want to know what decided the formal verification framework
-to use. The author has used two frameworks in the past, \coq{} and \twelf{}
-and it felt logical to use one of those in the formal verification.
-
-One has to make the choice of framework early on and then stick to
-it. It is exactly like choosing a programming language for a given
-task.
-
-\coq{} is a proof assistant using an (co-)inductive variant of the
-Calculus of Constructions (CoC). It relies on the Curry-Howard
-correspondence to get a link between program/proof and
-types/theorems. Proof are carried out by giving tactics; hints about
-what to do next. These tactics then build up a term which constitutes
-the proof via the Curry-Howard isomorphism. Finally, a low level type
-checker makes sure the proof is correct.
-
-\twelf{} uses a dependently typed lambda calculus constrained to
-certain canonical forms. This calculus is called LF. The syntax,
-semantics, and proofs are then all encoded in this LF-language. For
-proof validity, separate checker then verifies certain properties on
-the correctness of the proof, see \cite{harper+05:how-to-believe,
-  harper+07:mechanizing}.
-
-\coq{} supports proof automation where parts of proofs are done
-automatically by the computer. However, most of the time carrying out
-proofs are spent on things other than the proof structure: a
-considerable amount of time is spent on figuring out how to conduct
-the proof. Another time consumer is feeding the necessary prior
-knowledge to the proof system for the development. You can only carry
-out 32-bit addition if the system knows what a 32-bit
-number is, and what addition means. Properties of JANUS relies on
-properties of 32-bit addition, so this must be fed to the framework as
-well.
-
-\twelf{} does not currently support automation of proof. On the other
-hand, it provides proof \emph{adequacy}: there is an isomorphism
-between the proof in \twelf{} and proof on paper. In other words, any
-proof can be transcribed to a standard paper proof. If one is
-interested in how the proof is carried out, \twelf{} has a more direct
-approach. \coq{} does not provide a proof term that is easily
-digestible by a human reader.
-
-The JANUS development needs 32-bit numbers. These were available for
-\coq{}, but not for \twelf{}. One could have used classic integers of
-infinite size however. \coq{} further had support for arithmetic in
-libraries, whereas in \twelf{}, we would have to encode this
-ourselves. On the other hand, \twelf{} has a simpler system and excels
-at working with lambda-style binders through
-Higher-order-abstract-syntax (HOAS). For \twelf{}, it would be
-beneficial to encode the functions via HOAS, but we can't utilize HOAS
-for the store where it would have been even more beneficial. \twelf{}
-also has support for several mutual induction schemes. These are also
-available in \coq{}, but are considerably harder to use. From \coq{}
-version 8.2, some syntactic sugar has been added to make its
-use easier, but it has not seen much testing yet.
-
-It was deemed that it would be best to have easy access to 32-bit
-numbers and hence \coq{} were chosen. In hindsight certain mutual
-induction proofs would probably have been easier to carry out in
-\twelf{} and to rely on arbitrary sized integers would not have been
-detrimental to the demonstration of the findings in this report. The
-author would probably have used \twelf{} should he do the task again.
+it means for a language to be reversible in the informal sense and we
+expect the reader to know, in general, the semantics of JANUS.
 
 \section{Reversible computation}
 \label{sec:revers-comp}
 
-Suppose we are given a program $p$ and give it an input $x$ and it
-yields an output $y$:
+We now give a short introduction to the concept of reversible
+computation: suppose we are given a program $p$ and give it an input
+$x$ and it yields an output $y$:
 \begin{equation*}
   |[p|](x) = y
 \end{equation*}
