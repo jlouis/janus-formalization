@@ -258,11 +258,11 @@ does not matter. The following lemma makes this specific
 
 \subsection{History}
 
-In the course of construction the right store, we tried several
+In the course of constructing the right store, we tried several
 experiments which all proved to be less useful than the development
-given here. At the beginning, we envisioned the store to be a map from
-$Loc \to S$. The empty store were then defined as mapping everything
-to the value $0$. The problem with this solution is that we cannot
+given here. At the beginning, we envisioned the store to be a map $Loc
+\to S$. The empty store were then defined as mapping everything to the
+value $0$. The problem with this solution is that we cannot
 differentiate between the value $0$ and no value at all. This
 eliminates our knowledge of a location being invalid.
 
@@ -280,7 +280,7 @@ subtraction and multiplication.
 The syntax of expressions $e$ is the following in BNF notation:
 \newcommand{\bor}{\; | \;}
 \begin{equation*}
-  e ::= n \bor \mathtt{x} \bor e + e \bor e - e \bor e * e
+  e ::= \; n \bor \mathtt{x} \bor e + e \bor e - e \bor e * e
 \end{equation*}
 The judgement forms are $\sigma |- e => z$ stating that under the
 assumption of a store $\sigma$ the expression $e$ evaluates to the
@@ -296,27 +296,38 @@ integer $z$. The inference rules for this system is straightforward:
     n_1 * n_2 = n}{\sigma |- e_1 * e_2 => n}
 \end{gather*}
 
-There is another, denotational, semantics for expressions
-however. This semantics are equal to the operational semantics given
-above. One aspect of Coq is that it is more natural to express
-denotational semantics than operational semantics.
+There is an denotational semantics for expressions
+however. This semantics is equal to the operational semantics given
+above. One aspect of \coq{} is that it is more natural to express
+denotational semantics than operational semantics, as one can utilize
+the functional language of \gallina{}.
 
 \label{exp:denot-semantics}
 For a denotational semantics, we define a computation
 $\mathcal{E}|[-|] \colon E \to \Sigma \to \ZZ_{\perp}$ from an
-expression and a Store $\Sigma$ to a lifted value. The definition is a
-case analysis on the structure of the expression given:
+expression and a store to a lifted value. A good initial move
+is to introduce a monad on binary operations to simplify the
+definition. If $\odot \colon S \times S \to S$ is a binary operator,
+we define $\odot^{*} \colon S_{\perp} \times S_{\perp} \to S_{\perp}$ by:
+\begin{gather*}
+  \perp \odot^{*}\; y =\; \perp\\
+  x \; \odot^{*} \perp =\; \perp\\
+  \lift{x} \; \odot^{*}\;  \lift{y} = \lift{x \; \odot \; y}
+\end{gather*}
+
+With this definition in hand, we can define expression evaluation by
+case analyses on the structure of the expression given:
 \begin{align*}
   \mathcal{E}|[n|](\sigma) & = \lift{n}\\
   \mathcal{E}|[x|](\sigma) & = \sigma (x)\\
   \mathcal{E}|[e_1 + e_2|](\sigma) & = \mathcal{E}|[e_1|](\sigma) \;
-  +_{\ZZ} \;
+  +_{\ZZ}^{*} \;
   \mathcal{E}|[e_2|](\sigma)\\
   \mathcal{E}|[e_1 - e_2|](\sigma) & = \mathcal{E}|[e_1|](\sigma) \;
-  -_{\ZZ} \;
+  -_{\ZZ}^{*} \;
   \mathcal{E}|[e_2|](\sigma)\\
   \mathcal{E}|[e_1 * e_2|](\sigma) & = \mathcal{E}|[e_1|](\sigma) \;
-  *_{\ZZ} \;
+  *_{\ZZ}^{*} \;
   \mathcal{E}|[e_2|](\sigma)
 \end{align*}
 The operation $+$ is the operation from our expression language
