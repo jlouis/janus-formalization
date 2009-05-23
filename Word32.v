@@ -1,5 +1,6 @@
-(* Formalization of 32-bit Integers. Heavily inspired by the CompCert project,
-   {http://compcert.inria.fr}, Xavier Leroy et al. *)
+(** Formalizations of integers modulo $2^32$ #2<sup>32</sup>#.
+    Heavily inspired by the CompCert project,
+    {http://compcert.inria.fr}, Xavier Leroy et al. *)
 
 Require Import BaseLib.
 
@@ -9,7 +10,7 @@ Definition word_size : nat := 32%nat.
 Definition modulus : Z := two_power_nat word_size.
 Definition half_modulus : Z := modulus / 2.
 
-(* The following sets up some basic inductive types to compare W32's *)
+(** The following sets up some basic inductive types to compare W32's *)
 
 Inductive comparison : Set :=
 | Ceq : comparison
@@ -39,7 +40,7 @@ Definition swap_comparison c : comparison :=
     | Cgeq => Cleq
   end.
 
-(* A W32 is a 32-bit word. It is represented by a Coq integer [Z] and a proof
+(** A W32 is a 32-bit word. It is represented by a Coq integer [Z] and a proof
    it is within the allowed range *)
 
 Record w32: Set := mkint { intval: Z; intrange: 0 <= intval < modulus }.
@@ -50,8 +51,9 @@ Definition max_unsigned : Z := modulus -1.
 Definition max_signed  : Z := half_modulus -1.
 Definition min_signed  : Z := - half_modulus.
 
-(* The following section embeds and projects traditional Coq integers [Z]
+(** The following section embeds and projects traditional Coq integers [Z]
    inside w32 integers *)
+
 Definition unsigned (n: w32) : Z := intval n.
 
 Definition signed (n: w32) : Z :=
@@ -79,14 +81,16 @@ Lemma mkint_eq: forall x y Px Py,
   subst Py. reflexivity.
 Qed.
 
-(* We can decide equality for w32's *)
+(** We can decide equality for w32's *)
+
 Lemma eq_dec: forall (x y: w32), {x = y} + {x <> y}.
   intros. destruct x. destruct y. case (zeq intval0 intval1); intro.
   left. apply mkint_eq. auto.
   right. red. intro. injection H. exact n.
 Qed.
 
-(* Arithmetic and logical operations over w32's *)
+(** Arithmetic and logical operations over w32's *)
+
 Definition eq (x y: w32) : bool :=
   if zeq (unsigned x) (unsigned y) then true else false.
 Definition lt (x y: w32) : bool :=
@@ -120,7 +124,8 @@ Definition sub (x y: w32) : w32 :=
 Definition mul (x y: w32) : w32 :=
   repr (unsigned x * unsigned y).
 
-(* Helper, provides division with rounding *)
+(** Helper, provides division with rounding *)
+
 Definition Zdiv_round (x y: Z) : Z :=
   if zlt x 0
     then if zlt y 0 then (-x) / (-y) else - ((-x) / y)
@@ -144,7 +149,7 @@ Definition modu (x y: w32) : w32 :=
 Definition fracprodu (x y: w32) : w32 :=
   repr (Zdiv_round ((unsigned x) * (unsigned y)) modulus).
 
-(* Bitwise operations:
+(** Bitwise operations:
 
    We convert between Coq integers [Z] and their bit-level representations.
    this is done by representing the bit-level representation as a
@@ -152,12 +157,14 @@ Definition fracprodu (x y: w32) : w32 :=
    tells the value of the [i]th bit. We ignore values greater than the 32th
    bit. *)
 
-(* Shift and add a bool to a number *)
+(** Shift and add a bool to a number *)
+
 Definition Z_shift_add (b: bool) (x: Z) :=
   if b then 2 * x + 1 else 2 * x.
 
-(* Decompose an integer [x] into its first bit and the rest
+(** Decompose an integer [x] into its first bit and the rest
    by inspection of the [Z]-representation in Coq *)
+
 Definition Z_bin_decomp (x: Z) : bool * Z :=
   match x with
     | Z0 => (false, 0)
@@ -191,8 +198,9 @@ Fixpoint Z_of_bits (n: nat) (f: Z -> bool) {struct n}: Z :=
     | S m => Z_shift_add (f 0) (Z_of_bits m (fun i => f (i + 1)))
 end.
 
-(* Bitwise logical ``and'', ``or'' and ``xor'' operations now follow
+(** Bitwise logical ``and'', ``or'' and ``xor'' operations now follow
    easily *)
+
 Definition bitwise_binop (f: bool -> bool -> bool) (x y: w32) :=
   let fx := bits_of_Z word_size (unsigned x) in
   let fy := bits_of_Z word_size (unsigned y) in
@@ -204,7 +212,7 @@ Definition xor (x y: w32): w32 := bitwise_binop xorb x y.
 
 Definition not (x: w32): w32 := xor x mone.
 
-(* Compares *)
+(** Compares *)
 
 Definition cmp (c: comparison) (x y: w32) : bool :=
   match c with
@@ -228,11 +236,13 @@ end.
 
 (* Boolean predicates. These follow a C-like convention of everything
    different from zero is true.  *)
+
 Definition is_false (x: w32) : Prop := x = zero.
 Definition is_true  (x: w32) : Prop := x <> zero.
 
-(**** PROPERTIES ****)
+(** * Properties *)
 
+(** ** Modular arithmetic *)
 
 Section Eq_Modulo.
   Variable modul: Z.
@@ -324,7 +334,8 @@ Section Eq_Modulo.
 
 End Eq_Modulo.
 
-(* Specialization of modular arithmetic to the case 2^32 we are working in *)
+(** Specialization of modular arithmetic to the case $2^{32}$ we are working in *)
+
 Lemma modulus_pos:
   modulus > 0.
 Proof.
@@ -573,6 +584,7 @@ Proof.
 Qed.
 
 (** ** Subtraction properties *)
+
 Theorem sub_zero_l:
   forall x, sub x zero = x.
 Proof.
@@ -1085,7 +1097,8 @@ Proof.
   auto.
 Qed.
 
-(* jlouis@: Added properties *)
+(** ** Properties necessary for JANUS *)
+
 Theorem xor_x_x_zero:
   forall x,
     xor x x = zero.

@@ -1,6 +1,5 @@
-(* This file defines the Janus0 language which is a watered down
- * version of JANUS, * containing only the most important parts of it
- *)
+(** This file defines the Janus0 language which is a watered down
+    version of JANUS, containing only the most important parts of it *)
 
 Require Import BaseLib.
 Require Import ZArith.
@@ -15,10 +14,11 @@ Section Janus0.
 
   Definition Var := ZMem.var.
   Definition Value := ZMem.value.
-  (* This section defines the expression language of Janus0 *)
+
+  (** * The Expression language *)
+
   Section Expr.
 
-    (* Minimal syntax definition *)
     Inductive Exp : Set :=
     | Exp_Const : Z -> Exp
     | Exp_Var : Var -> Exp
@@ -51,6 +51,8 @@ Section Janus0.
     Definition exp_equiv (e1: Exp) (e2: Exp) :=
       forall (v: Value) (m: ZMem.memory),
         denote_Exp m e1 = Some v <-> denote_Exp m e2 = Some v.
+
+    (** ** Properties *)
 
     Lemma exp_equiv_refl: forall e,
       exp_equiv e e.
@@ -90,6 +92,8 @@ Section Janus0.
     Qed.
 
   End Expr.
+
+  (** * The Statement language *)
 
   Section Stmt.
     Inductive Stm : Set :=
@@ -138,7 +142,8 @@ Section Janus0.
       forall (m m': ZMem.memory),
         Stm_eval m s1 m' <-> Stm_eval m s2 m'.
 
-    (* Show stm_equiv *is* an equivalence relation *)
+    (** ** Properties *)
+
     Lemma stm_equiv_refl: forall s, stm_equiv s s.
     Proof.
       unfold stm_equiv. grind.
@@ -327,6 +332,8 @@ Section Janus0.
 
   End Stmt.
 
+  (** * Statement inversion *)
+
   Section Invert.
     Fixpoint invert (s : Stm) {struct s} :=
       match s with
@@ -336,6 +343,8 @@ Section Janus0.
         | S_Semi s1 s2 => S_Semi (invert s2) (invert s1)
         | S_If e1 s1 s2 e2 => S_If e2 (invert s1) (invert s2) e1
       end.
+
+    (** ** Properties *)
 
     Theorem invert_invert_id: forall s,
       invert (invert s) = s.

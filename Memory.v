@@ -1,7 +1,9 @@
-(* Janus Memories formalized *)
+(** Janus Memories formalized *)
 
 Require Import Arith.
 Require Import BaseLib.
+
+(** * The STORE signature *)
 
 Module Type STORE.
 
@@ -14,6 +16,8 @@ Module Type STORE.
     {n = m} + {n <> m}.
 
 End STORE.
+
+(** * The Mem functor *)
 
 Module Mem(V : STORE).
 
@@ -35,7 +39,8 @@ Module Mem(V : STORE).
       then None
       else m x'.
 
-  (* Proof automation hints *)
+  (* ** Properties *)
+
   Lemma write_eq : forall m a v, write m a v a = Some v.
     unfold write.
     intros.

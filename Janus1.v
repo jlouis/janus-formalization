@@ -14,7 +14,9 @@ Section Janus1.
 
   Definition Var := W32Mem.var.
   Definition Value := W32Mem.value.
-  (* This section defines the expression language of Janus0 *)
+
+  (** * The Expression language *)
+
   Section Expr.
 
     (* Minimal syntax definition *)
@@ -119,6 +121,8 @@ Section Janus1.
         <->
         denote_Exp m e2 = Some v.
 
+    (** ** Properties *)
+
     Lemma exp_equiv_refl: forall e, exp_equiv e e.
     Proof.
       unfold exp_equiv. grind.
@@ -160,6 +164,8 @@ Section Janus1.
     Qed.
 
   End Expr.
+
+  (** * The statement language *)
 
   Section Stmt.
 
@@ -234,6 +240,8 @@ Section Janus1.
     Definition stm_equiv (s1 s2: Stm) :=
       forall (d : defs) (m m': W32Mem.memory),
         Stm_eval d m s1 m' <-> Stm_eval d m s2 m'.
+
+    (** ** Properties *)
 
     (* Show stm_equiv *is* an equivalence relation *)
     Lemma stm_equiv_refl: forall s, stm_equiv s s.
@@ -402,6 +410,8 @@ Section Janus1.
 
   End Stmt.
 
+  (** * Statement inversion *)
+
   Section Invert.
     Fixpoint invert (s : Stm) {struct s} :=
       match s with
@@ -414,6 +424,8 @@ Section Janus1.
         | S_Call d => S_Uncall d
         | S_Uncall d => S_Call d
       end.
+
+    (** ** Properties *)
 
     Theorem invert_invert_id: forall s,
       invert (invert s) = s.
