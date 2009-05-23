@@ -73,29 +73,29 @@ is:
 \subsection{Coq encoding}
 
 One encodes the semantics of object languages in the language of
-\gallina{}, the specification language of \coq{}. This language is
+\gallina{}, the specification language of \coq{}. \gallina{} is
 inherently functional and is furthermore \emph{total} for its
 inductive part\footnote{We are not using the Co-Inductive features of
   \coq{}}. Functional programmers should feel at ease when working
 with the language as it works like a normal programming language. But
 since the language is based on the Calculus of (Co-)Inductive
 constructions, the type system is far more advanced than one a
-functional programmer is accustomed to. For \coq{} version 8.2 you
-will find most of the advanced type concepts either directly in the
-type system, or derivable. \coq{} supports dependent types, the
-polymorphic lambda calculus, higher order types, Haskell-style type
-classes, ML style module system with functors, GADTs etc
-\cite{pierce:advanced, pierce:types, hall.hammond.ea:type,
+functional programmer is accustomed to. For \coq{}, version 8.2, you
+will find most of the advanced type concepts directly in the type
+system. If not, a concept is usually derivable. \coq{} supports
+dependent types, the polymorphic lambda calculus, higher order types,
+Haskell-style type classes, ML style module system with functors,
+GADTs etc \cite{pierce:advanced, pierce:types, hall.hammond.ea:type,
   milner.tofte.ea:definition}.
 
-In \coq{} there are already integers built-in, ready for use in our
-formalization. This means we can focus entirely on providing an
-implementation of stores.
+\coq{} already provides a formalization of mathematical integers,
+based on an infinite binary representation. This means we can focus
+entirely on providing an implementation of stores.
 
-In the stores given above in, we operate with a domain of $\NN$ and a
+In the stores given above, we operate with a domain of $\NN$ and a
 co-domain of $\ZZ$ used as the locations and values respectively. For
 encoding this in \coq{}, we define a \texttt{Module Type}. For ML
-people this is a type signature. The implementation is:
+people, this is a type signature. The implementation is:
 \begin{verbatim}
 Module Type STORE.
 
@@ -115,13 +115,14 @@ objects in \coq{}. The \texttt{eq} parameter specifies an equality
 predicate on locations. It returns its result as a ``Prop'' which is
 the world of propositions in the universe. The distinction between
 ``Set'' and ``Prop'' is made such that we keep the language and its
-properties apart in the formalization.
+properties apart in the formalization, although the two universes are
+the same underneath.
 
 Finally, we require the existence an equality decider for
 locations. It states that either $n = m$ or $n \neq m$ for locations
 $n, m$.
 
-Memories are defined as a \emph{module functor} expecting a
+Memories are defined as a \emph{Module Functor} expecting a
 \texttt{STORE} fulfilling module as input and producing a
 \texttt{Memory} as output. By using a functor we hoist the specifics
 of the domain and co-domain of the memory, so we can change the
