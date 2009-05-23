@@ -30,6 +30,7 @@ information'' whereas the lift of a value represents that value. This
 is akin to the well-known ML datatype ``option''.
 
 \paragraph{Stores}
+\label{par:stores}
 The stores, notated as $\sigma, \sigma', \dotsc$ are functions from
 natural numbers to lifted integers: $\sigma \colon \NN \to
 \ZZ_{\perp}$. The elements of the domain are called
@@ -129,7 +130,7 @@ of the domain and co-domain of the memory, so we can change the
 definition later on.
 
 The memory is a function from locations to values $S_{\perp}$, encoded
-as an option type as known from ML. This encodes a lift as given in
+as an option type, as known from ML. This encodes a \emph{lift} as given in
 Definition \ref{defn-lift}. The value of $\perp$ is encoded as
 \texttt{None} and the lift $\lift{s}$ as \texttt{Some s}. The
 definition of the empty store is then straightforward, where locations
@@ -138,15 +139,15 @@ are named ``var'' for convenience:
   Definition empty (_ : var) : option value := None.
 \end{verbatim}
 Lookup on a memory is function application of the location to the
-memory function. Writing a new value to a given location is happening
-according the update function given above:
+memory function. Writing a new value to a given location reflects the
+mathematical definition we gave in section \ref{par:stores}
 \begin{verbatim}
   Definition write (m : memory) x v x' :=
     if location_eq_dec x x'
       then Some v
       else m x'.
 \end{verbatim}
-Hiding is also carried out according to the mathematical definition.
+Hiding is likewise carried out according to the mathematical definition.
 
 \subsection{Properties of stores}
 
@@ -154,12 +155,12 @@ The stores we have defined has a set of properties associated with
 them. These properties are important when we want to prove theorems
 about \janusz{} as they form the \emph{Knowledge basis} for the
 stores. The knowledge basis is the set of properties we build on when
-we formalize properties of \janusz{}, but are not directly
-related. When humans carry out proofs there is an implicit temptation
-to assume the existence of most of this work by intuition. For a
-machine however, we will have to provide it with the theorems as well
-as the proofs. The proofs presented here is a selection from the
-development.
+we formalize properties of \janusz{}, but are not directly related to
+\janusz{} itself. When humans carry out proofs there is an implicit
+temptation to assume the existence of most of this work by
+intuition. For a machine however, we will have to provide it with the
+theorems as well as the proofs. The proofs presented here is a
+selection from the development.
 
 \begin{lem}
   \label{lem:write-eq}
