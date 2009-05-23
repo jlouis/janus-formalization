@@ -382,22 +382,19 @@ smaller on recursion, which \coq{} will utilize for obtaining a
 termination proof.
 
 The function itself is a simple case match on the different
-constructors of the inductive type. Certain constructors have been
-omitted in the above fragment.
+constructors of the inductive type. We do not use a monadic encoding,
+but rather a direct encoding. A number of cases have been omitted in
+the above fragment.
 
 \subsection{Properties of \janusz{} expressions}
 
-We will only need the forward determinism for expressions and hence
-there is no need for the generality of the relation. We therefore
-employ a denotational definition as it greatly simplifies the needed
-proof of forward determinism:
-
+We will only need the forward determinism for expressions:
 \begin{thm}
   \janusz{} expressions are forward deterministic: suppose we have a
   store $\sigma$ and an expression $e$. Now let
   $\mathcal{E}|[e|](\sigma) = v_1$ for a value $v_1 \in \ZZ_{\perp}$
   and also let $\mathcal{E}|[e|](\sigma) = v_2$ for a value $v_2 \in
-  \ZZ_{\perp}$. Then we have $v_1 = v_2$.
+  \ZZ_{\perp}$. Then $v_1 = v_2$.
 \end{thm}
 \begin{proof}
 By the use of \coq{} and the \texttt{grind}-tactic from
@@ -412,9 +409,9 @@ By the use of \coq{} and the \texttt{grind}-tactic from
 \end{proof}
 The proof of determinism shows the benefit of using a denotational
 semantics for expressions. Since we are essentially defining our
-function to be total in the language of the CoIC used by Coq, we gain
-forward determinism for free by borrowing it from the underlying
-language.
+function to be total in the language of the \gallina{} language used
+by \coq{}, we gain forward determinism for free by borrowing it from
+the underlying language.
 
 \section{Statements in \janusz{}}
 
@@ -425,7 +422,7 @@ the following notation in BNF:
 \command{if[\;if\;],then[\;then\;],else[\;else\;],fi[\;fi\;],skip[\;skip\;],
  +=[\;+\!\!=\;],-=[\;-\!\!\!=\;],call[\;call\;],uncall[\;uncall\;]}
 \begin{gather*}
-  s ::= \quad \<skip> \bor x \<+=> e \bor x \<-=> \bor s; s
+  s ::= \; \<skip> \bor x \<+=> e \bor x \<-=> \bor s; s
   \bor \<if> e \<then> s \<else> s \<fi> e
 \end{gather*}
 \newcommand{\angel}[1]{\langle #1 \rangle}
@@ -437,8 +434,7 @@ designates that under the assumption of a store $\sigma$, execution of
 statement $s$ will yield the altered store $\sigma'$.
 
 The very first operation is a simple one. The \textbf{skip} operation
-is a no-operation command that simply skips. It has the following
-rule:
+is a no-operation command. It has the following rule:
 \begin{equation*}
   \inference[Skip]{}{\angel{\sigma, s} -> \sigma}
 \end{equation*}
@@ -448,7 +444,7 @@ store. This operation, written as $x +\!\!= e$ will evaluate the
 expression $e$ to a number $k$ and then add this amount to the
 location in the store to which $x$ points:
 \begin{equation*}
-  \inference[Inc0]{\sigma |- e => k \quad \sigma(x) = \lift{k'} \quad k +
+  \inference[Inc0]{\sigma |- e => \lift{k} \quad \sigma(x) = \lift{k'} \quad k +
     k' = n}{\angel{\sigma, x +\!\!= e} -> \sigma[x \mapsto n]}
 \end{equation*}
 In JANUS it is a requirement that the variable $x$ must not occur in
@@ -461,20 +457,20 @@ rule.
 Recall we defined an ability to ``hide'' certain variables in our
 store. We can utilize this by hiding $x$ in the expression evaluation:
 \begin{equation*}
-  \inference[Inc]{(\sigma \setminus x) |- e => k \quad \sigma(x) =
+  \inference[Inc]{(\sigma \setminus x) |- e => \lift{k} \quad \sigma(x) =
     \lift{k'} \quad k + k' = n}{\angel{\sigma, x +\!\!= e} -> \sigma[x \mapsto n]}
 \end{equation*}
-Now, because expression evaluation of the ``Var'' case requires a
-lifted value it is now impossible to construct an inference tree where
-the expression $e$ refers to the value $x$. We have effectively
-encoded the informal requirement into a formal one. This method,
-correctness by construction, simplifies proof formalization: had we
-chosen a predicate judgement for an non-occurring variable $x$, then
-we would have to provide a proof with this added structure.
+Now, because expression returns $\lift{k}$, a lifted value, it is
+impossible to construct an inference tree where the expression $e$
+refers to the value $x$. We have effectively encoded the informal
+requirement into a formal one. This method, correctness by
+construction, simplifies proof formalization: had we chosen a
+predicate judgement for an non-occurring variable $x$, then we would
+have to provide additional proof concerning its properties.
 
-For decrementing, the definition is similar:
+For decrementation, the definition is similar:
 \begin{equation*}
-  \inference[Dec]{(\sigma \setminus x) |- e => k \quad \sigma(x) =
+  \inference[Dec]{(\sigma \setminus x) |- e => \lift{k} \quad \sigma(x) =
     \lift{k'} \quad k - k' = n}{\angel{\sigma, x -\!\!= e} -> \sigma[x \mapsto n]}
 \end{equation*}
 
@@ -488,27 +484,27 @@ the execution of $s_2$:
 \end{equation*}
 
 Finally, there is the rule for the branching instruction. In \janusz{}
-the value $0$ is ``false'' and any value different from $0$ is the
+the value $0$ is ``false'' and any value different from $0$ is
 ``true'' value. This yields two rules, one for each case. The first
 rule is for the ``false'' case:
 \begin{equation*}
-  \inference[If-false]{\sigma |- e_1 => 0 \quad \angel{\sigma, s_2} -> \sigma'
-    \quad \sigma' |- e_2 => 0}{\angel{\sigma, \<if> e_1 \<then> s_1 \<else> s_2 \<fi> e_2} -> \sigma'}
+  \inference[If-false]{\sigma |- e_1 => \lift{0} \quad \angel{\sigma, s_2} -> \sigma'
+    \quad \sigma' |- e_2 => \lift{0}}
+  {\angel{\sigma, \<if> e_1 \<then> s_1 \<else> s_2 \<fi> e_2} -> \sigma'}
 \end{equation*}
-This rule states that if the $e_1$ \emph{test} evaluates to a false
+This rule states that if the $e_1$ ``test'' evaluates to a false
 value, then the ``else''-branch is executed. Finally the
-\emph{assertion} $e_2$ must be false as well.
+assertion $e_2$ must be ``false'' as well.
 
 The true case is similar, the difference being extra (mathematical)
 requirements on what the expressions evaluates to:
 \begin{equation*}
-  \inference[If-true]{\sigma |- e_1 => k \quad k \neq 0 \quad
+  \inference[If-true]{\sigma |- e_1 => \lift{k} \quad k \neq 0 \quad
     \angel{\sigma, s_1} -> \sigma'
-    \quad \sigma' |- e_2 => k' \quad k' \neq 0}{\angel{\sigma, \<if> e_1 \<then> s_1 \<else> s_2 \<fi> e_2} -> \sigma'}
+    \quad \sigma' |- e_2 => \lift{k'} \quad k' \neq 0}
+  {\angel{\sigma, \<if> e_1 \<then> s_1 \<else> s_2 \<fi> e_2} -> \sigma'}
 \end{equation*}
 
-The need for assertions has to do with reversibility, as we shall see
-later on.
 \subsection{Encoding statements in Coq}
 
 Encoding of the statement syntax is rather straightforward. We use an
@@ -551,7 +547,10 @@ Increment uses some premises:
 \end{verbatim}
 Note how each premise is encoded as an assumption of the
 constructor. If all premises are fulfilled, then we have a relation on
-$m$, $\text{S\_Incr}\; v\; e$ and $m'$. The other rules are similar.
+$m$, $\text{S\_Incr}\; v\; e$ and $m'$. The other rules are
+similar. Observe that the definition is isomorphic to the inference
+rule on incrementation. Each premise is encoded as a hypothesis for
+the \texttt{se\_assvar\_incr} constructor.
 
 \subsection{Proving determinism of \janusz{}}
 
@@ -559,23 +558,21 @@ For \janusz{}, we will prove a couple of theorems. The 2 main theorems
 to be proven are those of forward and backward determinism. The
 language must be deterministic in the forward direction, so there is
 only one possible outcome of any computation. Also, it must be
-deterministic in the backwards direction: if we have a computation
-resulting in a resulting store, the original store must be equivalent.
+deterministic in the backwards direction: If 2 evaluations of the
+same statement results in the same store-configuration, the inital
+configuration must have been equivalent.
 
-It is clear this establishes a necessary condition for
-reversibility. Had the language not been backwards deterministic, it
-would be outright impossible to reconstruct the input store from the
-output store.
+We now formally define and prove forwards determinism.
 \begin{lem}
 \label{j0-fwd-det-prime}
   Let $\sigma, \sigma' \in \Sigma$ be stores. Let $s$ be any \janusz{}
-  statement. Now, if $\angel{\sigma, s} -> \sigma'$ implies for all $\sigma''
-  \in \Sigma$ we have $\angel{\sigma, s} -> \sigma''$, then $\sigma' =
-  \sigma''$. Formally:
+  statement. If $\angel{\sigma, s} -> \sigma'$, it implies that for
+  all stores $\sigma'' \in \Sigma$ with the evaluation $\angel{\sigma,
+    s} -> \sigma''$, we have $\sigma' = \sigma''$. Formally:
   \begin{equation*}
     \forall \sigma, \sigma' \in \Sigma, s \in Stm \colon
-    \angel{\sigma, s} -> \sigma' \implies (\forall \sigma'' \in \Sigma
-    \colon \angel{\sigma, s} -> \sigma'' \implies \sigma' = \sigma'')
+    \angel{\sigma, s} -> \sigma' => (\forall \sigma'' \in \Sigma
+    \colon \angel{\sigma, s} -> \sigma'' => \sigma' = \sigma'')
   \end{equation*}
 \end{lem}
 \begin{proof}
@@ -607,34 +604,29 @@ subgoal -- or true-inversion when proving the if-false subgoal).
   \begin{equation*}
     \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon
     \angel{\sigma, s} ->
-    \sigma' \implies \angel{\sigma, s} -> \sigma''
-    \implies \sigma' = \sigma''
+    \sigma' => \angel{\sigma, s} -> \sigma''
+    => \sigma' = \sigma''
   \end{equation*}
 \end{thm}
 \begin{proof}
   The $\forall \sigma''...$ is hoistable in lemma
   \eqref{j0-fwd-det-prime} due to logic rules. This is made formal in
   \coq{} by introducing everything but $\sigma' = \sigma''$ as as
-  hypotheses and then generalizing over the form needed to apply lemma
-  \eqref{j0-fwd-det-prime}.
+  hypotheses and then generalizing over the form needed to apply Lemma
+  \ref{j0-fwd-det-prime}.
 \end{proof}
 
-In the forward determinism-proof nothing special has been applied to
-carry out the proof. Either one can calculate (in the integer ring
-$\ZZ$) and conclude the result by identification or one can apply the
-induction hypothesis to obtain the result after inversion. As we shall
-see, the backwards deterministic proof is not as simple, though it
-holds:
-
+Backwards determinism also holds, but it turns out to be considerable
+harder to formalize:
 \begin{lem}
   Let $\sigma, \sigma' \in \Sigma$ be stores. Let $s \in Stm$ be any
   statement. Assume $\angel{\sigma', s} -> \sigma$ (note the position of
-  $\sigma'$, compare with lemma \eqref{j0-fwd-det-prime}). Then
+  $\sigma'$, compare with Lemma \ref{j0-fwd-det-prime}). Then
   $\forall \sigma'' \colon \angel{\sigma'', s} -> \sigma$ implies $\sigma' =
   \sigma''$. Formally:
   \begin{equation*}
-    \forall \sigma, \sigma' \colon \angel{\sigma', s} -> \sigma \implies
-    (\forall \sigma'' \colon \angel{\sigma'', s} -> \sigma \implies \sigma'
+    \forall \sigma, \sigma' \colon \angel{\sigma', s} -> \sigma =>
+    (\forall \sigma'' \colon \angel{\sigma'', s} -> \sigma => \sigma'
     = \sigma'')
   \end{equation*}
 \end{lem}
@@ -642,34 +634,85 @@ holds:
   Via \coq{}
 \end{proof}
 
-\fixme{Supply an example of how to use \coq{} tactics here}
-Completing this proof requires considerably more ingenuity than the
-forward proof. Again, we run induction on the 1st dependent
-hypothesis. For the increment case, we first run inversion, and
-identify equal terms via the \texttt{subst} tactic. We must have
-$(\sigma' \setminus x) = (\sigma'' \setminus x)$ because we have
-$\sigma'[x \mapsto k + k'] = \sigma''[x \mapsto k_0 + k_0']$ (lemma
-\eqref{lem:write_hide}). This means, that $k = k_0$. Next, we have $k
-+ k' = k_0 + k_0'$. This is because of lemma \eqref{lem:write-eq2} and
-analysis on $\sigma'[x \mapsto k + k'] = \sigma''[x \mapsto k_0 +
-k_0']$. Computation in the ring $\ZZ$ now gives that $k' =
-k_0'$. After substitution, we then use lemma \eqref{lem:hide-eq}
-proving the case. The decrement case is equivalent.
+\paragraph{Example of a \coq{} proof case}
+We now exemplify how proofs in \coq{} are carried out by explaining
+the tactics needed for proving the case of incrementing. This case
+makes for a good example as it utilizes a great deal of
+machinery.
+
+We begin the case by noting what our target is: we have 2 evaluations
+of an increment ending in the same store-configuration. Our task is to
+show that the initial store configuration is equivalent. \coq{}
+reports the following:
+\pagebreak
+\begin{verbatim}
+  m : mem
+  m' : mem
+  v : Var
+  z : Z
+  z' : Z
+  r : Z
+  e : Exp
+  H : denote_Exp (ZMem.hide m v) e = Some z
+  H0 : m v = Some z'
+  H1 : r = z + z'
+  H2 : m' = ZMem.write m v r
+  m'' : mem
+  H3 : Stm_eval m'' (S_Incr v e) m'
+  ============================
+   m = m''
+\end{verbatim}
+which states our target $m = m''$ and our hypotheses above the
+line. First, we run \texttt{inversion} on the $H_3$ hypothesis and
+then we substitute equivalent definitions via the \texttt{subst} tactic. Since
+only one rule applies, we generate the following additional
+hypotheses:
+\begin{verbatim}
+  z0 : Z
+  z'0 : Z
+  H6 : denote_Exp (ZMem.hide m'' v) e = Some z0
+  H7 : m'' v = Some z'0
+  H3 : Stm_eval m'' (S_Incr v e) (ZMem.write m v (z + z'))
+  H11 : ZMem.write m v (z + z') = ZMem.write m'' v (z0 + z'0)
+\end{verbatim}
+We now claim that $(\sigma \setminus x) = (\sigma'' \setminus x)$ via
+the \texttt{assert} tactic. The claim holds because of Lemma
+\ref{lem:write_hide}, so we add the claim as a hypothesis.
+
+Now we claim that $(z + z' = z_0 + z_0')$. To show this, we use
+another claim, namely that $\sigma[x \mapsto z + z'] = \sigma''[x \mapsto z_0 +
+z_0']$. Note this is a direct extension of hypothesis $H_{11}$, so the
+theorem \texttt{equal\_f} solves it. Then we can prove the initial
+claim by using Lemma \ref{lem:write-eq2}.
+
+Then we claim $z = z_0$. This holds because $\lift{z} = \lift{z_0}$ by
+hypotheses $H$ and $H_6$ and then the \texttt{injection} tactic rips
+the \texttt{Some}-constructor off.
+
+Then we claim $z' = z_0'$. This now holds by computation in the ring
+$\ZZ$ via Presburger Arithmetic\cite{cooper:theorem}. The solver for PA in
+\coq{} is called \texttt{omega}.
+
+Finally, we substitute $z'$ for $z_0'$ and $z$ for $z_0$ and apply
+Lemma \ref{lem:hide-eq}. Every hypothesis of this lemma is now
+satisfied, and the case is done.
 
 The cases using the induction hypothesis (semi/if) are trivial,
 utilizing the \texttt{congruence} tactic to solve the impossible cases
 in the evaluation of the ``if'' cases.
 
+As is the case for forwards determinism, we can shunt the $\sigma''$
+to the prenex-position:
+\pagebreak
 \begin{thm}
   \janusz{} is backward deterministic, ie:
   \begin{equation*}
     \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon
-    \angel{\sigma', s} -> \sigma \implies \angel{\sigma'', s} -> \sigma \implies \sigma' = \sigma''
+    \angel{\sigma', s} -> \sigma => \angel{\sigma'', s} -> \sigma => \sigma' = \sigma''
   \end{equation*}
 \end{thm}
 \begin{proof}
-  Like the proof of theorem \eqref{thm:j0-fwd-det}, we can hoist the
-  forall-quantifier and formalize it in \coq{}.
+  \coq{}.
 \end{proof}
 
 \section{Inversion of \janusz{}}
@@ -730,8 +773,8 @@ At least for \janusz{} however, you don't need the equivalence
 relation at all. Perhaps it is needed when running induction on the
 statement $s$ as is done in the paper, but another path is to run a
 generalized induction hypothesis on $\forall \sigma, \sigma' \in
-\Sigma, s \in Stm, \angel{\sigma, s} -> \sigma' \implies
-\angel{\sigma', \mathcal{I}(s)} -> \sigma$ (and the converse in the other
+\Sigma, s \in Stm, \angel{\sigma, s} -> \sigma' => \angel{\sigma',
+  \mathcal{I}(s)} -> \sigma$ (and the converse in the other
 direction). This allows you to apply the induction hypothesis in the
 sequence case \texttt{semi} in the obvious way and stitch the result
 together. The hardest part of proving this statement in \coq{} is to
