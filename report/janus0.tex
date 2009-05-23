@@ -332,21 +332,14 @@ case analyses on the structure of the expression given:
 \end{align*}
 The operation $+$ is the operation from our expression language
 whereas the operation $+_{\ZZ}$ is the mathematical integer addition
-here made explicit by its annotation. Likewise is the case for $-$ and
-$*$.
+here made explicit by its annotation. The case for $-$ and
+$*$ are similar.
 
 The advantage of the latter, denotational, definition is that is
-allows for simpler proofs in Coq. Basically a standard Case analysis
+allows for simpler proofs in \coq{}. Basically a standard Case analysis
 will do over the structure. Operational semantics uses a Prolog-style
-where a relation between the premises and conclusion is defined. The
-advantage of this Prolog style is of course its generality. The
-denotational style above is a function definition based on case
-analysis which is a special case of a relation.
-
-If $R \subseteq X \times Y$ is a relation on $X$ and $Y$, then the
-relation would be a function in the following case: if $(a, b) \in R$
-and also $(a, c) \in R$ then we must have $b = c$. In other words, a
-function is deterministic in its output based on its output.
+where a relation between the premises and conclusion are defined. In
+\coq{} this style is a bit more unwieldy to work with.
 
 \subsection{Encoding expressions in \coq{}}
 
