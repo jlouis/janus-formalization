@@ -10,34 +10,36 @@ provide a vehicle for explaining the basics of a formalization. We aim
 to provide a big step operational semantics for the language, suitable
 for encoding into the logical framework \coq{}.
 
-Describing a language requires us to define the basic object that is
+Describing a language requires us to define the basic objects that are
 manipulated. There are two such objects in \janusz{}: integers and
 stores.
 
+\paragraph{Integers}
+
 The integers are the mathematical integers, ie drawn from $\ZZ$. In
-full JANUS the primary object are 32-bit integers but in our
-simplified version, we just use usual integers.
+full JANUS the primary object are 32-bit unsigned integers but for
+simplification purposes, we omit these.
 \begin{defn}
   \label{defn-lift}
-  For any set, $S$ we define its domain-theoretic \emph{lift} to be
+  For any set, $S$, we define its domain-theoretic \emph{lift} to be
   $S_{\perp} = S \cup \{\perp\} $ for a special value $\perp$ called
-  ``bottom''. Values $s \in S$ are notated as $\lift{s}$ which is
-  called the ``lift''.
+  ``bottom''. Values $s \in S$ are notated as $\lift{s}$.
 \end{defn}
 Information-theoretically, the bottom values represents ``no
 information'' whereas the lift of a value represents that value. This
 is akin to the well-known ML datatype ``option''.
 
+\paragraph{Stores}
 The stores, notated as $\sigma, \sigma', \dotsc$ are functions from
 natural numbers to lifted integers: $\sigma \colon \NN \to
-\ZZ_{\perp}$. The domain of natural numbers are called
+\ZZ_{\perp}$. The elements of the domain are called
 \emph{locations}. We usually give them names $x, y, z, \dotsc$ and
 assume each variable is associated with a specific number for the
 duration of the program. The co-domain defines the contents of the
 current location in the store. These are called \emph{values}. If no
-value is associated with the location $x$ then $x \mapsto \perp$ and
-otherwise $x \mapsto \lift{i}$ for some $i \in \ZZ$. This process is
-used as lookup.
+value is associated with the location $x$ then $\sigma(x) = \perp$ and
+otherwise $\sigma(x) = \lift{i}$ for some $i \in \ZZ$. The process of
+applying a location $x$ to a store $\sigma$ is called \emph{lookup}.
 
 Stores are altered under the course of running a program. In our
 formalization this amounts to changing the function
@@ -46,24 +48,24 @@ of location $x$ with the value $k$''. The mathematical formal meaning
 is:
 \begin{equation*}
   \sigma[x \mapsto k](z) = \begin{cases}
-    \lift{k} & \quad x = z\\
+    \lift{k} & \quad \text{if} \; x = z\\
     \sigma(z)  & \quad \text{otherwise}
   \end{cases}
 \end{equation*}
 
-The empty store $\epsilon$ maps everything to $\perp$, ie. for all
+The empty store, $\epsilon$, maps everything to $\perp$, ie. for all
 locations $l \in \ZZ$ we have $\epsilon(l) = \perp$. We will use the
 empty store as the initial store.
 
 It will be beneficial to provide \emph{hiding} of values in the store. A
-hiding of a variable $x$ is a new store in which $x$ does not
+hiding of a variable $x$ is a new store, in which $x$ does not
 exist. Because we have the value $\perp$ in our store-values, there is
 a straightforward definition. We use the notation $(\sigma \setminus x)$
 for the hiding of the variable $x$ in the store $\sigma$. The definition
 is:
 \begin{equation*}
   (\sigma \setminus x)(z) = \begin{cases}
-    \perp & \quad z = x\\
+    \perp & \quad \text{if} \; z = x\\
     \sigma(z) & \quad \text{otherwise}
   \end{cases}
 \end{equation*}
@@ -71,7 +73,7 @@ is:
 \subsection{Coq encoding}
 
 One encodes the semantics of object languages in the language of
-Gallina, the specification language of \coq{}. This language is
+\gallina{}, the specification language of \coq{}. This language is
 inherently functional and is furthermore \emph{total} for its
 inductive part\footnote{We are not using the Co-Inductive features of
   \coq{}}. Functional programmers should feel at ease when working
