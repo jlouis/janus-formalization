@@ -197,7 +197,7 @@ will be used later on:
 \end{proof}
 
 The following property states that ``if you have enough pieces placed
-correctly you have the whole puzzle''; that is, if you enough about a
+correctly you have the whole puzzle''; that is, if you know enough about a
 store, you can decide its equality:
 \begin{lem}
 \label{lem:hide-eq}
@@ -208,7 +208,7 @@ store, you can decide its equality:
   \item $\sigma'(x) = v$
   \item $(\sigma \setminus x) = (\sigma' \setminus x)$
   \end{itemize}
-  Then $\sigma = sigma'$
+  Then $\sigma = \sigma'$
 \end{lem}
 \begin{proof}
   By \coq{}.
@@ -237,7 +237,7 @@ stores:
 \begin{proof}
   In \coq{}. The proof relies on backwards reasoning. It uses
   extensionality (see \ref{coqext:extensionality}) and then it uses
-  case analysis. In the cases, it applies lemma \eqref{lem:hide_ne}.
+  case analysis. In the cases, it applies Lemma \ref{lem:hide_ne}.
 \end{proof}
 
 Another very important concept is that a write to the hidden variable
