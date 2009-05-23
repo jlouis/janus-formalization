@@ -165,7 +165,7 @@ Section Janus1.
 
   End Expr.
 
-  (** * The statement language *)
+  (** * The Statement language *)
 
   Section Stmt.
 
