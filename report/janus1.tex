@@ -260,34 +260,34 @@ this specific rule.
 For the xor-operation, we use a rule which reflects the increment and
 decrement operator:
 \begin{equation*}
-  \inference[Xor]{(\sigma \setminus x) |- e => k \quad \sigma(x) =
+  \inference[Xor]{(\sigma \setminus x) |- e => \lift{k} \quad \sigma(x) =
     \lift{k'} \quad k \oplus_{32} k' = n}{\angel{\sigma, x \;\hat{=}\; e} -> \sigma[x \mapsto n]}
 \end{equation*}
-where $\oplus_{32}$ is the xor-operation.
+where $\oplus_{32}$ is the bit-wise xor-operation.
 
 \section{Encoding expressions and statements}
 
 The encoding of expressions and statements follows the same style as
-we earlier used. The expressions evaluation is extended with the new
+we used earlier. The expression evaluation is extended with the new
 constructors and utilizes our encoding of 32-bit words. We take the
 existing encoding and gradually adapt it towards \januso{}.
 
 Statements are implemented by first introducing a mapping $\ZZ \to
 Stm$ which we then use for the $\rho$ in the above judgement
-forms. Then the Inductive definition of statements is altered to take
+forms. Then the Inductive definition of statements are altered to take
 this $\rho$ as and additional dependent type.
 
 With these encodings, we can capture all of \januso{} and we can turn
-our focus unto the properties of the language.
+our focus towards the properties of the language.
 
 \section{Determinism properties of \januso{}}
 
 Converting the proofs from \janusz{} to \januso{} has one main
-complication: we went from $\ZZ$ to $W^{32}$. When \coq{} works with
-integers, and we only used Presburger
-arithmetic\cite{cooper:theorem} we can solve such terms
-by the use of the ``omega'' tactic in \coq{}. For our 32-bit integers,
-no such thing is present however, so we need to do the proofs by hand.
+complication: we went from $\ZZ$ to $W^{32}$ as our number type. When
+\coq{} works with integers, and we only used Presburger arithmetic we
+can solve such terms by the use of the \texttt{omega} tactic in
+\coq{}. For our 32-bit integers, no such thing is present however, so
+we need to do the proofs by hand.
 
 The detail at which one has to carry out such proofs are almost
 excruciatingly precise. We must, as an example, explicitly use the
@@ -295,16 +295,16 @@ commutative rule when we want to rewrite $x +_{32} y$ into $y +_{32}
 x$.
 
 \fixme{This section needs to be rewritten}
-Irregardless, we have forward and backward determinism. However, the
-formalization in \coq{} is slightly different to work around a problem
-with mutually defined theorems. This means we cannot utilize the
-theorem in further development as it is given in the development.
+However, the formalization in \coq{} is slightly different to work
+around a problem with mutually defined theorems. This means we cannot
+utilize the theorem in further development as it is given in the
+development.
 \begin{thm}
 \label{thm:j1-fwd-det}
   \januso{} is forward deterministic, ie:
   \begin{equation*}
     \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon
-    \rho |= \angel{\sigma, s} -> \sigma' \implies \rho |= \angel{\sigma, s} -> \sigma'' \implies \sigma' = \sigma''
+    \rho |= \angel{\sigma, s} -> \sigma' => \rho |= \angel{\sigma, s} -> \sigma'' => \sigma' = \sigma''
   \end{equation*}
 \end{thm}
 \begin{proof}
