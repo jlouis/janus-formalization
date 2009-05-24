@@ -50,8 +50,8 @@ Let us recap exactly what is meant by a ring
 \end{defn}
 
 One particular ring is well-known and a good candidate for a number
-base; the usual group of integers $\mathbb{Z}$. Implicitly,
-this was the choice for \janusz{}. From a formal viewpoint, this group
+base; the usual ring of integers $\mathbb{Z}$. Implicitly,
+this was the choice for \janusz{}. From a formal viewpoint, this ring
 is bliss to work with. On the other hand, it means that the formal
 machine have arbitrarily sized integers, which may be a bit
 unrealistic. Hence, we chose numbers modulo $2^{32}$ as we can easily
@@ -77,7 +77,7 @@ will call these integers $W^{32}$.
 \subsection{\coq{} Implementation}
 
 The \coq{} implementation of 32-bit numbers owes everything to Xavier
-Leroy et. al\cite{leroy:compcert}. The work is taken from the
+Leroy et.al.\cite{leroy:compcert}. The work is taken from the
 \textsc{CompCert} project, which introduces them in the course of
 formalizing a complete C to PowerPC compiler. The reason for taking
 the work rather than building it from scratch is due to the sheer
@@ -111,7 +111,7 @@ Qed.
   \texttt{Z\_mod\_lt} from the \coq{} standard library.
 \end{proof}
 The theorem allows us to take any integer and represent it as a 32-bit
-number as long as we take the integer $\mod 2^{32}$. Thus we have a
+number as long as we take the integer $(\mod 2^{32})$. Thus we have a
 straightforward embed/project pair of functions between normal
 integers and 32 bit integers.
 
@@ -122,19 +122,20 @@ Definition add (x y: w32) : w32 :=
 \end{verbatim}
 The function \texttt{unsigned} projects $x$ and $y$ to integers. Then
 we integer-add the numbers and re-embed them with the \texttt{repr}
-function. Note that the embedding is doing the correct thing for
-cyclic additive groups: it wraps around.
+function. Note that the embedding has the correct behaviour: it wraps
+around.
 
 Bit-wise operations in the representation is implemented by creating
 indicator functions from numbers up to a certain size in bits. Ie. a
 number is converted into a function $f \colon \mathbb{Z} \to \{0,
-1\}$, where $f(n) = 1$ indicates $n$-th bit is set and $f(n) = 0$
-that it is not. Straightforward combinations and embeddings of these
-functions builds up the bit-wise functions.
+1\}$, where $f(n) = 1$ indicates $n$-th bit is set and $f(n) = 0$ that
+it is not. Straightforward combinations, projections, and embeddings
+of these functions builds up the bit-wise functions.
 
 The properties of the numbers are simply a direct (rather impressive)
-work of standard algebra. The theorems can be found in any math-book
-on algebra, for instance \cite{thorup:algebra}. First, we have
+work of standard algebra. The theorems can be found in any
+introductory math-book on algebra, for instance
+\cite{thorup:algebra}. First, we have
 \begin{defn}
   Two integers $x, y$ are in the same congruence class modulo $m$ iff
   there exists an integer $k$ such that
@@ -167,23 +168,34 @@ usual mathematical methods like this.
 
 We added some additional properties to the \textsc{CompCert}
 implementation of 32-bit integers. All the proofs of these are written
-in \coq{} by the use of already given properties given by Leroy
+in \coq{} by the use of already given properties by Leroy
 et.al. We extend their definitions by:
 \command{xor[\;xor\;]}
 \begin{lem}
-  For any $x \in W^{32}$ we have $x \<xor> x = 0$
+  For any $x \in W^{32}$ we have
+  \begin{equation*}
+    x \<xor> x = 0
+  \end{equation*}
 \end{lem}
 \begin{lem}
   For 32-bit integers $x,y,z$, additions can be discharged on the
-  left: $x + y = x + z \implies y = z$
+  left:
+  \begin{equation*}
+    x + y = x + z \implies y = z
+  \end{equation*}
 \end{lem}
 \begin{lem}
   For 32-bit integers $x, y, z$, subtraction can be discharged on the
-  right: $x - z = y - z \implies x = y$
+  right:
+  \begin{equation*}
+    x - z = y - z \implies x = y
+  \end{equation*}
 \end{lem}
 \begin{lem}
   For 32-bit integers $x, y, z$, xor can be discharged on left:
-  $x \<xor> z = y \<xor> z \implies x = y$.
+  \begin{equation*}
+    x \<xor> z = y \<xor> z \implies x = y
+  \end{equation*}
 \end{lem}
 
 \section{Augmenting expressions}
