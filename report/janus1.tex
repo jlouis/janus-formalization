@@ -50,7 +50,7 @@ Let us recap exactly what is meant by a ring
 \end{defn}
 
 One particular ring is well-known and a good candidate for a number
-base for JANUS; the usual group of integers $\mathbb{Z}$. Implicitly,
+base; the usual group of integers $\mathbb{Z}$. Implicitly,
 this was the choice for \janusz{}. From a formal viewpoint, this group
 is bliss to work with. On the other hand, it means that the formal
 machine have arbitrarily sized integers, which may be a bit
@@ -62,21 +62,21 @@ will call these integers $W^{32}$.
   Note that the ``multiplication'' need only form a monoid and not a
   group in general. We are thus not sure of a multiplicative inverse,
   which is somewhat bad. Remedying this could be to use finite
-  Galois-fields, of order $p^n$ where $p$ is a prime and
-  $n$ is an integer. For the case $p = p^1$ it is simple since it is
-  defined by the groups $\ZZ / p\ZZ$ (for addition) and $(\ZZ /
-  p\ZZ)^{*}$ (for multiplication). For the case $p^n$ for $n > 1$ you
-  need to use splitting fields and more heavyweight algebra to define
-  them. This is turn makes them rather bad candidates as a number base
-  for JANUS. Perhaps except for the base $2^n$ which can be defined as
-  polynomials of bits.
-
-  We choose not the pursue this idea further.
+  Galois-fields, of order $p^n$ where $p$ is a prime and $n$ is an
+  integer. For the case $p = p^1$ it is simple since it is defined by
+  the groups $\ZZ / p\ZZ$ (for addition) and $(\ZZ / p\ZZ)^{*}$ (for
+  multiplication). For the case $p^n$ for $n > 1$ you need to use
+  splitting fields and more heavyweight algebra to define them. This
+  is turn makes them rather bad candidates as a number base. Perhaps
+  except for the base $2^n$ which can be defined as polynomials of
+  bits. In any case, Galois-fields are not easily
+  machine-implementible in hardware, so we choose not the pursue this
+  idea further.
 \end{rem}
 
 \subsection{\coq{} Implementation}
 
-The Coq implementation of 32-bit numbers owes everything to Xavier
+The \coq{} implementation of 32-bit numbers owes everything to Xavier
 Leroy et. al\cite{leroy:compcert}. The work is taken from the
 \textsc{CompCert} project, which introduces them in the course of
 formalizing a complete C to PowerPC compiler. The reason for taking
@@ -99,7 +99,7 @@ We can't resist the temptation to describe the implementation however. A
   \end{equation*}
 \end{lem}
 \begin{proof}
-  From our Coq Development:
+  From the \coq{} Development:
 \begin{verbatim}
 Lemma mod_in_range:
   forall x, 0 <= Zmod x modulus < modulus.
@@ -107,8 +107,8 @@ Lemma mod_in_range:
   exact (Z_mod_lt x modulus (two_power_nat_pos word_size)).
 Qed.
 \end{verbatim}
-  Which states that it is exactly given by the common result
-  \texttt{Z\_mod\_lt} from the Coq standard library.
+  This states it is exactly given by the common result
+  \texttt{Z\_mod\_lt} from the \coq{} standard library.
 \end{proof}
 The theorem allows us to take any integer and represent it as a 32-bit
 number as long as we take the integer $\mod 2^{32}$. Thus we have a
