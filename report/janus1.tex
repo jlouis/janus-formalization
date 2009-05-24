@@ -3,33 +3,33 @@
 
 In this chapter we will extend the \janusz{} language with new
 concepts, forming the language \januso{}. The \januso{} language adds
-several extra judgements to the \janusz{} language to make it more in
-par with the full complete language specification. Concretely, we add:
+several extra inference rules to the \janusz{} language in order to
+make it more in par with the full complete language
+specification. Concretely, we add:
 \begin{itemize}
-\item 32-bit unsigned integers with wrap-around
+\item 32-bit unsigned integers with wrap-around arithmetic $(\mod
+  2^{32})$.
 \item Procedure calls
 \end{itemize}
-at which point we only miss arrays and loops from the full Janus
-language.
+\januso{} only lacks arrays and loops from the full Janus language.
 
-To do this, we must first introduce 32-bit integers into \coq{} and
-then use the formalization of these in the development of \januso{}.
+We first introduce 32-bit integers in \coq{} and then use the
+formalization of these in the development of \januso{}.
 
 \section{32-bit Integers}
 \label{sec:32-bit-integers}
 
 The integers chosen in JANUS are as usual machine words on a 32-bit
-machine. Most traditional computers the machine have an upper limit
-to what numbers it can represent. A 32-bit machine has $32$ bits at
-its disposal so it can represent $2^{32}$ different values. A 64-bit
+machine. Most traditional computers have an upper limit to what
+numbers it can represent. A 32-bit machine has $32$ bits at its
+disposal so it can represent $2^{32}$ different values. A 64-bit
 machine has $2^{64}$ different values and so on. For the case where
 there is no sign, it is obvious to map the representation into $0,
 \dotsc, 2^{32}-1$ and do calculation modulo $2^{32}$. Coincidentally,
-this is how most modern computers work anyway.
+this is how most modern computers work anyway for unsigned arithmetic.
 
 JANUS chooses this representation as well and models a 32-bit machine
-in the process. For \januso{}, we would like to model the same thing
-as full JANUS.
+in the process. For \januso{}, we would like to model the same thing.
 
 From the perspective of mathematics, 32-bit values means we are
 working in the ring $\mathbb{Z}/2^{32}\mathbb{Z}$
