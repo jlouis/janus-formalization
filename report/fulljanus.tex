@@ -39,9 +39,9 @@ then the ``until'' part evaluates to true:
 Finally, if the ``until'' part evaluates to false, we take another
 turn round the loop. The following rule captures this:
 \begin{equation*}
-  \inference[LpF]{\sigma |- e_2 => 0 \\
+  \inference[LpF]{\sigma |- e_2 => \lift{0} \\
                   \rho |= \angel{\sigma, s_2} -> \sigma''\\
-                  \sigma |- e_1 => 0 \\
+                  \sigma |- e_1 => \lift{0} \\
                   \rho |= \angel{\sigma'', s_1} -> \sigma'''\\
                   \rho |=_{loop} \angel{\sigma''', (e_1, s_1, s_2,
                     e_2)} -> \sigma'}
@@ -54,15 +54,15 @@ Adding arrays to \januso{} is not something I've carried out in
 \coq{}. It is left as further work. The hypothesis is that they would
 be straightforward to add. An array is a map from $W^{32}$ to
 $W^{32}_{\perp}$. We could then construct a representation as a
-(higher order) function $\ZZ \to W^{32}_{\perp} \to W^{32}_{\perp}$ in
+(higher order) function $\NN \to W^{32}_{\perp} \to W^{32}_{\perp}$ in
 \coq{}. The proof would then reflect the methodology we used for
 variables.
 
 If course, we could need to alter expressions to be able to do
 reference cells in arrays. We would also need to formalize the
-semantics in the case we go out-of-bounds on the array. All this is
-not hard, but would impact a rather wide of the formalization already
-done.
+semantics in the case we go out-of-bounds on the array. We think this
+is possible by using the \texttt{option}-type we already have for
+expressions.
 
 \section{Properties of full JANUS}
 \label{sec:prop-full-janus}
@@ -71,21 +71,21 @@ I initially set out with the prospect of proving forwards and
 backwards determinism for the full JANUS language given in
 \cite{yokoyama.gluck:reversible} which has a different semantics for
 loops. Unfortunately, the proof relies on a property of there only be
-one specific way a given tree can be constructed. This property is
-rather hard to formalize. Hence, I changed to the semantics given
-above from \cite{yokoyama.axelsen.ea:principles}.
+one specific way a given loop-tree can be constructed. This property
+is rather hard to formalize. Hence, I changed to the semantics
+\cite{yokoyama.axelsen.ea:principles}.
 
 The language can be proven to be forwards deterministic (under the
 assumption that it is backwards deterministic). But I failed to find a
 machine-verifiable proof that it is backwards deterministic. In the
-following sections I will attempt to describe what the problem is.
+following part I will describe what the problem is.
 
 We are trying to prove the following statement:
-\begin{multline*}
-  \forall \rho, \sigma, \sigma', \sigma'', s . \\
-  \rho |= \angel{\sigma', s} -> \sigma \implies \rho |=
-  \angel{\sigma'', s} -> \sigma \implies \sigma' = \sigma''
-\end{multline*}
+\begin{equation*}
+  \forall \rho, \sigma, \sigma', \sigma'', s .
+  \rho |= \angel{\sigma', s} -> \sigma => \rho |=
+  \angel{\sigma'', s} -> \sigma => \sigma' = \sigma''
+\end{equation*}
 
 The proof proceeds by induction on the first dependent hypothesis,
 that is $\rho |= \angel{\sigma', s} -> \sigma$. This splits up into
@@ -96,7 +96,7 @@ command must be used.
 All cases for the $|=$ judgement are easily discharged. The only new
 rule we have added is the one of the form:
 \begin{equation*}
-  \inference[Loop]{\sigma |- e_1 => k \quad k \neq 0 \\
+  \inference[Loop]{\sigma |- e_1 => \lift{k} \quad k \neq 0 \\
     \rho |= \angel{\sigma, s_1} -> \sigma'' \quad \rho
     |=_{loop} \angel{\sigma'', (e_1, s_1, s_2, e_2)} -> \sigma'}
   {\rho |= \angel{\sigma, \<from> e \<do> s \<loop> s \<until> e} -> \sigma'}
