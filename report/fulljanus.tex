@@ -14,13 +14,13 @@ semantics. To make this work, a new judgement relation for loops is
 introduced with notation $\rho |=_{loop} \angel{\sigma, (e_1, s_1,
   s_2, e_2)} -> \sigma'$. This states the evaluation of the loop
 identified by the quadruple $(e_1, s_1, s_2, e_2)$ under the function
-definition $\rho$ and the store $\sigma$ will yield an updated store
+environment $\rho$ and the store $\sigma$ will yield an updated store
 $\sigma'$.
 
 We then alter the judgement rules of statements by the following
 looping rule:
 \begin{equation*}
-  \inference[Loop]{\sigma |- e_1 => k \quad k \neq 0 \\
+  \inference[Loop]{\sigma |- e_1 => \lift{k} \quad k \neq 0 \\
     \rho |= \angel{\sigma, s_1} -> \sigma'' \quad \rho
     |=_{loop} \angel{\sigma'', (e_1, s_1, s_2, e_2)} -> \sigma'}
   {\rho |= \angel{\sigma, \<from> e \<do> s \<loop> s \<until> e} -> \sigma'}
@@ -33,7 +33,7 @@ on the $|=_{loop}$ judgement form, taken from
 \cite{yokoyama.axelsen.ea:principles}. The first one exits the loop
 then the ``until'' part evaluates to true:
 \begin{equation*}
-  \inference[LpT]{\sigma |- e_2 => k \quad k \neq 0}
+  \inference[LpT]{\sigma |- e_2 => \lift{k} \quad k \neq 0}
   {\rho |=_{loop} \angel{\sigma, (e_1, s_1, s_2, e_2)} -> \sigma}
 \end{equation*}
 Finally, if the ``until'' part evaluates to false, we take another

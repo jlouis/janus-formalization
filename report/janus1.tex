@@ -316,7 +316,7 @@ and
   \januso{} is backward deterministic, ie:
   \begin{equation*}
     \forall \sigma, \sigma', \sigma'' \in \Sigma, s \in Stm \colon
-    \rho |= \angel{\sigma', s} -> \sigma \implies \rho |= \angel{\sigma'', s} -> \sigma \implies \sigma' = \sigma''
+    \rho |= \angel{\sigma', s} -> \sigma => \rho |= \angel{\sigma'', s} -> \sigma => \sigma' = \sigma''
   \end{equation*}
 \end{thm}
 \begin{proof}
@@ -327,8 +327,8 @@ and
 
 Inverting \januso{} works exactly like inverting \janusz{}. We only
 need to add a couple of new rules for $\<call>$ and $\<uncall>$ and
-the $\hat{=}$ operation. The two call types are each others inverses
-and the $\<xor>$ operation is self inverse:
+the $\hat{=}$ operation. The $\<call>$ and $\<uncall>$ statements are
+each others inverses and the $\<xor>$ operation is self inverse:
 \begin{align*}
     \mathcal{I}(x \;\hat{=}\; e)& = x \;\hat{=}\; e\\
     \mathcal{I}(\<call> p)& = \<uncall> p\\
@@ -345,7 +345,10 @@ following theorem:
     \rho |= \angel{\sigma, s} -> \sigma' \iff \rho |= \angel{\sigma', \mathcal{I}(s)} -> \sigma
   \end{equation*}
 \end{thm}
-
+\begin{proof}
+  By \coq{}. The proof can be completed by straightforward extension of the
+  same proof for \janusz{}.
+\end{proof}
 
 
 %%% Local Variables:
