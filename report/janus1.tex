@@ -200,6 +200,7 @@ et.al. We extend their definitions by:
 
 \section{Augmenting expressions}
 
+\fixme{Write that we changed to 32-bit}
 To the expressions of \janusz{}, we make the following additions:
 \begin{align*}
   e ::= & \dotsc \bor e / e \bor e \mod e \bor e = e \bor e \neq e \\
@@ -212,9 +213,9 @@ numbers. We add a couple of relational operators, namely equality,
 non-equality, logical and, logical or and a less-than operator.
 
 With these additions, we almost have all constructs from the full
-JANUS language. It is my belief that these can be added without any
-problems at all. Specifically, our 32-bit integer representation
-provisions for bit-wise operators.
+JANUS language. It is our belief that the remaining operators can be
+added without any problems. Specifically, our 32-bit integer
+representation provisions for bit-wise operators.
 
 The semantics are given by a denotational semantics in the spirit of
 the denotational semantics in \ref{exp:denot-semantics}. We omit them
@@ -232,20 +233,19 @@ where $p$ designates a procedure. We will see how we encode this
 procedure shortly.
 
 The semantical judgement forms of statements are altered to a form
-$\rho |= \angel{\sigma, s} -> \sigma'$, where $\rho$ is a map from $\ZZ \to
-Stm$. That is, we represent a procedure by an integer and its value in
-the set of procedure definitions is a statement. We note that all
-existing rules in the operational semantics just has to pass $\rho$ on
-via congruence. Hence, we do not bring these rules here. For the new
-rules, there is an interesting development. The rule of calling a
-procedure is
+$\rho |= \angel{\sigma, s} -> \sigma'$, where $\rho$ is a map from
+$\ZZ \to Stm$. That is, we represent a procedure by an integer and its
+value in the set of procedure definitions is a statement. We note that
+all existing rules in the operational semantics just has to pass
+$\rho$ on via congruence. Hence, we do not bring these rules here. The
+rule of calling a procedure is
 \begin{equation*}
   \inference[Call]{\rho |= \angel{\sigma, \rho(p)} -> \sigma'}
   {\rho |= \angel{\sigma, \<call> p} -> \sigma'}
 \end{equation*}
 Informally, the rule states that a procedure call looks up the
 procedure in the context and then executes the procedure. Uncalling a
-procedure is defined as
+procedure, running the procedure in inverse, is defined as
 \begin{equation*}
   \inference[Uncall]{\rho |= \angel{\sigma', \rho(p)} -> \sigma}
   {\rho |= \angel{\sigma, \<uncall> p} -> \sigma'}
