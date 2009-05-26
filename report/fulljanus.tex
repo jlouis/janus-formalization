@@ -107,12 +107,13 @@ instance of the rule $Loop$ so we can use the induction hypothesis
 generated on $\rho |=_{loop} \angel{\sigma'', (e_1, s_1, s_2, e_2)} ->
 \sigma$ to conclude $\sigma' = \sigma''$. Case done.
 
+\fixme{Rewrite this part entirely}
 But the cases for $|=_{loop}$ are not easily discharged. Suppose we
 have the case $\rho |=_{loop} \angel{\sigma',
   (e_1, s_1, s_2, e_2)} -> \sigma$. By inversion, we generate two
 possible rules that could match. One is:
 \begin{equation*}
-  \inference[LpT]{\sigma |- e_2 => k \quad k \neq 0}
+  \inference[LpT]{\sigma |- e_2 => \lift{k} \quad k \neq 0}
   {\rho |=_{loop} \angel{\sigma, (e_1, s_1, s_2, e_2)} -> \sigma}
 \end{equation*}
 
@@ -120,9 +121,9 @@ But by inversion, the 2nd inductive hypothesis $\rho |=_{loop} \angel{\sigma'',
   (e_1, s_1, s_2, e_2)} -> \sigma$ could have generated the $LpF$
 case:
 \begin{equation*}
-  \inference[LpF]{\sigma'' |- e_2 => 0 \\
+  \inference[LpF]{\sigma'' |- e_2 => \lift{0} \\
                   \rho |= \angel{\sigma'', s_2} -> \sigma''''\\
-                  \sigma'''' |- e_1 => 0 \\
+                  \sigma'''' |- e_1 => \lift{0} \\
                   \rho |= \angel{\sigma'''', s_1} -> \sigma'''\\
                   \rho |=_{loop} \angel{\sigma''', (e_1, s_1, s_2,
                     e_2)} -> \sigma}
@@ -133,13 +134,14 @@ Normally when this happens in if-then-else or in the forward direction
 of loops, we \emph{discriminate} the cases. We find something which is
 true in one case and false in the other. This makes the combination
 absurd so we can dismiss the possibility of the case. In the forward
-direction we would have $\sigma |- e_2 => 0$ and at the same time
-$\sigma |- e_2 => k \land k \neq 0$. But in the backwards direction
+direction we would have $\sigma |- e_2 => \lift{0}$ and at the same time
+$\sigma |- e_2 => \lift{k} \land k \neq 0$. But in the backwards direction
 the discrimination utterly fails.
 
 I then tried to look at using an argument on the height of the two
 cases, but it will not work as expected: the 1st and 2nd dependent
-hypotheses are different at their ``base''. In any case, there is no
+hypotheses are different at their ``base''. \fixme{Correct this
+  wording and rewrite} In any case, there is no
 ``easy'' proof possible and there is need for some ingenuity to
 complete the proof.
 
@@ -159,7 +161,7 @@ is lost on us when we process inductive cases for $|=_{loop}$. An
 alternative semantics ought to correct this problem, perhaps by
 adjusting the loop semantics from \cite{yokoyama.gluck:reversible}
 
-...
+\fixme{Note this part was though to hold}
 
 %%% Local Variables: 
 %%% mode: latex
