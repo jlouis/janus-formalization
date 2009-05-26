@@ -295,11 +295,17 @@ excruciatingly precise. We must, as an example, explicitly use the
 commutative rule when we want to rewrite $x +_{32} y$ into $y +_{32}
 x$.
 
-\fixme{This section needs to be rewritten}
-However, the formalization in \coq{} is slightly different to work
-around a problem with mutually defined theorems. This means we cannot
-utilize the theorem in further development as it is given in the
-development.
+In \coq{} we need mutually defined theorems in order to define
+backwards and forwards determinism at the same time. \coq{} version
+8.2 has this feature in a more user friendly way than earlier
+versions, where you had to manually refine a fixpoint. Unfortunately,
+we failed to get it to define the correct induction hypothesis.
+
+The workaround we use is to define forwards determinism under the
+assumption of backwards determinism and vice versa. Hence, we can't
+use the theorems in further developments, but it allows us to use
+backwards determinism in the case for \texttt{uncall}.
+
 \begin{thm}
 \label{thm:j1-fwd-det}
   \januso{} is forward deterministic, ie:
