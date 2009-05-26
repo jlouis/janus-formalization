@@ -107,11 +107,9 @@ instance of the rule $Loop$ so we can use the induction hypothesis
 generated on $\rho |=_{loop} \angel{\sigma'', (e_1, s_1, s_2, e_2)} ->
 \sigma$ to conclude $\sigma' = \sigma''$. Case done.
 
-\fixme{Rewrite this part entirely}
 But the cases for $|=_{loop}$ are not easily discharged. Suppose we
-have the case $\rho |=_{loop} \angel{\sigma',
-  (e_1, s_1, s_2, e_2)} -> \sigma$. By inversion, we generate two
-possible rules that could match. One is:
+are working on the case $\mathrm{LpT}$. This case has the following
+structure for the problem:
 \begin{equation*}
   \inference[LpT]{\sigma |- e_2 => \lift{k} \quad k \neq 0}
   {\rho |=_{loop} \angel{\sigma, (e_1, s_1, s_2, e_2)} -> \sigma}
@@ -138,12 +136,22 @@ direction we would have $\sigma |- e_2 => \lift{0}$ and at the same time
 $\sigma |- e_2 => \lift{k} \land k \neq 0$. But in the backwards direction
 the discrimination utterly fails.
 
-I then tried to look at using an argument on the height of the two
+This development was unexpected. We initially thought the proof to
+hold and we targetted minor fixes to the semantics to make it
+machine-verifiable. But now we know that it is not simple to carry out
+the proof of backwards determinism with the given loop-semantics. In
+the paper \cite{yokoyama.axelsen.ea:principles} it is stated that the
+proof holds. In any case, the proof is not just a simple analysis and
+there is need for some additional ingenuity, should we hope to be able
+to complete the proof.
+
+We tried to look at using an argument on the height of the two
 cases, but it will not work as expected: the 1st and 2nd dependent
-hypotheses are different at their ``base''. \fixme{Correct this
-  wording and rewrite} In any case, there is no
-``easy'' proof possible and there is need for some ingenuity to
-complete the proof.
+hypotheses are different at their ``base'': one case
+is $\rho |=_{loop} \angel{\sigma, (e_1, s_1, s_2, e_2)} -> \sigma$,
+while the other is $\rho |=_{loop} \angel{\sigma'', (e_1, s_1, s_2,
+  e_2)} -> \sigma$. Thus, we can't use a simple argument on the height
+of these two trees to discharge it.
 
 One should \emph{not} be let down but this result however. It might be
 there is another proof or it might be that we need to change the
@@ -153,15 +161,15 @@ expression evaluation will be true only on the first and the last
 iteration of loop. $e_1$ will be true upon entering the loop and $e_2$
 will be true upon leaving the loop. Running the program backwards
 reverses the role of $e_1$ and $e_2$. Interestingly, we define the
-semantics in a way such that the evaluation of $e_1$ (in the forwards
-direction) occurs in the $|=$ judgement whereas the evaluation of
-$e_2$ occurs in the $|=_{loop}$ judgement. The problem with this split
-is that we do not know when the loop began executing. This information
-is lost on us when we process inductive cases for $|=_{loop}$. An
-alternative semantics ought to correct this problem, perhaps by
-adjusting the loop semantics from \cite{yokoyama.gluck:reversible}
+semantics in a skewed way such that the evaluation of $e_1$ (in the
+forwards direction) occurs in the $|=$ judgement whereas the
+evaluation of $e_2$ occurs in the $|=_{loop}$ judgement. The problem
+with this skew is that we do not know when the loop began
+executing. This information is lost on us when we process inductive
+cases for $|=_{loop}$. An alternative semantics ought to correct this
+problem, perhaps by adjusting the loop semantics from
+\cite{yokoyama.gluck:reversible}
 
-\fixme{Note this part was though to hold}
 
 %%% Local Variables: 
 %%% mode: latex
