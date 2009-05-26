@@ -1,3 +1,4 @@
+ARCH_TARGET=master
 MODULES := BaseLib Memory Word32 ZStore W32Store Janus0 Janus1
 VS      := $(MODULES:%=%.v)
 
@@ -24,3 +25,7 @@ clean: Makefile.coq
 
 doc:
 	coqdoc --latex --body-only --glob-from $(GLOBALS) $(VS)
+
+build-tar-ball:
+	git archive --prefix='janus-formalization-jlouis/' ${ARCH_TARGET} \
+	 | gzip > janus-formalization-jlouis.tar.gz
