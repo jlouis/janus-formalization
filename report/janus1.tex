@@ -200,17 +200,18 @@ et.al. We extend their definitions by:
 
 \section{Augmenting expressions}
 
-\fixme{Write that we changed to 32-bit}
-To the expressions of \janusz{}, we make the following additions:
+To the expressions of \janusz{}, we change the base type from $\ZZ$ to
+$W^{32}$. Additionally, we make the following additions:
 \begin{align*}
   e ::= & \dotsc \bor e / e \bor e \mod e \bor e = e \bor e \neq e \\
         \bor & e \land e \bor e \lor e \bor e < e
 \end{align*}
 
-The additions to the expression language are as in \cite{yokoyama.axelsen.ea:principles};
-we add arithmetic operators of division and modulo to 32-bit
-numbers. We add a couple of relational operators, namely equality,
-non-equality, logical and, logical or and a less-than operator.
+The additions to the expression language are as in
+\cite{yokoyama.axelsen.ea:principles}; we add arithmetic operators of
+division and modulo to 32-bit numbers. We add a couple of relational
+operators, namely equality, non-equality, logical and, logical or and
+a less-than operator.
 
 With these additions, we almost have all constructs from the full
 JANUS language. It is our belief that the remaining operators can be
