@@ -1,4 +1,4 @@
-ARCH_TARGET=master
+ARCH_TARGET=pre-final
 MODULES := BaseLib Memory Word32 ZStore W32Store Janus0 Janus1
 VS      := $(MODULES:%=%.v)
 
