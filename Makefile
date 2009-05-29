@@ -27,5 +27,5 @@ doc:
 	coqdoc --latex --body-only --glob-from $(GLOBALS) $(VS)
 
 build-tar-ball:
-	git archive --prefix='janus-formalization-jlouis/' ${ARCH_TARGET} \
-	 | gzip > janus-formalization-jlouis.tar.gz
+	git archive --format=zip --prefix='janus-formalization-jlouis/' ${ARCH_TARGET} \
+	 > janus.zip
