@@ -556,7 +556,7 @@ Section Janus1.
         rewrite H8.
         apply W32Mem.write_eq.
         trivial.
-        apply (W32Mem.hide_eq m'0 
+        apply (W32Mem.hide_eq m'0
            (W32Mem.write m0 v (Word32.sub r z)) v z').
         trivial.
         assert (Word32.sub r z = z').

@@ -1,0 +1,151 @@
+\documentclass[18pt]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[protrusion=true,expansion=true]{microtype}
+%usepackage[minionint,mathlf]{MinionPro}
+\usepackage[sc,osf]{mathpazo}
+%\renewcommand{\sfdefault}{Myriad-LF}
+
+\usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage{semantic}
+
+\usetheme{default}
+\usefonttheme{professionalfonts}
+%\usefonttheme[]{structuresmallcapsserif}
+\begin{document}
+
+\frame{
+  \begin{center}
+    Formalization of JANUS\\
+    \emph{or}\\
+    ``Explaining your proof to the machine''\\
+  \end{center}
+}
+
+\frame{
+  \begin{center}
+    \large{The work:}\\
+    \begin{itemize}
+    \item Take JANUS semantics from papers.
+    \item Encode the semantics in Coq.
+    \item Show that the properties of the papers hold.
+    \end{itemize}
+  \end{center}
+}
+
+\frame{
+  \begin{center}
+    Coq absolutely loves detail!\\
+    32-bit numbers and stores need attention.
+  \end{center}
+}
+
+\frame{
+  \begin{center}
+    32-bit number representation (Xavier Leroy et. al.)\\
+    integer $z \in \mathbb{Z}$, and\\
+    A proof of $0 \leq z < 2^{32}$.\\
+    Key Lemma:\\
+    $\forall z \in \mathbb{Z}, \quad 0 \leq z \mod 2^{32} < 2^{32}$
+  \end{center}
+}
+
+\frame{
+  \begin{center}
+    Store representation:\\
+    1st attempt:\\
+    $\sigma \colon \mathrm{Var} \to \mathrm{w32}$\\
+    \small{\texttt{Definition empty (\_ : var) := 0.}}\\
+    2nd attempt:\\
+    $\sigma \colon \mathrm{Var} \to \mathrm{w32}_{\perp}$\\
+    \small{\texttt{Definition empty (\_ : var) := None.}}
+  \end{center}
+}
+
+\frame{
+  \begin{center}
+    Expressions:\\
+    $\sigma |- e => n$\\
+    Inputs: $\sigma$ and $e$, outputs: $n$.\\
+    Don't need a relation, this is a function!\\
+    $denoteExp \colon \mathrm{store} \to \mathrm{exp} \to \mathrm{w32}$
+  \end{center}
+}
+
+\frame{
+  \begin{center}
+    Statement assignments:\\
+    $x \; +\!\!= e$
+    \begin{itemize}
+    \item $x$ must not occur in $e$. No formalization in the PEPM2007
+      paper.
+    \item 1st attempt: Drive a syntactic check (static semantics)
+    \item 2nd attempt: Implement store hiding!
+    \end{itemize}
+  \end{center}
+}
+
+\frame[Stores]{
+  \begin{center}
+    Suppose $\sigma \colon \mathrm{Var} \to W^{32}_{\perp}$ is a
+    store.\\
+    Lookup of $x$ is $\sigma(x)$.\\
+    Returns either $\lfloor v \rfloor$ if $x$ maps to $v$ or $\perp$
+    if no such mapping exist.
+    Extension $\sigma[x \mapsto v]$ is
+    \begin{equation}
+      \label{eq:1}
+      \sigma[x \mapsto v](y) =
+      \begin{cases}
+        \lfloor v \rfloor &\text{if}\; x = y\\
+        \sigma(y) & \text{otherwise}
+      \end{cases}
+    \end{equation}
+  \end{center}
+}
+
+\frame[Stores]{
+  \begin{center}
+    Hiding notation $(\sigma \setminus x)(y)$. Semantics:
+    \begin{equation}
+      \label{eq:2}
+      (\sigma \setminus x)(y) =
+      \begin{cases}
+        \perp &\text{if}\; x = y\\
+        \sigma(y) & \text{otherwise}
+      \end{cases}
+    \end{equation}
+  \end{center}
+}
+
+%% TODO: We need to supply examples of proofs for stores here.
+
+%% TODO: Show how we cleverly can utilize the hiding feature in the
+%% semantics.
+
+%% Describe Janus1.
+%% Show key properties we have shown about Janus1.
+
+%% Show some simple proofs about the stores as an example.
+%% Show forward determinism or something equally simple.
+
+\frame{
+  \begin{center}
+    But how does it look in the real world?\\
+    ProofGeneral, an emacs environment for proof assistants:\\
+    \includegraphics[width=100px]{ProofGeneral}
+  \end{center}
+}
+
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 
